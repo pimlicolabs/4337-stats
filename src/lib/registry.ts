@@ -4,6 +4,12 @@ export type RegistryEntityType = {
   color: string;
 };
 
+export type EntityType =
+  | "paymaster"
+  | "bundler"
+  | "account_factory"
+  | undefined;
+
 export const ACCOUNT_FACTORIES: RegistryEntityType[] = [
   {
     name: "Kernel V2",

@@ -6,6 +6,7 @@ import {
   PAYMASTERS,
   ACCOUNT_FACTORIES,
   RegistryEntityType,
+  EntityType,
 } from "@/lib/registry";
 import {
   DropdownMenu,
@@ -18,12 +19,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "../ui/checkbox";
 import React from "react";
-
-export type EntityType =
-  | "paymaster"
-  | "bundler"
-  | "account_factory"
-  | undefined;
 
 export type EntitySelectorProps = {
   setSelectedEntitys: (selectedEntitys: RegistryEntityType[]) => void;

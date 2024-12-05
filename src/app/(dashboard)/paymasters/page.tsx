@@ -2,14 +2,15 @@
 import FilterBar from "@/components/filter-bar";
 import { CHAINS, PAYMASTERS, RegistryEntityType } from "@/lib/registry";
 import { useMemo, useState } from "react";
-import PaymasterUsageChart from "./components/paymasterUsageChart";
-import PaymasterMarketshareChart from "./components/paymasterMarketshareChart";
 import { TimeFrameResolutionType, TimeFrameType } from "@/lib/types";
 import { endOfDay, subDays } from "date-fns";
 import { TIME_PERIOD_TO_DAYS } from "@/lib/constants";
 import { UTCDate } from "@date-fns/utc";
 import PaymasterUsageByChain from "./components/paymasterUsageByChain";
 import GlobalStatsOverview from "./components/globalStatsOverview";
+import UsageByEntityChart from "@/components/entity-graphs/usageGraph";
+import MarketshareChart from "@/components/entity-graphs/marketshareGraph";
+import UsageByChain from "@/components/entity-graphs/usageByChain";
 
 export default function BundlersPage() {
   const startTimeframe = "7d";
@@ -60,27 +61,37 @@ export default function BundlersPage() {
         selectedPaymasters={selectedPaymasters}
       />
       <div className="w-full gap-4 grid grid-cols-1 md:grid-cols-2">
-        <PaymasterUsageChart
+        <UsageByEntityChart
+          entityType="paymaster"
+          chartTitle="Paymaster Usage"
+          chartDescription="Number of sponsored user operations by a given paymaster."
           startDate={startDate}
           endDate={endDate}
           resolution={resolution}
           selectedChains={selectedChains}
-          selectedPaymasters={selectedPaymasters}
+          selectedEntity={selectedPaymasters}
         />
-        <PaymasterMarketshareChart
+        <MarketshareChart
+          chartTitle={"Paymaster Marketshare"}
+          chartDescription={
+            "Percent of user operations sponsored by a given paymaster."
+          }
+          entityType={"paymaster"}
+          selectedChains={selectedChains}
+          selectedEntity={selectedPaymasters}
           startDate={startDate}
           endDate={endDate}
           resolution={resolution}
-          selectedChains={selectedChains}
-          selectedPaymasters={selectedPaymasters}
         />
       </div>
-      <PaymasterUsageByChain
+      <UsageByChain
         selectedChains={selectedChains}
         startDate={startDate}
         endDate={endDate}
         resolution={resolution}
-        selectedPaymasters={selectedPaymasters}
+        selectedEntity={selectedPaymasters}
+        entityType={"paymaster"}
+        chartDescription={"User operations sponsored"}
       />
     </div>
   );

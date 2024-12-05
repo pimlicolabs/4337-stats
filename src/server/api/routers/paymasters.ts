@@ -90,12 +90,12 @@ export const paymastersRouter = createTRPCRouter({
       const results = await ctx.envioDb.execute<{
         platform: string;
         chain_id: number;
-        total_ops_sponsored: bigint;
+        count: bigint;
       }>(sql`
             SELECT
                 name AS platform,
                 chain_id,
-                SUM(total_sponsored_operation_count) AS total_ops_sponsored
+                SUM(total_sponsored_operation_count) AS count
             FROM
                 paymaster_hourly_metrics_new AS phm
             JOIN
@@ -113,15 +113,15 @@ export const paymastersRouter = createTRPCRouter({
 
       const metricsMap: Record<
         string,
-        Array<{ chain: number; total_ops_sponsored: number }>
+        Array<{ chain: number; count: number }>
       > = {};
 
       for (const row of results) {
-        const { platform, chain_id, total_ops_sponsored } = row;
+        const { platform, chain_id, count } = row;
         metricsMap[platform] ??= [];
         metricsMap[platform].push({
           chain: chain_id,
-          total_ops_sponsored: Number(total_ops_sponsored),
+          count: Number(count),
         });
       }
 

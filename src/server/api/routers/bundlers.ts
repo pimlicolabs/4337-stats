@@ -86,12 +86,12 @@ export const bundlersRouter = createTRPCRouter({
       const results = await ctx.envioDb.execute<{
         platform: string;
         chain_id: number;
-        total_ops_bundled: bigint;
+        count: bigint;
       }>(sql`
             SELECT
                 COALESCE(bundler_name, 'unknown') AS platform,
                 chain_id,
-                SUM(total_operation_count) AS total_ops_bundled
+                SUM(total_operation_count) AS count
             FROM
                 bundler_hourly_metrics
             WHERE
@@ -107,15 +107,15 @@ export const bundlersRouter = createTRPCRouter({
 
       const metricsMap: Record<
         string,
-        Array<{ chain: number; total_ops_bundled: number }>
+        Array<{ chain: number; count: number }>
       > = {};
 
       for (const row of results) {
-        const { platform, chain_id, total_ops_bundled } = row;
+        const { platform, chain_id, count } = row;
         metricsMap[platform] ??= [];
         metricsMap[platform].push({
           chain: chain_id,
-          total_ops_bundled: Number(total_ops_bundled),
+          count: Number(count),
         });
       }
 

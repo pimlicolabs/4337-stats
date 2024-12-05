@@ -2,14 +2,15 @@
 import FilterBar from "@/components/filter-bar";
 import { CHAINS, BUNDLERS, RegistryEntityType } from "@/lib/registry";
 import { useMemo, useState } from "react";
-import BundledUserOpsChart from "./components/opsBundledChart";
-import BundledMarketshareChart from "./components/opsMarketshareChart";
 import { TimeFrameResolutionType, TimeFrameType } from "@/lib/types";
 import { endOfDay, subDays } from "date-fns";
 import { TIME_PERIOD_TO_DAYS } from "@/lib/constants";
 import { UTCDate } from "@date-fns/utc";
 import BundlerUsageByChain from "./components/bundlerUsageByChain";
 import GlobalStatsOverview from "./components/globalStatsOverview";
+import UsageByEntityChart from "@/components/entity-graphs/usageGraph";
+import MarketshareChart from "@/components/entity-graphs/marketshareGraph";
+import UsageByChain from "@/components/entity-graphs/usageByChain";
 
 export default function BundlersPage() {
   const startTimeframe = "7d";
@@ -61,27 +62,37 @@ export default function BundlersPage() {
         selectedBundlers={selectedBundlers}
       />
       <div className="w-full gap-4 grid grid-cols-1 md:grid-cols-2">
-        <BundledUserOpsChart
+        <UsageByEntityChart
+          entityType="bundler"
+          chartTitle="Bundled User Operations"
+          chartDescription="Number of user operations bundled by a bundler."
           startDate={startDate}
           endDate={endDate}
           resolution={resolution}
           selectedChains={selectedChains}
-          selectedBundlers={selectedBundlers}
+          selectedEntity={selectedBundlers}
         />
-        <BundledMarketshareChart
+        <MarketshareChart
+          chartTitle={"Bundled Marketshare"}
+          chartDescription={
+            "Percentage of user operations bundled by a given bundler."
+          }
+          entityType={"bundler"}
+          selectedChains={selectedChains}
+          selectedEntity={selectedBundlers}
           startDate={startDate}
           endDate={endDate}
           resolution={resolution}
-          selectedChains={selectedChains}
-          selectedBundlers={selectedBundlers}
         />
       </div>
-      <BundlerUsageByChain
+      <UsageByChain
         selectedChains={selectedChains}
         startDate={startDate}
         endDate={endDate}
         resolution={resolution}
-        selectedBundlers={selectedBundlers}
+        selectedEntity={selectedBundlers}
+        entityType={"bundler"}
+        chartDescription={"User operations bundled"}
       />
     </div>
   );

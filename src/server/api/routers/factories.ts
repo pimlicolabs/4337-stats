@@ -90,12 +90,12 @@ export const accountFactorysRouter = createTRPCRouter({
       const results = await ctx.envioDb.execute<{
         factory_name: string;
         chain_id: number;
-        total_accounts_deployed: bigint;
+        count: bigint;
       }>(sql`
             SELECT
                 name AS factory_name,
                 chain_id,
-                SUM(total_accounts_deployed) AS total_accounts_deployed
+                SUM(total_accounts_deployed) AS count
             FROM
                 factory_hourly_metrics as fhm
             JOIN
@@ -113,15 +113,15 @@ export const accountFactorysRouter = createTRPCRouter({
 
       const metricsMap: Record<
         string,
-        Array<{ chain: number; total_accounts_deployed: number }>
+        Array<{ chain: number; count: number }>
       > = {};
 
       for (const row of results) {
-        const { factory_name, chain_id, total_accounts_deployed } = row;
+        const { factory_name, chain_id, count } = row;
         metricsMap[factory_name] ??= [];
         metricsMap[factory_name].push({
           chain: chain_id,
-          total_accounts_deployed: Number(total_accounts_deployed),
+          count: Number(count),
         });
       }
 

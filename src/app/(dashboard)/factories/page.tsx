@@ -3,14 +3,14 @@
 import FilterBar from "@/components/filter-bar";
 import { CHAINS, ACCOUNT_FACTORIES, RegistryEntityType } from "@/lib/registry";
 import { useMemo, useState } from "react";
-import AccountsDeployedByFactory from "./components/accountsDeployedByFactory";
 import { endOfDay, subDays } from "date-fns";
 import { TimeFrameResolutionType, TimeFrameType } from "@/lib/types";
 import { TIME_PERIOD_TO_DAYS } from "@/lib/constants";
 import { UTCDate } from "@date-fns/utc";
-import FactoryMarketShare from "./components/accountsDeployedByFactoryMarketShare";
 import GlobalStatsOverview from "./components/globalStatsOverview";
-import FactoryUsageByChain from "./components/factoryUsageByChain";
+import UsageByEntityChart from "@/components/entity-graphs/usageGraph";
+import MarketshareChart from "@/components/entity-graphs/marketshareGraph";
+import UsageByChain from "@/components/entity-graphs/usageByChain";
 
 export default function BundlersPage() {
   const startTimeframe = "7d";
@@ -61,27 +61,37 @@ export default function BundlersPage() {
         selectedFactories={selectFactories}
       />
       <div className="w-full gap-4 grid grid-cols-1 md:grid-cols-2">
-        <AccountsDeployedByFactory
+        <UsageByEntityChart
+          entityType="account_factory"
+          chartTitle="Accounts deployed by factory"
+          chartDescription="Number of accounts deployed by a given factory."
           startDate={startDate}
           endDate={endDate}
           resolution={resolution}
           selectedChains={selectedChains}
-          selectedFactories={selectFactories}
+          selectedEntity={selectFactories}
         />
-        <FactoryMarketShare
+        <MarketshareChart
+          chartTitle={"Marketshare Of Accounts Deployed By Factory"}
+          chartDescription={
+            "Percentage of accounts deployed by a given factory."
+          }
+          entityType={"account_factory"}
+          selectedChains={selectedChains}
+          selectedEntity={selectFactories}
           startDate={startDate}
           endDate={endDate}
           resolution={resolution}
-          selectedChains={selectedChains}
-          selectedFactories={selectFactories}
         />
       </div>
-      <FactoryUsageByChain
+      <UsageByChain
         selectedChains={selectedChains}
         startDate={startDate}
         endDate={endDate}
         resolution={resolution}
-        selectedFactories={selectFactories}
+        selectedEntity={selectFactories}
+        entityType={"account_factory"}
+        chartDescription={"Accounts deployed"}
       />
     </div>
   );
