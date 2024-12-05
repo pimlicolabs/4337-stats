@@ -4,13 +4,13 @@ import { LoadingText } from "@/components/charts/loading";
 import ChartBlock from "@/components/charts/chartBlock";
 import { useMemo } from "react";
 import { api } from "@/trpc/react";
-import { FACTORY_CHART_CONFIG } from "@/lib/registry";
+import { FACTORY_CHART_CONFIG, RegistryEntityType } from "@/lib/registry";
 import StackedPercentChart from "@/components/charts/stackedAreaChart";
 import { TimeFrameResolutionType } from "@/lib/types";
 
 interface FactoryMarketshareProps {
   selectedChains: number[];
-  selectedFactories: string[];
+  selectedFactories: RegistryEntityType[];
   startDate: Date;
   endDate: Date;
   resolution: TimeFrameResolutionType;
@@ -29,7 +29,7 @@ export default function FactoryMarketShare({
       endDate,
       resolution,
       chainIds: selectedChains,
-      factories: selectedFactories,
+      factories: selectedFactories.map((f) => f.dbName),
     },
     {
       refetchOnWindowFocus: false,

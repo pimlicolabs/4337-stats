@@ -1,6 +1,6 @@
 "use client";
 import FilterBar from "@/components/filter-bar";
-import { CHAINS, PAYMASTERS } from "@/lib/registry";
+import { CHAINS, PAYMASTERS, RegistryEntityType } from "@/lib/registry";
 import { useMemo, useState } from "react";
 import PaymasterUsageChart from "./components/paymasterUsageChart";
 import PaymasterMarketshareChart from "./components/paymasterMarketshareChart";
@@ -14,11 +14,11 @@ import GlobalStatsOverview from "./components/globalStatsOverview";
 export default function BundlersPage() {
   const startTimeframe = "7d";
   const startChains = CHAINS.filter((c) => !c.isTestnet).map((c) => c.chainId); // only mainnets
-  const startPaymasters = PAYMASTERS.map((paymaster) => paymaster.name);
+  const startPaymasters = PAYMASTERS;
 
   const [selectedChains, setSelectedChains] = useState<number[]>(startChains);
   const [selectedPaymasters, setSelectedPaymasters] =
-    useState<string[]>(startPaymasters);
+    useState<RegistryEntityType[]>(startPaymasters);
   const [selectedTimeFrame, setSelectedTimeFrame] =
     useState<TimeFrameType>(startTimeframe);
 
@@ -57,9 +57,7 @@ export default function BundlersPage() {
         startDate={startDate}
         endDate={endDate}
         selectedChains={selectedChains}
-        selectedPaymasters={selectedPaymasters.map((paymaster) =>
-          paymaster.toLowerCase(),
-        )}
+        selectedPaymasters={selectedPaymasters}
       />
       <div className="w-full gap-4 grid grid-cols-1 md:grid-cols-2">
         <PaymasterUsageChart
@@ -67,18 +65,14 @@ export default function BundlersPage() {
           endDate={endDate}
           resolution={resolution}
           selectedChains={selectedChains}
-          selectedPaymasters={selectedPaymasters.map((paymaster) =>
-            paymaster.toLowerCase(),
-          )}
+          selectedPaymasters={selectedPaymasters}
         />
         <PaymasterMarketshareChart
           startDate={startDate}
           endDate={endDate}
           resolution={resolution}
           selectedChains={selectedChains}
-          selectedPaymasters={selectedPaymasters.map((paymaster) =>
-            paymaster.toLowerCase(),
-          )}
+          selectedPaymasters={selectedPaymasters}
         />
       </div>
       <PaymasterUsageByChain
@@ -86,9 +80,7 @@ export default function BundlersPage() {
         startDate={startDate}
         endDate={endDate}
         resolution={resolution}
-        selectedPaymasters={selectedPaymasters.map((paymaster) =>
-          paymaster.toLowerCase(),
-        )}
+        selectedPaymasters={selectedPaymasters}
       />
     </div>
   );

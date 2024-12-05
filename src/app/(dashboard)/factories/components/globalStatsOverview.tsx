@@ -1,13 +1,14 @@
 "use client";
 
 import { StatCard } from "@/components/stats-card";
+import { RegistryEntityType } from "@/lib/registry";
 import { api } from "@/trpc/react";
 import { Users } from "lucide-react";
 import { useMemo } from "react";
 
 type GlobalStatsOverviewProps = {
   selectedChains: number[];
-  selectedFactories: string[];
+  selectedFactories: RegistryEntityType[];
   startDate: Date;
   endDate: Date;
 };
@@ -23,7 +24,7 @@ export default function GlobalStatsOverview({
       startDate,
       endDate,
       chainIds: selectedChains,
-      factories: selectedFactories,
+      factories: selectedFactories.map((f) => f.dbName),
     },
     {
       refetchOnWindowFocus: false,

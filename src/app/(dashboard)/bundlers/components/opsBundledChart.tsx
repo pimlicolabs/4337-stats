@@ -5,12 +5,12 @@ import ChartBlock from "@/components/charts/chartBlock";
 import { useMemo } from "react";
 import { api } from "@/trpc/react";
 import StackedBarChart from "@/components/charts/stackedBarChart";
-import { BUNDLER_CHART_CONFIG } from "@/lib/registry";
+import { BUNDLER_CHART_CONFIG, RegistryEntityType } from "@/lib/registry";
 import { TimeFrameResolutionType } from "@/lib/types";
 
 interface BundledUserOpsChartProps {
   selectedChains: number[];
-  selectedBundlers: string[];
+  selectedBundlers: RegistryEntityType[];
   startDate: Date;
   endDate: Date;
   resolution: TimeFrameResolutionType;
@@ -29,7 +29,7 @@ export default function BundledUserOpsChart({
       endDate,
       resolution,
       chainIds: selectedChains,
-      bundlers: selectedBundlers,
+      bundlers: selectedBundlers.map((b) => b.dbName),
     },
     {
       refetchOnWindowFocus: false,

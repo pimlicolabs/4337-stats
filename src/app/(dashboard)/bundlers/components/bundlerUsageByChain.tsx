@@ -3,13 +3,13 @@
 import { LoadingText } from "@/components/charts/loading";
 import { useMemo } from "react";
 import { api } from "@/trpc/react";
-import { CHAIN_CHART_CONFIG } from "@/lib/registry";
+import { CHAIN_CHART_CONFIG, RegistryEntityType } from "@/lib/registry";
 import { TimeFrameResolutionType } from "@/lib/types";
 import { PieChart } from "@/components/charts/pieChart";
 
 interface BundlerUsageByChainProps {
   selectedChains: number[];
-  selectedBundlers: string[];
+  selectedBundlers: RegistryEntityType[];
   startDate: Date;
   endDate: Date;
   resolution: TimeFrameResolutionType;
@@ -28,7 +28,7 @@ export default function BundlerUsageByChain({
       endDate,
       resolution,
       chainIds: selectedChains,
-      bundlers: selectedBundlers,
+      bundlers: selectedBundlers.map((b) => b.dbName),
     },
     {
       refetchOnWindowFocus: false,

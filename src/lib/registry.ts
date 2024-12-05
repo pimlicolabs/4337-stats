@@ -1,4 +1,10 @@
-export const ACCOUNT_FACTORIES = [
+export type RegistryEntityType = {
+  name: string;
+  dbName: string;
+  color: string;
+};
+
+export const ACCOUNT_FACTORIES: RegistryEntityType[] = [
   {
     name: "Kernel V2",
     dbName: "zerodev_kernel_v2",
@@ -77,7 +83,7 @@ export const CHAINS = [
   { chainId: 11155111, name: "Sepolia", isTestnet: true, color: "#9B9B9B" },
 ];
 
-export const PAYMASTERS = [
+export const PAYMASTERS: RegistryEntityType[] = [
   { name: "Pimlico", dbName: "pimlico", color: "#7116AA" },
   { name: "Coinbase", dbName: "coinbase", color: "#0051FF" },
   { name: "Cometh", dbName: "cometh", color: "#4F46E5" },
@@ -93,45 +99,55 @@ export const PAYMASTERS = [
   { name: "Circle", dbName: "circle", color: "#0DCCAA" },
 ];
 
-export const BUNDLERS = [
+export const BUNDLERS: RegistryEntityType[] = [
   {
     name: "Pimlico",
+    dbName: "pimlico",
     color: "#7116AA",
   },
   {
     name: "Coinbase",
+    dbName: "coinbase",
     color: "#0051FF",
   },
   {
     name: "Unipass",
+    dbName: "unipass",
     color: "#CFD7FF",
   },
   {
     name: "Cometh",
+    dbName: "cometh",
     color: "#F9F6EE",
   },
   {
     name: "Biconomy",
+    dbName: "biconomy",
     color: "#FF4E16",
   },
   {
     name: "Alchemy",
+    dbName: "alchemy",
     color: "#22A1F6",
   },
   {
     name: "Etherspot",
+    dbName: "etherspot",
     color: "#F79D1E",
   },
   {
     name: "Candide",
+    dbName: "candide",
     color: "#E70D51",
   },
   {
     name: "Particle",
+    dbName: "particle",
     color: "#E03FD7",
   },
   {
     name: "Unknown",
+    dbName: "unknown",
     color: "#94a3b8",
   },
 ];

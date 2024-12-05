@@ -1,7 +1,9 @@
 "use client";
 
+import { EntitySelectorProps } from "@/components/filter-bar/entity-selector";
 import { StatCard } from "@/components/stats-card";
 import { TIME_PERIOD_TO_DAYS } from "@/lib/constants";
+import { RegistryEntityType } from "@/lib/registry";
 import { TimeFrameType } from "@/lib/types";
 import { api } from "@/trpc/react";
 import { subDays } from "date-fns";
@@ -37,7 +39,7 @@ const formatTrendDescription = (
 
 type GlobalStatsOverviewProps = {
   selectedChains: number[];
-  selectedBundlers: string[];
+  selectedBundlers: RegistryEntityType[];
   startDate: Date;
   endDate: Date;
   selectedTimeFrame: TimeFrameType;
@@ -55,7 +57,7 @@ export default function GlobalStatsOverview({
       startDate,
       endDate,
       chainIds: selectedChains,
-      bundlers: selectedBundlers,
+      bundlers: selectedBundlers.map((b) => b.dbName),
     },
     {
       refetchOnWindowFocus: false,
@@ -68,7 +70,7 @@ export default function GlobalStatsOverview({
       startDate: subDays(startDate, TIME_PERIOD_TO_DAYS[selectedTimeFrame]),
       endDate: subDays(endDate, TIME_PERIOD_TO_DAYS[selectedTimeFrame]),
       chainIds: selectedChains,
-      bundlers: selectedBundlers,
+      bundlers: selectedBundlers.map((b) => b.dbName),
     },
     {
       refetchOnWindowFocus: false,

@@ -5,12 +5,12 @@ import ChartBlock from "@/components/charts/chartBlock";
 import { useMemo } from "react";
 import { api } from "@/trpc/react";
 import StackedBarChart from "@/components/charts/stackedBarChart";
-import { FACTORY_CHART_CONFIG } from "@/lib/registry";
+import { FACTORY_CHART_CONFIG, RegistryEntityType } from "@/lib/registry";
 import { TimeFrameResolutionType } from "@/lib/types";
 
 interface AccountsByFactoryProps {
   selectedChains: number[];
-  selectedFactories: string[];
+  selectedFactories: RegistryEntityType[];
   startDate: Date;
   endDate: Date;
   resolution: TimeFrameResolutionType;
@@ -31,7 +31,7 @@ export default function AccountsByFactoryChart({
       endDate,
       resolution,
       chainIds: selectedChains,
-      factories: selectedFactories,
+      factories: selectedFactories.map((f) => f.dbName),
     },
     {
       refetchOnWindowFocus: false,

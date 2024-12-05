@@ -5,12 +5,12 @@ import ChartBlock from "@/components/charts/chartBlock";
 import { useMemo } from "react";
 import { api } from "@/trpc/react";
 import StackedBarChart from "@/components/charts/stackedBarChart";
-import { PAYMASTER_CHART_CONFIG } from "@/lib/registry";
+import { PAYMASTER_CHART_CONFIG, RegistryEntityType } from "@/lib/registry";
 import { TimeFrameResolutionType } from "@/lib/types";
 
 interface PaymasterUsageProps {
   selectedChains: number[];
-  selectedPaymasters: string[];
+  selectedPaymasters: RegistryEntityType[];
   startDate: Date;
   endDate: Date;
   resolution: TimeFrameResolutionType;
@@ -29,7 +29,7 @@ export default function PaymasterUsageChart({
       endDate,
       resolution,
       chainIds: selectedChains,
-      paymasters: selectedPaymasters,
+      paymasters: selectedPaymasters.map((p) => p.dbName),
     },
     {
       refetchOnWindowFocus: false,

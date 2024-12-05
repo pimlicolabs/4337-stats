@@ -1,13 +1,14 @@
 "use client";
 
 import { StatCard } from "@/components/stats-card";
+import { RegistryEntityType } from "@/lib/registry";
 import { api } from "@/trpc/react";
 import { DollarSign } from "lucide-react";
 import { useMemo } from "react";
 
 type GlobalStatsOverviewProps = {
   selectedChains: number[];
-  selectedPaymasters: string[];
+  selectedPaymasters: RegistryEntityType[];
   startDate: Date;
   endDate: Date;
 };
@@ -23,7 +24,7 @@ export default function GlobalStatsOverview({
       startDate,
       endDate,
       chainIds: selectedChains,
-      paymasters: selectedPaymasters,
+      paymasters: selectedPaymasters.map((p) => p.dbName),
     },
     {
       refetchOnWindowFocus: false,

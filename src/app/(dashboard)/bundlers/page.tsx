@@ -1,6 +1,6 @@
 "use client";
 import FilterBar from "@/components/filter-bar";
-import { CHAINS, BUNDLERS } from "@/lib/registry";
+import { CHAINS, BUNDLERS, RegistryEntityType } from "@/lib/registry";
 import { useMemo, useState } from "react";
 import BundledUserOpsChart from "./components/opsBundledChart";
 import BundledMarketshareChart from "./components/opsMarketshareChart";
@@ -14,11 +14,11 @@ import GlobalStatsOverview from "./components/globalStatsOverview";
 export default function BundlersPage() {
   const startTimeframe = "7d";
   const startChains = CHAINS.filter((c) => !c.isTestnet).map((c) => c.chainId); // only mainnets
-  const startBundlers = BUNDLERS.map((b) => b.name);
+  const startBundlers = BUNDLERS;
 
   const [selectedChains, setSelectedChains] = useState<number[]>(startChains);
   const [selectedBundlers, setSelectedBundlers] =
-    useState<string[]>(startBundlers);
+    useState<RegistryEntityType[]>(startBundlers);
   const [selectedTimeFrame, setSelectedTimeFrame] =
     useState<TimeFrameType>(startTimeframe);
 
@@ -58,9 +58,7 @@ export default function BundlersPage() {
         endDate={endDate}
         selectedChains={selectedChains}
         selectedTimeFrame={selectedTimeFrame}
-        selectedBundlers={selectedBundlers.map((bundler) =>
-          bundler.toLowerCase(),
-        )}
+        selectedBundlers={selectedBundlers}
       />
       <div className="w-full gap-4 grid grid-cols-1 md:grid-cols-2">
         <BundledUserOpsChart
@@ -68,18 +66,14 @@ export default function BundlersPage() {
           endDate={endDate}
           resolution={resolution}
           selectedChains={selectedChains}
-          selectedBundlers={selectedBundlers.map((bundler) =>
-            bundler.toLowerCase(),
-          )}
+          selectedBundlers={selectedBundlers}
         />
         <BundledMarketshareChart
           startDate={startDate}
           endDate={endDate}
           resolution={resolution}
           selectedChains={selectedChains}
-          selectedBundlers={selectedBundlers.map((bundler) =>
-            bundler.toLowerCase(),
-          )}
+          selectedBundlers={selectedBundlers}
         />
       </div>
       <BundlerUsageByChain
@@ -87,9 +81,7 @@ export default function BundlersPage() {
         startDate={startDate}
         endDate={endDate}
         resolution={resolution}
-        selectedBundlers={selectedBundlers.map((bundler) =>
-          bundler.toLowerCase(),
-        )}
+        selectedBundlers={selectedBundlers}
       />
     </div>
   );

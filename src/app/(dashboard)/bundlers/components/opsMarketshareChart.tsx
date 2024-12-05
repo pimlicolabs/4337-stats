@@ -4,13 +4,13 @@ import { LoadingText } from "@/components/charts/loading";
 import ChartBlock from "@/components/charts/chartBlock";
 import { useMemo } from "react";
 import { api } from "@/trpc/react";
-import { BUNDLER_CHART_CONFIG } from "@/lib/registry";
+import { BUNDLER_CHART_CONFIG, RegistryEntityType } from "@/lib/registry";
 import StackedPercentChart from "@/components/charts/stackedAreaChart";
 import { TimeFrameResolutionType } from "@/lib/types";
 
 interface BundledUserOpsChartProps {
   selectedChains: number[];
-  selectedBundlers: string[];
+  selectedBundlers: RegistryEntityType[];
   startDate: Date;
   endDate: Date;
   resolution: TimeFrameResolutionType;
@@ -29,7 +29,7 @@ export default function BundledMarketshareChart({
       endDate,
       resolution,
       chainIds: selectedChains,
-      bundlers: selectedBundlers,
+      bundlers: selectedBundlers.map((b) => b.dbName),
     },
     {
       refetchOnWindowFocus: false,

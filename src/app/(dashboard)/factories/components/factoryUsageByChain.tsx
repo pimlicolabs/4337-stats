@@ -3,14 +3,18 @@
 import { LoadingText } from "@/components/charts/loading";
 import { useMemo } from "react";
 import { api } from "@/trpc/react";
-import { CHAIN_CHART_CONFIG, ACCOUNT_FACTORIES } from "@/lib/registry";
+import {
+  CHAIN_CHART_CONFIG,
+  ACCOUNT_FACTORIES,
+  RegistryEntityType,
+} from "@/lib/registry";
 import { TimeFrameResolutionType } from "@/lib/types";
 import { PieChart } from "@/components/charts/pieChart";
 import { capitalizeAll } from "@/lib/utils";
 
 interface FactoryUsageByChainProps {
   selectedChains: number[];
-  selectedFactories: string[];
+  selectedFactories: RegistryEntityType[];
   startDate: Date;
   endDate: Date;
   resolution: TimeFrameResolutionType;
@@ -29,7 +33,7 @@ export default function FactoryUsageByChain({
       endDate,
       resolution,
       chainIds: selectedChains,
-      factories: selectedFactories,
+      factories: selectedFactories.map((f) => f.dbName),
     },
     {
       refetchOnWindowFocus: false,

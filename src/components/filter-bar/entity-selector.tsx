@@ -1,7 +1,12 @@
 import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-import { BUNDLERS, PAYMASTERS, ACCOUNT_FACTORIES } from "@/lib/registry";
+import {
+  BUNDLERS,
+  PAYMASTERS,
+  ACCOUNT_FACTORIES,
+  RegistryEntityType,
+} from "@/lib/registry";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,11 +19,15 @@ import {
 import { Checkbox } from "../ui/checkbox";
 import React from "react";
 
-export type EntityType = "paymaster" | "bundler" | "account_factory";
+export type EntityType =
+  | "paymaster"
+  | "bundler"
+  | "account_factory"
+  | undefined;
 
 export type EntitySelectorProps = {
-  setSelectedEntitys: (selectedEntitys: string[]) => void;
-  selectedEntitys: string[];
+  setSelectedEntitys: (selectedEntitys: RegistryEntityType[]) => void;
+  selectedEntitys: RegistryEntityType[];
   type: EntityType;
 };
 
@@ -27,11 +36,17 @@ export default function EntitySelector({
   selectedEntitys,
   type,
 }: EntitySelectorProps) {
-  const handleToggle = (entityName: string) => {
-    if (selectedEntitys.includes(entityName)) {
-      setSelectedEntitys(selectedEntitys.filter((name) => name !== entityName));
+  if (!type) {
+    return;
+  }
+
+  const handleToggle = (toggledEntity: RegistryEntityType) => {
+    if (selectedEntitys.includes(toggledEntity)) {
+      setSelectedEntitys(
+        selectedEntitys.filter((entity) => entity !== toggledEntity),
+      );
     } else {
-      setSelectedEntitys([...selectedEntitys, entityName]);
+      setSelectedEntitys([...selectedEntitys, toggledEntity]);
     }
   };
 
@@ -79,12 +94,12 @@ export default function EntitySelector({
                 key={entity.name.toString()}
                 onClick={(event) => {
                   event.preventDefault();
-                  handleToggle(entity.name);
+                  handleToggle(entity);
                 }}
               >
                 <Checkbox
                   id={entity.name.toString()}
-                  checked={selectedEntitys.includes(entity.name)}
+                  checked={selectedEntitys.includes(entity)}
                 />
                 <label
                   htmlFor={entity.name.toString()}

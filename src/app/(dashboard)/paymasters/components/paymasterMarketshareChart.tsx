@@ -4,13 +4,13 @@ import { LoadingText } from "@/components/charts/loading";
 import ChartBlock from "@/components/charts/chartBlock";
 import { useMemo } from "react";
 import { api } from "@/trpc/react";
-import { PAYMASTER_CHART_CONFIG } from "@/lib/registry";
+import { PAYMASTER_CHART_CONFIG, RegistryEntityType } from "@/lib/registry";
 import StackedPercentChart from "@/components/charts/stackedAreaChart";
 import { TimeFrameResolutionType } from "@/lib/types";
 
 interface PaymasterUserOpsChartProps {
   selectedChains: number[];
-  selectedPaymasters: string[];
+  selectedPaymasters: RegistryEntityType[];
   startDate: Date;
   endDate: Date;
   resolution: TimeFrameResolutionType;
@@ -29,7 +29,7 @@ export default function PaymasterMarketshareChart({
       endDate,
       resolution,
       chainIds: selectedChains,
-      paymasters: selectedPaymasters,
+      paymasters: selectedPaymasters.map((p) => p.dbName),
     },
     {
       refetchOnWindowFocus: false,

@@ -4,13 +4,14 @@ import EntitySelector, { EntityType } from "./entity-selector";
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
 import { cn } from "@/lib/utils";
 import { TimeFrameType } from "@/lib/types";
+import { RegistryEntityType } from "@/lib/registry";
 
 interface FilterBarProps {
-  entityType: EntityType;
+  entityType?: EntityType;
   setSelectedChains: (selectedChains: number[]) => void;
   selectedChains: number[];
-  setSelectedEntitys: (selectedEntitys: string[]) => void;
-  selectedEntitys: string[];
+  setSelectedEntitys?: (selectedEntitys: RegistryEntityType[]) => void;
+  selectedEntitys?: RegistryEntityType[];
   selectedTimeFrame: string;
   setSelectedTimeFrame: (timeframe: TimeFrameType) => void;
 }
@@ -38,11 +39,15 @@ export default function FilterBar({
           selectedChains={selectedChains}
           setSelectedChains={setSelectedChains}
         />
-        <EntitySelector
-          type={entityType}
-          selectedEntitys={selectedEntitys}
-          setSelectedEntitys={setSelectedEntitys}
-        />
+        {entityType && selectedEntitys && setSelectedEntitys ? (
+          <EntitySelector
+            type={entityType}
+            selectedEntitys={selectedEntitys}
+            setSelectedEntitys={setSelectedEntitys}
+          />
+        ) : (
+          <></>
+        )}
       </div>
       <ToggleGroup
         type="single"

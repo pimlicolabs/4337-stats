@@ -1,7 +1,7 @@
 "use client";
 
 import FilterBar from "@/components/filter-bar";
-import { CHAINS, ACCOUNT_FACTORIES } from "@/lib/registry";
+import { CHAINS, ACCOUNT_FACTORIES, RegistryEntityType } from "@/lib/registry";
 import { useMemo, useState } from "react";
 import AccountsDeployedByFactory from "./components/accountsDeployedByFactory";
 import { endOfDay, subDays } from "date-fns";
@@ -15,11 +15,11 @@ import FactoryUsageByChain from "./components/factoryUsageByChain";
 export default function BundlersPage() {
   const startTimeframe = "7d";
   const startChains = CHAINS.filter((c) => !c.isTestnet).map((c) => c.chainId); // only mainnets
-  const startFactories = ACCOUNT_FACTORIES.map((b) => b.name);
+  const startFactories = ACCOUNT_FACTORIES;
 
   const [selectedChains, setSelectedChains] = useState<number[]>(startChains);
   const [selectFactories, setSelectFactories] =
-    useState<string[]>(startFactories);
+    useState<RegistryEntityType[]>(startFactories);
   const [selectedTimeFrame, setSelectedTimeFrame] =
     useState<TimeFrameType>(startTimeframe);
 
@@ -58,12 +58,7 @@ export default function BundlersPage() {
         startDate={startDate}
         endDate={endDate}
         selectedChains={selectedChains}
-        selectedFactories={selectFactories
-          .map((factory) => factory)
-          .reduce((acc: string[], name) => {
-            const factory = ACCOUNT_FACTORIES.find((f) => f.name === name);
-            return factory ? [...acc, factory.dbName] : acc;
-          }, [])}
+        selectedFactories={selectFactories}
       />
       <div className="w-full gap-4 grid grid-cols-1 md:grid-cols-2">
         <AccountsDeployedByFactory
@@ -71,24 +66,14 @@ export default function BundlersPage() {
           endDate={endDate}
           resolution={resolution}
           selectedChains={selectedChains}
-          selectedFactories={selectFactories
-            .map((factory) => factory)
-            .reduce((acc: string[], name) => {
-              const factory = ACCOUNT_FACTORIES.find((f) => f.name === name);
-              return factory ? [...acc, factory.dbName] : acc;
-            }, [])}
+          selectedFactories={selectFactories}
         />
         <FactoryMarketShare
           startDate={startDate}
           endDate={endDate}
           resolution={resolution}
           selectedChains={selectedChains}
-          selectedFactories={selectFactories
-            .map((factory) => factory)
-            .reduce((acc: string[], name) => {
-              const factory = ACCOUNT_FACTORIES.find((f) => f.name === name);
-              return factory ? [...acc, factory.dbName] : acc;
-            }, [])}
+          selectedFactories={selectFactories}
         />
       </div>
       <FactoryUsageByChain
@@ -96,12 +81,7 @@ export default function BundlersPage() {
         startDate={startDate}
         endDate={endDate}
         resolution={resolution}
-        selectedFactories={selectFactories
-          .map((factory) => factory)
-          .reduce((acc: string[], name) => {
-            const factory = ACCOUNT_FACTORIES.find((f) => f.name === name);
-            return factory ? [...acc, factory.dbName] : acc;
-          }, [])}
+        selectedFactories={selectFactories}
       />
     </div>
   );
