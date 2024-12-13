@@ -9,10 +9,15 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { BookMarked, Box, UserRound, Wallet } from "lucide-react";
+import { BookMarked, Box, Globe, UserRound, Wallet } from "lucide-react";
 import Link from "next/link";
 
 const items = [
+  {
+    title: "Overview",
+    url: "/overview",
+    icon: <Globe />,
+  },
   {
     title: "Bundlers",
     url: "/bundlers",

@@ -29,7 +29,7 @@ export const bundlersRouter = createTRPCRouter({
 
       return Number(result[0]?.total_ops_bundled);
     }),
-  getBundledOpsCount: publicProcedure
+  getBundledOpsByPlatform: publicProcedure
     .input(
       z.object({
         startDate: z.date(),

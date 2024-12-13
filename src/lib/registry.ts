@@ -10,6 +10,17 @@ export type EntityType =
   | "account_factory"
   | undefined;
 
+export const ENTRYPOINTS = [
+  {
+    address: "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
+    version: "0.6",
+  },
+  {
+    address: "0x0000000071727De22E5E9d8BAf0edAc6f37da032",
+    version: "0.7",
+  },
+];
+
 export const ACCOUNT_FACTORIES: RegistryEntityType[] = [
   {
     name: "Kernel V2",

@@ -31,7 +31,7 @@ export const paymastersRouter = createTRPCRouter({
 
       return Number(totalSponsoredOps?.total_sponsored_ops);
     }),
-  getSponsoredOpsCount: publicProcedure
+  getSponsoredByPaymaster: publicProcedure
     .input(
       z.object({
         paymasters: z.array(z.string()), // column `name` in paymasters table

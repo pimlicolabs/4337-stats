@@ -31,7 +31,7 @@ export const accountFactorysRouter = createTRPCRouter({
 
       return Number(results[0]?.total_accounts_deployed);
     }),
-  getDeploymentCount: publicProcedure
+  getDeploymentsByFactory: publicProcedure
     .input(
       z.object({
         factories: z.array(z.string()), // column `name` in factories table

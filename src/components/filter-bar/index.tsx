@@ -1,10 +1,10 @@
 import * as React from "react";
 import ChainSelector from "./chain-selector";
-import EntitySelector, { EntityType } from "./entity-selector";
+import EntitySelector from "./entity-selector";
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
 import { cn } from "@/lib/utils";
 import { TimeFrameType } from "@/lib/types";
-import { RegistryEntityType } from "@/lib/registry";
+import { EntityType, RegistryEntityType } from "@/lib/registry";
 
 interface FilterBarProps {
   entityType?: EntityType;
@@ -12,8 +12,8 @@ interface FilterBarProps {
   selectedChains: number[];
   setSelectedEntitys?: (selectedEntitys: RegistryEntityType[]) => void;
   selectedEntitys?: RegistryEntityType[];
-  selectedTimeFrame: string;
-  setSelectedTimeFrame: (timeframe: TimeFrameType) => void;
+  selectedTimeFrame?: string;
+  setSelectedTimeFrame?: (timeframe: TimeFrameType) => void;
 }
 
 const timeframes = [
@@ -49,29 +49,33 @@ export default function FilterBar({
           <></>
         )}
       </div>
-      <ToggleGroup
-        type="single"
-        value={selectedTimeFrame}
-        onValueChange={(value) => {
-          if (value) setSelectedTimeFrame(value as TimeFrameType);
-        }}
-        className="bg-white border border-gray-300"
-      >
-        {timeframes.map((tf) => (
-          <ToggleGroupItem
-            key={tf.value}
-            value={tf.value}
-            className={cn(
-              "px-3 py-2 text-sm",
-              "data-[state=on]:bg-gray-200 data-[state=on]:text-gray-900",
-              "hover:bg-gray-100 transition-colors",
-              "text-gray-700",
-            )}
-          >
-            {tf.label}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
+      {selectedTimeFrame && setSelectedTimeFrame ? (
+        <ToggleGroup
+          type="single"
+          value={selectedTimeFrame}
+          onValueChange={(value) => {
+            if (value) setSelectedTimeFrame(value as TimeFrameType);
+          }}
+          className="bg-white border border-gray-300"
+        >
+          {timeframes.map((tf) => (
+            <ToggleGroupItem
+              key={tf.value}
+              value={tf.value}
+              className={cn(
+                "px-3 py-2 text-sm",
+                "data-[state=on]:bg-gray-200 data-[state=on]:text-gray-900",
+                "hover:bg-gray-100 transition-colors",
+                "text-gray-700",
+              )}
+            >
+              {tf.label}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+      ) : (
+        <></>
+      )}
     </div>
   );
 }

@@ -1,30 +1,20 @@
 "use client";
 import FilterBar from "@/components/filter-bar";
-import {
-  CHAINS,
-  BUNDLERS,
-  RegistryEntityType,
-  BUNDLER_CHART_CONFIG,
-} from "@/lib/registry";
+import { CHAIN_CHART_CONFIG, CHAINS } from "@/lib/registry";
 import { useMemo, useState } from "react";
 import { TimeFrameResolutionType, TimeFrameType } from "@/lib/types";
 import { endOfDay, subDays } from "date-fns";
 import { TIME_PERIOD_TO_DAYS } from "@/lib/constants";
 import { UTCDate } from "@date-fns/utc";
 import GlobalStatsOverview from "./components/globalStatsOverview";
+import { api } from "@/trpc/react";
 import UsageBarChart from "@/components/entity-graphs/usageGraph";
 import MarketshareChart from "@/components/entity-graphs/marketshareGraph";
-import UsageByChain from "@/components/entity-graphs/usageByChain";
-import { api } from "@/trpc/react";
 
-export default function BundlersPage() {
-  const startTimeframe = "7d";
+export default function OverviewPage() {
+  const startTimeframe = "6mo";
   const startChains = CHAINS.filter((c) => !c.isTestnet).map((c) => c.chainId); // only mainnets
-  const startBundlers = BUNDLERS;
-
   const [selectedChains, setSelectedChains] = useState<number[]>(startChains);
-  const [selectedBundlers, setSelectedBundlers] =
-    useState<RegistryEntityType[]>(startBundlers);
   const [selectedTimeFrame, setSelectedTimeFrame] =
     useState<TimeFrameType>(startTimeframe);
 
@@ -47,65 +37,56 @@ export default function BundlersPage() {
     };
   }, [selectedTimeFrame]);
 
-  const opsBundledByPlatform = api.bundlers.getBundledOpsByPlatform.useQuery(
-    {
-      startDate,
-      endDate,
-      resolution,
-      chainIds: selectedChains,
-      bundlers: selectedBundlers.map((e) => e.dbName),
-    },
-    {
-      refetchOnWindowFocus: false,
-      refetchOnMount: false,
-      staleTime: Infinity,
-    },
-  );
+  const bunldedOpsPerChain =
+    api.globalStats.getTotalBundledOpsPerChain.useQuery(
+      {
+        startDate,
+        endDate,
+        resolution,
+        chainIds: selectedChains,
+      },
+      {
+        refetchOnWindowFocus: false,
+        refetchOnMount: false,
+        staleTime: Infinity,
+      },
+    );
 
   return (
     <div className="p-8 w-full flex flex-col gap-4">
-      <h1 className="text-3xl font-bold">Bundler Stats</h1>
+      <h1 className="text-3xl font-bold mb-4">Global Stats</h1>
       <FilterBar
-        entityType="bundler"
         setSelectedChains={setSelectedChains}
         selectedChains={selectedChains}
-        setSelectedEntitys={setSelectedBundlers}
-        selectedEntitys={selectedBundlers}
-        selectedTimeFrame={selectedTimeFrame}
         setSelectedTimeFrame={setSelectedTimeFrame}
-      />
-      <GlobalStatsOverview
-        startDate={startDate}
-        endDate={endDate}
-        selectedChains={selectedChains}
         selectedTimeFrame={selectedTimeFrame}
-        selectedBundlers={selectedBundlers}
       />
+      <GlobalStatsOverview selectedChains={selectedChains} />
       <div className="w-full gap-4 grid grid-cols-1 md:grid-cols-2">
         <UsageBarChart
-          chartConfig={BUNDLER_CHART_CONFIG}
-          chartTitle="Bundled User Operations"
-          chartDescription="Number of user operations bundled by a bundler."
-          data={opsBundledByPlatform.data}
+          chartTitle={"User operations bundled"}
+          chartDescription={"Number of user operations by chain."}
+          chartConfig={CHAIN_CHART_CONFIG}
+          data={bunldedOpsPerChain.data}
         />
         <MarketshareChart
-          chartTitle={"Bundled Marketshare"}
-          chartDescription={
-            "Percentage of user operations bundled by a given bundler."
-          }
-          data={opsBundledByPlatform.data}
-          chartConfig={BUNDLER_CHART_CONFIG}
+          chartTitle={"Marketshare Of User Operations"}
+          chartDescription={"Percentage of user operations by chain."}
+          chartConfig={CHAIN_CHART_CONFIG}
+          data={bunldedOpsPerChain.data}
         />
       </div>
-      <UsageByChain
+      {/*
+      <PaymasterUsageByChain
         selectedChains={selectedChains}
         startDate={startDate}
         endDate={endDate}
         resolution={resolution}
-        selectedEntity={selectedBundlers}
-        entityType={"bundler"}
-        chartDescription={"User operations bundled"}
+        selectedPaymasters={selectedPaymasters.map((paymaster) =>
+          paymaster.toLowerCase(),
+        )}
       />
+      */}
     </div>
   );
 }
