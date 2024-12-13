@@ -1,4 +1,4 @@
-import { EntityType } from "./entity-selector";
+import { EntityType } from "@/lib/registry";
 import { TimeFrameType } from "../../lib/types";
 
 export interface FilterBarProps {
