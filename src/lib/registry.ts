@@ -114,6 +114,7 @@ export const PAYMASTERS: RegistryEntityType[] = [
   { name: "Stackup", dbName: "stackup", color: "#FF6B6B" },
   { name: "Blocto", dbName: "blocto", color: "#3182F7" },
   { name: "Circle", dbName: "circle", color: "#0DCCAA" },
+  { name: "Send", dbName: "send", color: "#3EFC50" },
 ];
 
 export const BUNDLERS: RegistryEntityType[] = [
@@ -166,6 +167,11 @@ export const BUNDLERS: RegistryEntityType[] = [
     name: "Unknown",
     dbName: "unknown",
     color: "#94a3b8",
+  },
+  {
+    name: "Send",
+    dbName: "send",
+    color: "#3EFC50",
   },
 ];
 
