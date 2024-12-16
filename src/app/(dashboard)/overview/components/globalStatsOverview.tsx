@@ -2,20 +2,21 @@
 
 import { StatCard } from "@/components/stats-card";
 import { api } from "@/trpc/react";
-import { Box, DollarSign, User } from "lucide-react";
+import { Activity, Box, DollarSign, User } from "lucide-react";
+import { subMonths, format, endOfMonth, startOfMonth, subDays } from "date-fns";
 import { useMemo } from "react";
 import { ACCOUNT_FACTORIES, BUNDLERS, PAYMASTERS } from "@/lib/registry";
-import { UTCDate } from "@date-fns/utc";
 
 type GlobalStatsOverviewProps = {
   selectedChains: number[];
+  startDate: Date;
+  endDate: Date;
 };
-
-const startDate = new UTCDate("2023-01-01");
-const endDate = new UTCDate();
 
 export default function GlobalStatsOverview({
   selectedChains,
+  startDate,
+  endDate,
 }: GlobalStatsOverviewProps) {
   const totalOpsBundledQuery = api.bundlers.getTotalBundledOps.useQuery(
     {
@@ -60,18 +61,53 @@ export default function GlobalStatsOverview({
       },
     );
 
-  const { totalOpsBundled, totalOpsSponsored, totalAccountsDeployed } =
-    useMemo(() => {
-      return {
-        totalOpsBundled: totalOpsBundledQuery.data,
-        totalOpsSponsored: totalOpsSponsoredQuery.data,
-        totalAccountsDeployed: totalAccountsDeployedQuery.data,
-      };
-    }, [
-      totalOpsBundledQuery.data,
-      totalOpsSponsoredQuery.data,
-      totalAccountsDeployedQuery.data,
-    ]);
+  const monthlyActiveUsersQuery =
+    api.globalStats.getTotalActiveUsersByMonth.useQuery(
+      {
+        month: startOfMonth(subMonths(new Date(), 1)),
+        chainIds: selectedChains,
+      },
+      {
+        refetchOnWindowFocus: false,
+        refetchOnMount: false,
+        staleTime: Infinity,
+      },
+    );
+
+  const dailyActiveUsersQuery =
+    api.globalStats.getTotalActiveUsersByDay.useQuery(
+      {
+        day: subDays(endDate, 1),
+        chainIds: selectedChains,
+      },
+      {
+        refetchOnWindowFocus: false,
+        refetchOnMount: false,
+        staleTime: Infinity,
+      },
+    );
+
+  const {
+    totalOpsBundled,
+    totalOpsSponsored,
+    totalAccountsDeployed,
+    monthlyActiveUsers,
+    dailyActiveUsers,
+  } = useMemo(() => {
+    return {
+      totalOpsBundled: totalOpsBundledQuery.data,
+      totalOpsSponsored: totalOpsSponsoredQuery.data,
+      totalAccountsDeployed: totalAccountsDeployedQuery.data,
+      monthlyActiveUsers: monthlyActiveUsersQuery.data,
+      dailyActiveUsers: dailyActiveUsersQuery.data,
+    };
+  }, [
+    totalOpsBundledQuery.data,
+    totalOpsSponsoredQuery.data,
+    totalAccountsDeployedQuery.data,
+    monthlyActiveUsersQuery.data,
+    dailyActiveUsersQuery.data,
+  ]);
 
   return (
     <>
@@ -101,8 +137,17 @@ export default function GlobalStatsOverview({
               ? totalAccountsDeployed.toLocaleString()
               : "loading..."
           }
-          description={`${totalAccountsDeployed} accounts deployed`}
           icon={User}
+        />
+
+        <StatCard
+          title="User Retention (DAU/MAU)"
+          value={
+            monthlyActiveUsers && dailyActiveUsers
+              ? (dailyActiveUsers / monthlyActiveUsers).toLocaleString()
+              : "loading..."
+          }
+          icon={Activity}
         />
       </div>
     </>

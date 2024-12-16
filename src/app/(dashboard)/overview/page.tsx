@@ -1,6 +1,11 @@
 "use client";
 import FilterBar from "@/components/filter-bar";
-import { CHAIN_CHART_CONFIG, CHAINS } from "@/lib/registry";
+import {
+  ACCOUNT_FACTORIES,
+  CHAIN_CHART_CONFIG,
+  CHAINS,
+  FACTORY_CHART_CONFIG,
+} from "@/lib/registry";
 import { useMemo, useState } from "react";
 import { TimeFrameResolutionType, TimeFrameType } from "@/lib/types";
 import { endOfDay, subDays } from "date-fns";
@@ -52,6 +57,34 @@ export default function OverviewPage() {
       },
     );
 
+  const dailyActiveAccounts = api.globalStats.getDailyActiveUsers.useQuery(
+    {
+      startDate,
+      endDate,
+      chainIds: selectedChains,
+    },
+    {
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      staleTime: Infinity,
+    },
+  );
+
+  const deploymentsByFactory = api.factories.getDeploymentsByFactory.useQuery(
+    {
+      startDate,
+      endDate,
+      resolution,
+      chainIds: selectedChains,
+      factories: ACCOUNT_FACTORIES.map((e) => e.dbName),
+    },
+    {
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      staleTime: Infinity,
+    },
+  );
+
   return (
     <div className="p-8 w-full flex flex-col gap-4">
       <h1 className="text-3xl font-bold mb-4">Global Stats</h1>
@@ -61,7 +94,11 @@ export default function OverviewPage() {
         setSelectedTimeFrame={setSelectedTimeFrame}
         selectedTimeFrame={selectedTimeFrame}
       />
-      <GlobalStatsOverview selectedChains={selectedChains} />
+      <GlobalStatsOverview
+        selectedChains={selectedChains}
+        startDate={startDate}
+        endDate={endDate}
+      />
       <div className="w-full gap-4 grid grid-cols-1 md:grid-cols-2">
         <UsageBarChart
           chartTitle={"User operations bundled"}
@@ -75,18 +112,19 @@ export default function OverviewPage() {
           chartConfig={CHAIN_CHART_CONFIG}
           data={bunldedOpsPerChain.data}
         />
+        <UsageBarChart
+          chartTitle={"Daily unique accounts"}
+          chartDescription={"Number of unique senders by chain per day."}
+          chartConfig={CHAIN_CHART_CONFIG}
+          data={dailyActiveAccounts.data}
+        />
+        <UsageBarChart
+          data={deploymentsByFactory.data}
+          chartConfig={FACTORY_CHART_CONFIG}
+          chartTitle="Accounts deployed by factory"
+          chartDescription="Number of accounts deployed by a given factory."
+        />
       </div>
-      {/*
-      <PaymasterUsageByChain
-        selectedChains={selectedChains}
-        startDate={startDate}
-        endDate={endDate}
-        resolution={resolution}
-        selectedPaymasters={selectedPaymasters.map((paymaster) =>
-          paymaster.toLowerCase(),
-        )}
-      />
-      */}
     </div>
   );
 }
