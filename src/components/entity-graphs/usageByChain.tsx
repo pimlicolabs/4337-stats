@@ -114,7 +114,9 @@ export default function UsageByChain({
       {data ? (
         Object.entries(data).map(([entity, countPerChain]) => (
           <PieChart
-            title={entity}
+            title={
+              selectedEntity.find((e) => e.dbName === entity)?.name ?? entity
+            }
             key={entity}
             innerTitle={countPerChain
               .reduce((acc, curr) => acc + curr["count"], 0)
