@@ -66,8 +66,8 @@ export const accountFactorysRouter = createTRPCRouter({
             inArray(factoryHourlyMetrics.chainId, input.chainIds)
           )
         )
-        .groupBy(sql`${factories.name}, time`)
-        .orderBy(sql`time, ${factories.name}`)
+        .groupBy(factories.name, sql`time`)
+        .orderBy(sql`time`, factories.name)
         .execute();
 
       const metricsMap: Record<string, Record<string, any>> = {};
@@ -113,8 +113,8 @@ export const accountFactorysRouter = createTRPCRouter({
             inArray(factories.name, input.factories)
           )
         )
-        .groupBy(sql`${factories.name}, ${factoryHourlyMetrics.chainId}`)
-        .orderBy(sql`${factories.name}, ${factoryHourlyMetrics.chainId}`)
+        .groupBy(factories.name, factoryHourlyMetrics.chainId)
+        .orderBy(factories.name, factoryHourlyMetrics.chainId)
         .execute();
 
       const metricsMap: Record<

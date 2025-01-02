@@ -66,8 +66,8 @@ export const paymastersRouter = createTRPCRouter({
             inArray(paymasterHourlyMetricsNew.chainId, input.chainIds)
           )
         )
-        .groupBy(sql`platform, time`)
-        .orderBy(sql`time, platform`)
+        .groupBy(sql`COALESCE(${paymasters.name}, 'unknown')`, sql`time`)
+        .orderBy(sql`time`, sql`COALESCE(${paymasters.name}, 'unknown')`)
         .execute();
 
       const metricsMap: Record<string, Record<string, any>> = {};
@@ -113,8 +113,8 @@ export const paymastersRouter = createTRPCRouter({
             inArray(paymasters.name, input.paymasters)
           )
         )
-        .groupBy(sql`${paymasters.name}, ${paymasterHourlyMetricsNew.chainId}`)
-        .orderBy(sql`${paymasters.name}, ${paymasterHourlyMetricsNew.chainId}`)
+        .groupBy(paymasters.name, paymasterHourlyMetricsNew.chainId)
+        .orderBy(paymasters.name, paymasterHourlyMetricsNew.chainId)
         .execute();
 
       const metricsMap: Record<

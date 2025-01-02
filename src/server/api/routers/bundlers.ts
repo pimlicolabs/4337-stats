@@ -58,8 +58,8 @@ export const bundlersRouter = createTRPCRouter({
             inArray(bundlerHourlyMetrics.bundlerName, input.bundlers),
           ),
         )
-        .groupBy(sql`platform, time`)
-        .orderBy(sql`time, platform`)
+        .groupBy(sql`COALESCE(${bundlerHourlyMetrics.bundlerName}, 'unknown')`, sql`time`)
+        .orderBy(sql`time`, sql`COALESCE(${bundlerHourlyMetrics.bundlerName}, 'unknown')`)
         .execute();
 
       const metricsMap: Record<string, Record<string, any>> = {};
@@ -98,8 +98,8 @@ export const bundlersRouter = createTRPCRouter({
             inArray(bundlerHourlyMetrics.bundlerName, input.bundlers),
           ),
         )
-        .groupBy(sql`platform, ${bundlerHourlyMetrics.chainId}`)
-        .orderBy(sql`platform, ${bundlerHourlyMetrics.chainId}`)
+        .groupBy(sql`COALESCE(${bundlerHourlyMetrics.bundlerName}, 'unknown')`, bundlerHourlyMetrics.chainId)
+        .orderBy(sql`COALESCE(${bundlerHourlyMetrics.bundlerName}, 'unknown')`, bundlerHourlyMetrics.chainId)
         .execute();
 
       const metricsMap: Record<

@@ -34,8 +34,8 @@ export const globalStatsRouter = createTRPCRouter({
             eq(globalHourlyMetrics.success, true)
           )
         )
-        .groupBy(sql`time, ${globalHourlyMetrics.chainId}`)
-        .orderBy(sql`time ASC, ${globalHourlyMetrics.chainId} ASC`)
+        .groupBy(sql`time`, globalHourlyMetrics.chainId)
+        .orderBy(sql`time`, globalHourlyMetrics.chainId)
         .execute();
 
       const metricsMap: Record<string, Record<string, any>> = {};
@@ -74,8 +74,8 @@ export const globalStatsRouter = createTRPCRouter({
             inArray(activeAccountsDailyMetrics.chainId, input.chainIds)
           )
         )
-        .groupBy(sql`${activeAccountsDailyMetrics.date}, ${activeAccountsDailyMetrics.chainId}`)
-        .orderBy(sql`${activeAccountsDailyMetrics.date} ASC, ${activeAccountsDailyMetrics.chainId} ASC`)
+        .groupBy(activeAccountsDailyMetrics.date, activeAccountsDailyMetrics.chainId)
+        .orderBy(activeAccountsDailyMetrics.date, activeAccountsDailyMetrics.chainId)
         .execute();
 
       const metricsMap: Record<string, Record<string, any>> = {};
