@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { sql } from "drizzle-orm";
+import { and, gte, lte, inArray, eq } from "drizzle-orm";
+import { paymasterHourlyMetricsNew, paymasters } from "../../../../db/schema";
 
 export const paymastersRouter = createTRPCRouter({
   getTotalOpsSponsored: publicProcedure
@@ -13,21 +15,24 @@ export const paymastersRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const [totalSponsoredOps] = await ctx.envioDb.execute<{
-        total_sponsored_ops: bigint;
-      }>(sql`
-            SELECT
-                SUM(total_sponsored_operation_count) AS total_sponsored_ops
-            FROM
-                paymaster_hourly_metrics_new AS phm
-            JOIN
-                paymasters p ON p.address = phm.paymaster_address
-            WHERE
-                phm.hour >= ${input.startDate.toISOString()}
-                AND phm.hour <= ${input.endDate.toISOString()}
-                AND p.name IN (${sql.join(input.paymasters, sql`, `)})
-                AND phm.chain_id IN (${sql.join(input.chainIds, sql`, `)})
-    `);
+      const [totalSponsoredOps] = await ctx.envioDb
+        .select({
+          total_sponsored_ops: sql<string>`SUM(${paymasterHourlyMetricsNew.totalSponsoredOperationCount})`,
+        })
+        .from(paymasterHourlyMetricsNew)
+        .leftJoin(
+          paymasters,
+          eq(paymasterHourlyMetricsNew.paymasterAddress, paymasters.address)
+        )
+        .where(
+          and(
+            gte(paymasterHourlyMetricsNew.hour, input.startDate),
+            lte(paymasterHourlyMetricsNew.hour, input.endDate),
+            inArray(paymasters.name, input.paymasters),
+            inArray(paymasterHourlyMetricsNew.chainId, input.chainIds)
+          )
+        )
+        .execute();
 
       return Number(totalSponsoredOps?.total_sponsored_ops);
     }),
@@ -42,36 +47,38 @@ export const paymastersRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const results = await ctx.envioDb.execute<{
-        platform: string;
-        time: string;
-        total_sponsored_ops: bigint;
-      }>(sql`
-            SELECT
-                name AS platform,
-                DATE_TRUNC(${input.resolution}, hour) AS time,
-                SUM(total_sponsored_operation_count) AS total_sponsored_ops
-            FROM
-                paymaster_hourly_metrics_new AS phm
-            JOIN
-                paymasters p ON p.address = phm.paymaster_address
-            WHERE
-                phm.hour >= ${input.startDate.toISOString()}
-                AND phm.hour <= ${input.endDate.toISOString()}
-                AND p.name IN (${sql.join(input.paymasters, sql`, `)})
-                AND phm.chain_id IN (${sql.join(input.chainIds, sql`, `)})
-            GROUP BY
-                platform, time
-            ORDER BY
-                time, platform;
-    `);
+      const results = await ctx.envioDb
+        .select({
+          platform: paymasters.name,
+          time: sql<string>`DATE_TRUNC(${input.resolution}, ${paymasterHourlyMetricsNew.hour})`,
+          total_sponsored_ops: sql<string>`SUM(${paymasterHourlyMetricsNew.totalSponsoredOperationCount})`,
+        })
+        .from(paymasterHourlyMetricsNew)
+        .leftJoin(
+          paymasters,
+          eq(paymasterHourlyMetricsNew.paymasterAddress, paymasters.address)
+        )
+        .where(
+          and(
+            gte(paymasterHourlyMetricsNew.hour, input.startDate),
+            lte(paymasterHourlyMetricsNew.hour, input.endDate),
+            inArray(paymasters.name, input.paymasters),
+            inArray(paymasterHourlyMetricsNew.chainId, input.chainIds)
+          )
+        )
+        .groupBy(sql`platform, time`)
+        .orderBy(sql`time, platform`)
+        .execute();
 
       const metricsMap: Record<string, Record<string, any>> = {};
 
       for (const row of results) {
         const { time, platform, total_sponsored_ops } = row;
-        metricsMap[time] ??= { date: time };
-        metricsMap[time][platform] = Number(total_sponsored_ops);
+        if (time && platform) {
+          const timeStr = time.toString();
+          metricsMap[timeStr] ??= { date: timeStr };
+          metricsMap[timeStr][platform] = Number(total_sponsored_ops ?? 0);
+        }
       }
 
       return Object.values(metricsMap);
@@ -87,29 +94,28 @@ export const paymastersRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const results = await ctx.envioDb.execute<{
-        platform: string;
-        chain_id: number;
-        count: bigint;
-      }>(sql`
-            SELECT
-                name AS platform,
-                chain_id,
-                SUM(total_sponsored_operation_count) AS count
-            FROM
-                paymaster_hourly_metrics_new AS phm
-            JOIN
-                paymasters p ON p.address = phm.paymaster_address
-            WHERE
-                phm.hour >= ${input.startDate.toISOString()}
-                AND phm.hour <= ${input.endDate.toISOString()}
-                AND phm.chain_id IN (${sql.join(input.chainIds, sql`, `)})
-                AND name IN (${sql.join(input.paymasters, sql`, `)})
-            GROUP BY
-                platform, chain_id
-            ORDER BY
-                platform, chain_id
-        `);
+      const results = await ctx.envioDb
+        .select({
+          platform: paymasters.name,
+          chain_id: paymasterHourlyMetricsNew.chainId,
+          count: sql<string>`SUM(${paymasterHourlyMetricsNew.totalSponsoredOperationCount})`,
+        })
+        .from(paymasterHourlyMetricsNew)
+        .leftJoin(
+          paymasters,
+          eq(paymasterHourlyMetricsNew.paymasterAddress, paymasters.address)
+        )
+        .where(
+          and(
+            gte(paymasterHourlyMetricsNew.hour, input.startDate),
+            lte(paymasterHourlyMetricsNew.hour, input.endDate),
+            inArray(paymasterHourlyMetricsNew.chainId, input.chainIds),
+            inArray(paymasters.name, input.paymasters)
+          )
+        )
+        .groupBy(sql`${paymasters.name}, ${paymasterHourlyMetricsNew.chainId}`)
+        .orderBy(sql`${paymasters.name}, ${paymasterHourlyMetricsNew.chainId}`)
+        .execute();
 
       const metricsMap: Record<
         string,
@@ -118,11 +124,13 @@ export const paymastersRouter = createTRPCRouter({
 
       for (const row of results) {
         const { platform, chain_id, count } = row;
-        metricsMap[platform] ??= [];
-        metricsMap[platform].push({
-          chain: chain_id,
-          count: Number(count),
-        });
+        if (platform && chain_id !== null) {
+          metricsMap[platform] ??= [];
+          metricsMap[platform].push({
+            chain: chain_id,
+            count: Number(count ?? 0),
+          });
+        }
       }
 
       return metricsMap;

@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { sql } from "drizzle-orm";
+import { and, gte, lte, inArray, eq } from "drizzle-orm";
+import { factoryHourlyMetrics, factories } from "../../../../db/schema";
 
 export const accountFactorysRouter = createTRPCRouter({
   getTotalAccountsDeployed: publicProcedure
@@ -13,23 +15,26 @@ export const accountFactorysRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const results = await ctx.envioDb.execute<{
-        total_accounts_deployed: bigint;
-      }>(sql`
-            SELECT
-                SUM(total_accounts_deployed) AS total_accounts_deployed
-            FROM
-                factory_hourly_metrics fhm
-            JOIN
-                factories f ON f.address = fhm.factory_address
-            WHERE
-                hour >= ${input.startDate.toISOString()}
-                AND hour <= ${input.endDate.toISOString()}
-                AND name IN (${sql.join(input.factories, sql`, `)})
-                AND chain_id IN (${sql.join(input.chainIds, sql`, `)})
-    `);
+      const results = await ctx.envioDb
+        .select({
+          total_accounts_deployed: sql<string>`SUM(${factoryHourlyMetrics.totalAccountsDeployed})`,
+        })
+        .from(factoryHourlyMetrics)
+        .leftJoin(
+          factories,
+          eq(factoryHourlyMetrics.factoryAddress, factories.address)
+        )
+        .where(
+          and(
+            gte(factoryHourlyMetrics.hour, input.startDate),
+            lte(factoryHourlyMetrics.hour, input.endDate),
+            inArray(factories.name, input.factories),
+            inArray(factoryHourlyMetrics.chainId, input.chainIds)
+          )
+        )
+        .execute();
 
-      return Number(results[0]?.total_accounts_deployed);
+      return Number(results[0]?.total_accounts_deployed ?? 0);
     }),
   getDeploymentsByFactory: publicProcedure
     .input(
@@ -42,36 +47,38 @@ export const accountFactorysRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const results = await ctx.envioDb.execute<{
-        factory_name: string;
-        time: string;
-        total_accounts_deployed: bigint;
-      }>(sql`
-            SELECT
-                f.name AS factory_name,
-                DATE_TRUNC(${input.resolution}, fhm.hour) AS time,
-                SUM(fhm.total_accounts_deployed) AS total_accounts_deployed
-            FROM
-                factory_hourly_metrics fhm
-            JOIN
-                factories f ON f.address = fhm.factory_address
-            WHERE
-                fhm.hour >= ${input.startDate.toISOString()}
-                AND fhm.hour <= ${input.endDate.toISOString()}
-                AND f.name IN (${sql.join(input.factories, sql`, `)})
-                AND fhm.chain_id IN (${sql.join(input.chainIds, sql`, `)})
-            GROUP BY
-                f.name, time
-            ORDER BY
-                time, f.name;
-    `);
+      const results = await ctx.envioDb
+        .select({
+          factory_name: factories.name,
+          time: sql<string>`DATE_TRUNC(${input.resolution}, ${factoryHourlyMetrics.hour})`,
+          total_accounts_deployed: sql<string>`SUM(${factoryHourlyMetrics.totalAccountsDeployed})`,
+        })
+        .from(factoryHourlyMetrics)
+        .leftJoin(
+          factories,
+          eq(factoryHourlyMetrics.factoryAddress, factories.address)
+        )
+        .where(
+          and(
+            gte(factoryHourlyMetrics.hour, input.startDate),
+            lte(factoryHourlyMetrics.hour, input.endDate),
+            inArray(factories.name, input.factories),
+            inArray(factoryHourlyMetrics.chainId, input.chainIds)
+          )
+        )
+        .groupBy(sql`${factories.name}, time`)
+        .orderBy(sql`time, ${factories.name}`)
+        .execute();
 
       const metricsMap: Record<string, Record<string, any>> = {};
 
       for (const row of results) {
         const { time, factory_name, total_accounts_deployed } = row;
-        metricsMap[time] ??= { date: time };
-        metricsMap[time][factory_name] = Number(total_accounts_deployed);
+        if (time && factory_name) {
+          const timeStr = time.toString();
+          metricsMap[timeStr] ??= { date: timeStr };
+          metricsMap[timeStr][factory_name] = Number(total_accounts_deployed ?? 0);
+        }
       }
 
       return Object.values(metricsMap);
@@ -87,29 +94,28 @@ export const accountFactorysRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const results = await ctx.envioDb.execute<{
-        factory_name: string;
-        chain_id: number;
-        count: bigint;
-      }>(sql`
-            SELECT
-                name AS factory_name,
-                chain_id,
-                SUM(total_accounts_deployed) AS count
-            FROM
-                factory_hourly_metrics as fhm
-            JOIN
-                factories f ON f.address = fhm.factory_address
-            WHERE
-                hour >= ${input.startDate.toISOString()}
-                AND hour <= ${input.endDate.toISOString()}
-                AND chain_id IN (${sql.join(input.chainIds, sql`, `)})
-                AND name IN (${sql.join(input.factories, sql`, `)})
-            GROUP BY
-                factory_name, chain_id
-            ORDER BY
-                factory_name, chain_id
-        `);
+      const results = await ctx.envioDb
+        .select({
+          factory_name: factories.name,
+          chain_id: factoryHourlyMetrics.chainId,
+          count: sql<string>`SUM(${factoryHourlyMetrics.totalAccountsDeployed})`,
+        })
+        .from(factoryHourlyMetrics)
+        .leftJoin(
+          factories,
+          eq(factoryHourlyMetrics.factoryAddress, factories.address)
+        )
+        .where(
+          and(
+            gte(factoryHourlyMetrics.hour, input.startDate),
+            lte(factoryHourlyMetrics.hour, input.endDate),
+            inArray(factoryHourlyMetrics.chainId, input.chainIds),
+            inArray(factories.name, input.factories)
+          )
+        )
+        .groupBy(sql`${factories.name}, ${factoryHourlyMetrics.chainId}`)
+        .orderBy(sql`${factories.name}, ${factoryHourlyMetrics.chainId}`)
+        .execute();
 
       const metricsMap: Record<
         string,
@@ -118,12 +124,15 @@ export const accountFactorysRouter = createTRPCRouter({
 
       for (const row of results) {
         const { factory_name, chain_id, count } = row;
-        metricsMap[factory_name] ??= [];
-        metricsMap[factory_name].push({
-          chain: chain_id,
-          count: Number(count),
-        });
+        if (factory_name && chain_id !== null) {
+          metricsMap[factory_name] ??= [];
+          metricsMap[factory_name].push({
+            chain: chain_id,
+            count: Number(count ?? 0),
+          });
+        }
       }
+
 
       return metricsMap;
     }),

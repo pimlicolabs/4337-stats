@@ -1,44 +1,38 @@
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
-import { sql } from "drizzle-orm";
+import { paymasters, bundlers, factories } from "../../../../db/schema";
 
 export const addressBookRouter = createTRPCRouter({
   getPaymasters: publicProcedure.query(async ({ ctx }) => {
-    const result = await ctx.envioDb.execute<{
-      name: string;
-      address: string;
-      type: string;
-    }>(sql`
-            SELECT
-                name, address
-            FROM
-                paymasters
-    `);
+    const result = await ctx.envioDb
+      .select({
+        name: paymasters.name,
+        address: paymasters.address,
+        type: paymasters.type,
+      })
+      .from(paymasters)
+      .execute();
 
     return result;
   }),
   getBundlers: publicProcedure.query(async ({ ctx }) => {
-    const result = await ctx.envioDb.execute<{
-      name: string;
-      address: string;
-    }>(sql`
-            SELECT
-                name, address
-            FROM
-                bundlers
-    `);
+    const result = await ctx.envioDb
+      .select({
+        name: bundlers.name,
+        address: bundlers.address,
+      })
+      .from(bundlers)
+      .execute();
 
     return result;
   }),
   getFactories: publicProcedure.query(async ({ ctx }) => {
-    const result = await ctx.envioDb.execute<{
-      name: string;
-      address: string;
-    }>(sql`
-            SELECT
-                name, address
-            FROM
-                factories
-    `);
+    const result = await ctx.envioDb
+      .select({
+        name: factories.name,
+        address: factories.address,
+      })
+      .from(factories)
+      .execute();
 
     return result;
   }),
