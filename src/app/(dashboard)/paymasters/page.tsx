@@ -17,7 +17,7 @@ import MarketshareChart from "@/components/entity-graphs/marketshareGraph";
 import UsageByChain from "@/components/entity-graphs/usageByChain";
 import { api } from "@/trpc/react";
 
-export default function BundlersPage() {
+export default function PaymastersPage() {
   const startTimeframe = "7d";
   const startChains = CHAINS.filter((c) => !c.isTestnet).map((c) => c.chainId); // only mainnets
   const startPaymasters = PAYMASTERS;

@@ -20,13 +20,11 @@ export const paymastersRouter = createTRPCRouter({
                 SUM(total_sponsored_operation_count) AS total_sponsored_ops
             FROM
                 paymaster_hourly_metrics_new AS phm
-            JOIN
-                paymasters p ON p.address = phm.paymaster_address
             WHERE
                 phm.hour >= ${input.startDate.toISOString()}
                 AND phm.hour <= ${input.endDate.toISOString()}
-                AND p.name IN (${sql.join(input.paymasters, sql`, `)})
                 AND phm.chain_id IN (${sql.join(input.chainIds, sql`, `)})
+                AND phm.paymaster_address != '0x0000000000000000000000000000000000000000'
     `);
 
       return Number(totalSponsoredOps?.total_sponsored_ops);
@@ -48,18 +46,18 @@ export const paymastersRouter = createTRPCRouter({
         total_sponsored_ops: bigint;
       }>(sql`
             SELECT
-                name AS platform,
+                COALESCE(name, 'unknown') AS platform,
                 DATE_TRUNC(${input.resolution}, hour) AS time,
                 SUM(total_sponsored_operation_count) AS total_sponsored_ops
             FROM
                 paymaster_hourly_metrics_new AS phm
-            JOIN
+            LEFT JOIN
                 paymasters p ON p.address = phm.paymaster_address
             WHERE
                 phm.hour >= ${input.startDate.toISOString()}
                 AND phm.hour <= ${input.endDate.toISOString()}
-                AND p.name IN (${sql.join(input.paymasters, sql`, `)})
                 AND phm.chain_id IN (${sql.join(input.chainIds, sql`, `)})
+                AND phm.paymaster_address != '0x0000000000000000000000000000000000000000'
             GROUP BY
                 platform, time
             ORDER BY
@@ -93,18 +91,18 @@ export const paymastersRouter = createTRPCRouter({
         count: bigint;
       }>(sql`
             SELECT
-                name AS platform,
+                COALESCE(name, 'unknown') AS platform,
                 chain_id,
                 SUM(total_sponsored_operation_count) AS count
             FROM
                 paymaster_hourly_metrics_new AS phm
-            JOIN
+            LEFT JOIN
                 paymasters p ON p.address = phm.paymaster_address
             WHERE
                 phm.hour >= ${input.startDate.toISOString()}
                 AND phm.hour <= ${input.endDate.toISOString()}
                 AND phm.chain_id IN (${sql.join(input.chainIds, sql`, `)})
-                AND name IN (${sql.join(input.paymasters, sql`, `)})
+                AND phm.paymaster_address != '0x0000000000000000000000000000000000000000'
             GROUP BY
                 platform, chain_id
             ORDER BY

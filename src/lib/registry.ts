@@ -120,6 +120,8 @@ export const PAYMASTERS: RegistryEntityType[] = [
   { name: "Blocto", dbName: "blocto", color: "#3182F7" },
   { name: "Circle", dbName: "circle", color: "#0DCCAA" },
   { name: "Send", dbName: "send", color: "#3EFC50" },
+  { name: "Daimo", dbName: "daimo", color: "#17AC2C" },
+  { name: "Unknown", dbName: "unknown", color: "#94a3b8" },
 ];
 
 export const BUNDLERS: RegistryEntityType[] = [
