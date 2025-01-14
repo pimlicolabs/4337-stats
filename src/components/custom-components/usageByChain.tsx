@@ -38,7 +38,7 @@ export default function UsageByChain({
   let chartConfig;
   switch (entityType) {
     case "bundler":
-      query = api.bundlers.getBundledOpsByChain;
+      query = api.bundlers.opsByChainByPlatform;
       queryParams = {
         startDate,
         endDate,

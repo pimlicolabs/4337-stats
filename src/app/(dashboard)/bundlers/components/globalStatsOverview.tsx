@@ -1,6 +1,5 @@
 "use client";
 
-import { EntitySelectorProps } from "@/components/filter-bar/entity-selector";
 import { StatCard } from "@/components/stats-card";
 import { TIME_PERIOD_TO_DAYS } from "@/lib/constants";
 import { RegistryEntityType } from "@/lib/registry";
@@ -52,7 +51,7 @@ export default function GlobalStatsOverview({
   endDate,
   selectedTimeFrame,
 }: GlobalStatsOverviewProps) {
-  const totalGlobalBundledOps = api.bundlers.getTotalBundledOps.useQuery(
+  const totalGlobalBundledOps = api.bundlers.totalOps.useQuery(
     {
       startDate,
       endDate,
@@ -65,7 +64,7 @@ export default function GlobalStatsOverview({
       staleTime: Infinity,
     },
   );
-  const prevTotalGlobalBundledOps = api.bundlers.getTotalBundledOps.useQuery(
+  const prevTotalGlobalBundledOps = api.bundlers.totalOps.useQuery(
     {
       startDate: subDays(startDate, TIME_PERIOD_TO_DAYS[selectedTimeFrame]),
       endDate: subDays(endDate, TIME_PERIOD_TO_DAYS[selectedTimeFrame]),

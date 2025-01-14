@@ -9,7 +9,14 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { BookMarked, Box, Globe, UserRound, Wallet } from "lucide-react";
+import {
+  BookMarked,
+  Box,
+  Globe,
+  Link as LinkIcon,
+  UserRound,
+  Wallet,
+} from "lucide-react";
 import Link from "next/link";
 
 const items = [
@@ -17,6 +24,11 @@ const items = [
     title: "Overview",
     url: "/overview",
     icon: <Globe />,
+  },
+  {
+    title: "Chains",
+    url: "/chains/ethereum",
+    icon: <LinkIcon />,
   },
   {
     title: "Bundlers",
@@ -29,8 +41,8 @@ const items = [
     icon: <Wallet />,
   },
   {
-    title: "Factories",
-    url: "/factories",
+    title: "Accounts",
+    url: "/accounts",
     icon: <UserRound />,
   },
   { title: "Address Book", url: "/address-book", icon: <BookMarked /> },

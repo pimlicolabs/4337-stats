@@ -3,7 +3,7 @@ import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { sql } from "drizzle-orm";
 
 export const bundlersRouter = createTRPCRouter({
-  getTotalBundledOps: publicProcedure
+  totalOps: publicProcedure
     .input(
       z.object({
         startDate: z.date(),
@@ -29,7 +29,7 @@ export const bundlersRouter = createTRPCRouter({
 
       return Number(result[0]?.total_ops_bundled);
     }),
-  getBundledOpsByPlatform: publicProcedure
+  opsByPlatformByDate: publicProcedure
     .input(
       z.object({
         startDate: z.date(),
@@ -72,7 +72,7 @@ export const bundlersRouter = createTRPCRouter({
 
       return Object.values(metricsMap);
     }),
-  getBundledOpsByChain: publicProcedure
+  opsByChainByPlatform: publicProcedure
     .input(
       z.object({
         startDate: z.date(),
@@ -120,5 +120,39 @@ export const bundlersRouter = createTRPCRouter({
       }
 
       return metricsMap;
+    }),
+  opsByPlatformForChain: publicProcedure
+    .input(
+      z.object({
+        startDate: z.date(),
+        endDate: z.date(),
+        bundlers: z.array(z.string()),
+        chainId: z.number(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const results = await ctx.envioDb.execute<{
+        platform: string;
+        count: bigint;
+      }>(sql`
+            SELECT
+                COALESCE(bundler_name, 'unknown') AS platform,
+                SUM(total_operation_count) AS count
+            FROM
+                bundler_hourly_metrics
+            WHERE
+                hour >= ${input.startDate.toISOString()}
+                AND hour <= ${input.endDate.toISOString()}
+                AND chain_id = ${input.chainId}
+                AND bundler_name IN (${sql.join(input.bundlers, sql`, `)})
+            GROUP BY
+                platform
+            ORDER BY
+                platform
+        `);
+
+      console.log(results);
+
+      return results;
     }),
 });

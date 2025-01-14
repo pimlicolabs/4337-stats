@@ -13,8 +13,8 @@ import { TIME_PERIOD_TO_DAYS } from "@/lib/constants";
 import { UTCDate } from "@date-fns/utc";
 import GlobalStatsOverview from "./components/globalStatsOverview";
 import { api } from "@/trpc/react";
-import UsageBarChart from "@/components/entity-graphs/usageGraph";
-import MarketshareChart from "@/components/entity-graphs/marketshareGraph";
+import UsageBarChart from "@/components/custom-components/usageGraph";
+import MarketshareChart from "@/components/custom-components/marketshareGraph";
 
 export default function OverviewPage() {
   const startTimeframe = "6mo";

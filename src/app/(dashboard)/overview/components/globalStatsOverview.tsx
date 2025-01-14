@@ -3,7 +3,7 @@
 import { StatCard } from "@/components/stats-card";
 import { api } from "@/trpc/react";
 import { Activity, Box, DollarSign, User } from "lucide-react";
-import { subMonths, format, endOfMonth, startOfMonth, subDays } from "date-fns";
+import { subMonths, startOfMonth, subDays } from "date-fns";
 import { useMemo } from "react";
 import { ACCOUNT_FACTORIES, BUNDLERS, PAYMASTERS } from "@/lib/registry";
 
@@ -18,7 +18,7 @@ export default function GlobalStatsOverview({
   startDate,
   endDate,
 }: GlobalStatsOverviewProps) {
-  const totalOpsBundledQuery = api.bundlers.getTotalBundledOps.useQuery(
+  const totalOpsBundledQuery = api.bundlers.totalOps.useQuery(
     {
       startDate,
       endDate,

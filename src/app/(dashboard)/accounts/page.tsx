@@ -13,9 +13,9 @@ import { TimeFrameResolutionType, TimeFrameType } from "@/lib/types";
 import { TIME_PERIOD_TO_DAYS } from "@/lib/constants";
 import { UTCDate } from "@date-fns/utc";
 import GlobalStatsOverview from "./components/globalStatsOverview";
-import UsageBarChart from "@/components/entity-graphs/usageGraph";
-import MarketshareChart from "@/components/entity-graphs/marketshareGraph";
-import UsageByChain from "@/components/entity-graphs/usageByChain";
+import UsageBarChart from "@/components/custom-components/usageGraph";
+import MarketshareChart from "@/components/custom-components/marketshareGraph";
+import UsageByChain from "@/components/custom-components/usageByChain";
 import { api } from "@/trpc/react";
 
 export default function BundlersPage() {

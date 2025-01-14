@@ -8,8 +8,8 @@ import { EntityType, RegistryEntityType } from "@/lib/registry";
 
 interface FilterBarProps {
   entityType?: EntityType;
-  setSelectedChains: (selectedChains: number[]) => void;
-  selectedChains: number[];
+  setSelectedChains?: (selectedChains: number[]) => void;
+  selectedChains?: number[];
   setSelectedEntitys?: (selectedEntitys: RegistryEntityType[]) => void;
   selectedEntitys?: RegistryEntityType[];
   selectedTimeFrame?: string;
@@ -35,10 +35,14 @@ export default function FilterBar({
   return (
     <div className="flex flex-wrap items-center justify-between w-full p-4 bg-gray-50 gap-4 border border-gray-200">
       <div className="flex flex-wrap items-center gap-2">
-        <ChainSelector
-          selectedChains={selectedChains}
-          setSelectedChains={setSelectedChains}
-        />
+        {selectedChains && setSelectedChains ? (
+          <ChainSelector
+            selectedChains={selectedChains}
+            setSelectedChains={setSelectedChains}
+          />
+        ) : (
+          <></>
+        )}
         {entityType && selectedEntitys && setSelectedEntitys ? (
           <EntitySelector
             type={entityType}

@@ -3,7 +3,7 @@ import RootLayout from "../rootLayout";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { GlobalSidebar } from "@/components/sidebar";
 
-export default function DahboardLayout({
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
