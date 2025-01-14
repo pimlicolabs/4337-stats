@@ -47,7 +47,7 @@ export default function PaymastersPage() {
     };
   }, [selectedTimeFrame]);
 
-  const sponsoredByPaymaster = api.paymasters.getSponsoredByPaymaster.useQuery(
+  const sponsoredByPaymaster = api.paymasters.sponsoredByPaymaster.useQuery(
     {
       startDate,
       endDate,

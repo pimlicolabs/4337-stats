@@ -3,7 +3,7 @@ import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { sql } from "drizzle-orm";
 
 export const paymastersRouter = createTRPCRouter({
-  getTotalOpsSponsored: publicProcedure
+  totalSponsored: publicProcedure
     .input(
       z.object({
         paymasters: z.array(z.string()), // column `name` in paymasters table
@@ -29,7 +29,7 @@ export const paymastersRouter = createTRPCRouter({
 
       return Number(totalSponsoredOps?.total_sponsored_ops);
     }),
-  getSponsoredByPaymaster: publicProcedure
+  sponsoredByPaymaster: publicProcedure
     .input(
       z.object({
         paymasters: z.array(z.string()), // column `name` in paymasters table
@@ -74,7 +74,7 @@ export const paymastersRouter = createTRPCRouter({
 
       return Object.values(metricsMap);
     }),
-  getSponsoredOpsByChain: publicProcedure
+  sponsoredByPaymasterByChain: publicProcedure
     .input(
       z.object({
         paymasters: z.array(z.string()), // column `name` in paymasters table

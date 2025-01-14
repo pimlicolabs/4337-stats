@@ -32,7 +32,7 @@ export default function GlobalStatsOverview({
     },
   );
 
-  const totalOpsSponsoredQuery = api.paymasters.getTotalOpsSponsored.useQuery(
+  const totalOpsSponsoredQuery = api.paymasters.totalSponsored.useQuery(
     {
       startDate,
       endDate,
@@ -46,46 +46,43 @@ export default function GlobalStatsOverview({
     },
   );
 
-  const totalAccountsDeployedQuery =
-    api.factories.getTotalAccountsDeployed.useQuery(
-      {
-        startDate,
-        endDate,
-        chainIds: selectedChains,
-        factories: ACCOUNT_FACTORIES.map((b) => b.dbName),
-      },
-      {
-        refetchOnWindowFocus: false,
-        refetchOnMount: false,
-        staleTime: Infinity,
-      },
-    );
+  const totalAccountsDeployedQuery = api.factories.totalDeployments.useQuery(
+    {
+      startDate,
+      endDate,
+      chainIds: selectedChains,
+      factories: ACCOUNT_FACTORIES.map((b) => b.dbName),
+    },
+    {
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      staleTime: Infinity,
+    },
+  );
 
-  const monthlyActiveUsersQuery =
-    api.globalStats.getTotalActiveUsersByMonth.useQuery(
-      {
-        month: startOfMonth(subMonths(new Date(), 1)),
-        chainIds: selectedChains,
-      },
-      {
-        refetchOnWindowFocus: false,
-        refetchOnMount: false,
-        staleTime: Infinity,
-      },
-    );
+  const monthlyActiveUsersQuery = api.globalStats.monthlyActiveUsers.useQuery(
+    {
+      month: startOfMonth(subMonths(new Date(), 1)),
+      chainIds: selectedChains,
+    },
+    {
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      staleTime: Infinity,
+    },
+  );
 
-  const dailyActiveUsersQuery =
-    api.globalStats.getTotalActiveUsersByDay.useQuery(
-      {
-        day: subDays(endDate, 1),
-        chainIds: selectedChains,
-      },
-      {
-        refetchOnWindowFocus: false,
-        refetchOnMount: false,
-        staleTime: Infinity,
-      },
-    );
+  const dailyActiveUsersQuery = api.globalStats.activeUsersByDay.useQuery(
+    {
+      day: subDays(endDate, 1),
+      chainIds: selectedChains,
+    },
+    {
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      staleTime: Infinity,
+    },
+  );
 
   const {
     totalOpsBundled,

@@ -3,7 +3,7 @@ import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { sql } from "drizzle-orm";
 
 export const accountFactorysRouter = createTRPCRouter({
-  getTotalAccountsDeployed: publicProcedure
+  totalDeployments: publicProcedure
     .input(
       z.object({
         factories: z.array(z.string()), // column `name` in factories table
@@ -31,7 +31,7 @@ export const accountFactorysRouter = createTRPCRouter({
 
       return Number(results[0]?.total_accounts_deployed);
     }),
-  getDeploymentsByFactory: publicProcedure
+  deploymentsByFactory: publicProcedure
     .input(
       z.object({
         factories: z.array(z.string()), // column `name` in factories table
@@ -76,7 +76,7 @@ export const accountFactorysRouter = createTRPCRouter({
 
       return Object.values(metricsMap);
     }),
-  getAccountsDeployedByChain: publicProcedure
+  deploymentsByChain: publicProcedure
     .input(
       z.object({
         factories: z.array(z.string()), // column `name` in factories table

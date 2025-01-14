@@ -19,7 +19,7 @@ export default function GlobalStatsOverview({
   startDate,
   endDate,
 }: GlobalStatsOverviewProps) {
-  const totalOpsSponsored = api.paymasters.getTotalOpsSponsored.useQuery(
+  const totalOpsSponsored = api.paymasters.totalSponsored.useQuery(
     {
       startDate,
       endDate,

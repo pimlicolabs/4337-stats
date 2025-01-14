@@ -3,7 +3,7 @@ import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { sql } from "drizzle-orm";
 
 export const globalStatsRouter = createTRPCRouter({
-  getTotalBundledOpsPerChain: publicProcedure
+  totalBundledByChain: publicProcedure
     .input(
       z.object({
         startDate: z.date(),
@@ -47,7 +47,7 @@ export const globalStatsRouter = createTRPCRouter({
 
       return Object.values(metricsMap);
     }),
-  getDailyActiveUsers: publicProcedure
+  dailyActiveUsers: publicProcedure
     .input(
       z.object({
         startDate: z.date(),
@@ -89,7 +89,7 @@ export const globalStatsRouter = createTRPCRouter({
 
       return Object.values(metricsMap);
     }),
-  getTotalActiveUsersByMonth: publicProcedure
+  monthlyActiveUsers: publicProcedure
     .input(
       z.object({
         month: z.date(),
@@ -111,7 +111,7 @@ export const globalStatsRouter = createTRPCRouter({
 
       return result[0]?.total_active_accounts;
     }),
-  getTotalActiveUsersByDay: publicProcedure
+  activeUsersByDay: publicProcedure
     .input(
       z.object({
         day: z.date(),

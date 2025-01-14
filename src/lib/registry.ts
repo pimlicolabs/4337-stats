@@ -185,7 +185,7 @@ export const CHAINS = [
     name: "Avalanche Fuji",
     isTestnet: true,
     color: "#FFB1B1",
-    sluggName: "avalanche-fuji",
+    slugName: "avalanche-fuji",
   },
   {
     chainId: 421614,

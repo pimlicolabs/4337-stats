@@ -72,7 +72,7 @@ export const bundlersRouter = createTRPCRouter({
 
       return Object.values(metricsMap);
     }),
-  opsByChainByPlatform: publicProcedure
+  opsByPlatformByChain: publicProcedure
     .input(
       z.object({
         startDate: z.date(),

@@ -42,22 +42,21 @@ export default function OverviewPage() {
     };
   }, [selectedTimeFrame]);
 
-  const bunldedOpsPerChain =
-    api.globalStats.getTotalBundledOpsPerChain.useQuery(
-      {
-        startDate,
-        endDate,
-        resolution,
-        chainIds: selectedChains,
-      },
-      {
-        refetchOnWindowFocus: false,
-        refetchOnMount: false,
-        staleTime: Infinity,
-      },
-    );
+  const bunldedOpsPerChain = api.globalStats.totalBundledByChain.useQuery(
+    {
+      startDate,
+      endDate,
+      resolution,
+      chainIds: selectedChains,
+    },
+    {
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      staleTime: Infinity,
+    },
+  );
 
-  const dailyActiveAccounts = api.globalStats.getDailyActiveUsers.useQuery(
+  const dailyActiveAccounts = api.globalStats.dailyActiveUsers.useQuery(
     {
       startDate,
       endDate,
@@ -70,7 +69,7 @@ export default function OverviewPage() {
     },
   );
 
-  const deploymentsByFactory = api.factories.getDeploymentsByFactory.useQuery(
+  const deploymentsByFactory = api.factories.deploymentsByFactory.useQuery(
     {
       startDate,
       endDate,

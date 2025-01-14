@@ -9,9 +9,9 @@ import { endOfDay, subDays } from "date-fns";
 import { TIME_PERIOD_TO_DAYS } from "@/lib/constants";
 import { TimeFrameResolutionType, TimeFrameType } from "@/lib/types";
 import UsageBarChart from "@/components/custom-components/usageGraph";
-import FilterBar from "@/components/filter-bar";
 import { BundlerTable } from "./components/bundlerTable";
 import TimefilterDropdown from "./components/timeFilterDropdown";
+import ChainDropdown from "./components/chainDropdown";
 
 export default function ChainStats() {
   const params = useParams();
@@ -61,25 +61,24 @@ export default function ChainStats() {
     },
   );
 
-  const bunldedOpsPerChain =
-    api.globalStats.getTotalBundledOpsPerChain.useQuery(
-      {
-        startDate,
-        endDate,
-        resolution,
-        chainIds: [chain.chainId],
-      },
-      {
-        refetchOnWindowFocus: false,
-        refetchOnMount: false,
-        staleTime: Infinity,
-      },
-    );
+  const bunldedOpsPerChain = api.globalStats.totalBundledByChain.useQuery(
+    {
+      startDate,
+      endDate,
+      resolution,
+      chainIds: [chain.chainId],
+    },
+    {
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      staleTime: Infinity,
+    },
+  );
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 p-8">
+    <div className="p-8 w-full flex flex-col gap-4">
       <div className="justify-between flex">
-        <h1 className="text-3xl font-bold">{chain.name} Stats</h1>
+        <ChainDropdown selectedChainName={chain.name} />
         <TimefilterDropdown
           selectedTimeFrame={selectedTimeFrame}
           setSelectedTimeFrame={setSelectedTimeFrame}

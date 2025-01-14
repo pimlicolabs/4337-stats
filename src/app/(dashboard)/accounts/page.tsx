@@ -48,7 +48,7 @@ export default function BundlersPage() {
     };
   }, [selectedTimeFrame]);
 
-  const deploymentsByFactory = api.factories.getDeploymentsByFactory.useQuery(
+  const deploymentsByFactory = api.factories.deploymentsByFactory.useQuery(
     {
       startDate,
       endDate,

@@ -38,7 +38,7 @@ export default function UsageByChain({
   let chartConfig;
   switch (entityType) {
     case "bundler":
-      query = api.bundlers.opsByChainByPlatform;
+      query = api.bundlers.opsByPlatformByChain;
       queryParams = {
         startDate,
         endDate,
@@ -49,7 +49,7 @@ export default function UsageByChain({
       chartConfig = BUNDLER_CHART_CONFIG;
       break;
     case "paymaster":
-      query = api.paymasters.getSponsoredOpsByChain;
+      query = api.paymasters.sponsoredByPaymasterByChain;
       queryParams = {
         startDate,
         endDate,
@@ -60,7 +60,7 @@ export default function UsageByChain({
       chartConfig = PAYMASTER_CHART_CONFIG;
       break;
     case "account_factory":
-      query = api.factories.getAccountsDeployedByChain;
+      query = api.factories.deploymentsByChain;
       queryParams = {
         startDate,
         endDate,
