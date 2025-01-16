@@ -48,7 +48,7 @@ export default function BundlersPage() {
     };
   }, [selectedTimeFrame]);
 
-  const deploymentsByFactory = api.factories.deploymentsByFactory.useQuery(
+  const deploymentsByFactory = api.accounts.deploymentsByFactory.useQuery(
     {
       startDate,
       endDate,
@@ -62,6 +62,21 @@ export default function BundlersPage() {
       staleTime: Infinity,
     },
   );
+
+  const activeUsersByFactory =
+    api.accounts.uniqueSendersByFactoryByDay.useQuery(
+      {
+        startDate,
+        endDate,
+        chainIds: selectedChains,
+        factories: selectFactories.map((e) => e.dbName),
+      },
+      {
+        refetchOnWindowFocus: false,
+        refetchOnMount: false,
+        staleTime: Infinity,
+      },
+    );
 
   return (
     <div className="p-8 w-full flex flex-col gap-4">
@@ -89,7 +104,7 @@ export default function BundlersPage() {
           chartDescription="Number of accounts deployed by a given factory."
         />
         <MarketshareChart
-          chartTitle={"Marketshare Of Accounts Deployed By Factory"}
+          chartTitle={"Marketshare of accounts deployed by factory"}
           chartDescription={
             "Percentage of accounts deployed by a given factory."
           }
@@ -97,6 +112,13 @@ export default function BundlersPage() {
           data={deploymentsByFactory.data}
         />
       </div>
+      <UsageBarChart
+        className="w-full h-64"
+        data={activeUsersByFactory.data}
+        chartConfig={FACTORY_CHART_CONFIG}
+        chartTitle="Daily active users"
+        chartDescription="Unique senders by smart account type."
+      />
       <UsageByChain
         selectedChains={selectedChains}
         startDate={startDate}

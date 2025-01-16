@@ -20,8 +20,11 @@ export const paymastersRouter = createTRPCRouter({
                 SUM(total_sponsored_operation_count) AS total_sponsored_ops
             FROM
                 paymaster_hourly_metrics_new AS phm
+            LEFT JOIN
+                paymasters p ON p.address = phm.paymaster_address
             WHERE
-                phm.hour >= ${input.startDate.toISOString()}
+                p.name IN (${sql.join(input.paymasters, sql`, `)})
+                AND phm.hour >= ${input.startDate.toISOString()}
                 AND phm.hour <= ${input.endDate.toISOString()}
                 AND phm.chain_id IN (${sql.join(input.chainIds, sql`, `)})
                 AND phm.paymaster_address != '0x0000000000000000000000000000000000000000'
@@ -54,7 +57,8 @@ export const paymastersRouter = createTRPCRouter({
             LEFT JOIN
                 paymasters p ON p.address = phm.paymaster_address
             WHERE
-                phm.hour >= ${input.startDate.toISOString()}
+                p.name IN (${sql.join(input.paymasters, sql`, `)})
+                AND phm.hour >= ${input.startDate.toISOString()}
                 AND phm.hour <= ${input.endDate.toISOString()}
                 AND phm.chain_id IN (${sql.join(input.chainIds, sql`, `)})
                 AND phm.paymaster_address != '0x0000000000000000000000000000000000000000'
@@ -99,7 +103,8 @@ export const paymastersRouter = createTRPCRouter({
             LEFT JOIN
                 paymasters p ON p.address = phm.paymaster_address
             WHERE
-                phm.hour >= ${input.startDate.toISOString()}
+                p.name IN (${sql.join(input.paymasters, sql`, `)})
+                AND phm.hour >= ${input.startDate.toISOString()}
                 AND phm.hour <= ${input.endDate.toISOString()}
                 AND phm.chain_id IN (${sql.join(input.chainIds, sql`, `)})
                 AND phm.paymaster_address != '0x0000000000000000000000000000000000000000'
@@ -124,5 +129,40 @@ export const paymastersRouter = createTRPCRouter({
       }
 
       return metricsMap;
+    }),
+  sponsoredByPlatformForChain: publicProcedure
+    .input(
+      z.object({
+        startDate: z.date(),
+        endDate: z.date(),
+        paymasters: z.array(z.string()),
+        chainId: z.number(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const results = await ctx.envioDb.execute<{
+        platform: string;
+        count: bigint;
+      }>(sql`
+            SELECT
+                COALESCE(name, 'unknown') AS platform,
+                SUM(total_sponsored_operation_count) AS count
+            FROM
+                paymaster_hourly_metrics_new as phm
+            LEFT JOIN
+                paymasters p ON p.address = phm.paymaster_address
+            WHERE
+                p.name IN (${sql.join(input.paymasters, sql`, `)})
+                AND phm.hour >= ${input.startDate.toISOString()}
+                AND phm.hour <= ${input.endDate.toISOString()}
+                AND phm.chain_id = ${input.chainId}
+                AND phm.paymaster_address != '0x0000000000000000000000000000000000000000'
+            GROUP BY
+                platform
+            ORDER BY
+                platform
+        `);
+
+      return results;
     }),
 });

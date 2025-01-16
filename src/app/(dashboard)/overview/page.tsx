@@ -42,7 +42,7 @@ export default function OverviewPage() {
     };
   }, [selectedTimeFrame]);
 
-  const bunldedOpsPerChain = api.globalStats.totalBundledByChain.useQuery(
+  const bunldedOpsPerChain = api.bundlers.totalOpsByChain.useQuery(
     {
       startDate,
       endDate,
@@ -69,7 +69,7 @@ export default function OverviewPage() {
     },
   );
 
-  const deploymentsByFactory = api.factories.deploymentsByFactory.useQuery(
+  const deploymentsByFactory = api.accounts.deploymentsByFactory.useQuery(
     {
       startDate,
       endDate,

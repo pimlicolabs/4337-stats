@@ -16,6 +16,7 @@ interface StackedBarChartProps {
   xAxisKey: string;
   showLegend?: boolean;
   xAxisFormatter?: (value: string) => string;
+  className?: string;
 }
 
 const defaultColor = "#94a3b8";
@@ -24,6 +25,7 @@ export default function StackedBarChart({
   data,
   config,
   xAxisKey,
+  className,
   showLegend = true,
   xAxisFormatter = (value) => value.slice(0, 3),
 }: StackedBarChartProps) {
@@ -36,7 +38,7 @@ export default function StackedBarChart({
   }
 
   return (
-    <ChartContainer config={config}>
+    <ChartContainer className={className} config={config}>
       <BarChart
         data={data}
         margin={{ top: 10, right: 10, left: 10, bottom: 10 }}

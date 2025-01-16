@@ -13,7 +13,7 @@ interface UsageTableProps {
   data: { name: string; count: number }[] | undefined;
 }
 
-export function BundlerTable({ data }: UsageTableProps) {
+export function PaymasterTable({ data }: UsageTableProps) {
   if (!data) {
     return <LoadingText />;
   }
@@ -26,10 +26,10 @@ export function BundlerTable({ data }: UsageTableProps) {
         <TableHeader>
           <TableRow className="bg-gray-50 hover:bg-gray-50">
             <TableHead className="w-[200px] py-4 font-semibold">
-              Bundler
+              Paymaster
             </TableHead>
             <TableHead className="text-right py-4 font-semibold">
-              User Operations Bundled
+              User Operations Sponsored
             </TableHead>
           </TableRow>
         </TableHeader>

@@ -10,6 +10,7 @@ interface UsageByEntityChartProps {
   chartTitle: string;
   chartDescription: string;
   data: Record<string, number>[] | undefined;
+  className?: string;
 }
 
 export default function UsageBarChart({
@@ -17,6 +18,7 @@ export default function UsageBarChart({
   chartConfig,
   chartTitle,
   chartDescription,
+  className,
 }: UsageByEntityChartProps) {
   return (
     <>
@@ -24,6 +26,7 @@ export default function UsageBarChart({
         {data ? (
           <div className="w-full">
             <StackedBarChart
+              className={className}
               showLegend={false}
               data={data}
               config={chartConfig}

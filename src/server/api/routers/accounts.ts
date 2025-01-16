@@ -2,7 +2,7 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { sql } from "drizzle-orm";
 
-export const accountFactorysRouter = createTRPCRouter({
+export const accountsRouter = createTRPCRouter({
   totalDeployments: publicProcedure
     .input(
       z.object({
@@ -126,5 +126,49 @@ export const accountFactorysRouter = createTRPCRouter({
       }
 
       return metricsMap;
+    }),
+  uniqueSendersByFactoryByDay: publicProcedure
+    .input(
+      z.object({
+        factories: z.array(z.string()), // column `name` in factories table
+        startDate: z.date(),
+        endDate: z.date(),
+        chainIds: z.array(z.number()),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const results = await ctx.envioDb.execute<{
+        factory_name: string;
+        day: string;
+        unique_active_senders: bigint;
+      }>(sql`
+            SELECT
+                f.name AS factory_name,
+                date AS day,
+                SUM(unique_active_senders) AS unique_active_senders
+            FROM
+                active_accounts_daily_metrics_v2 aadm
+            JOIN
+                factories f ON f.address = aadm.factory_address
+            WHERE
+                aadm.date >= ${input.startDate.toISOString()}
+                AND aadm.date <= ${input.endDate.toISOString()}
+                AND f.name IN (${sql.join(input.factories, sql`, `)})
+                AND aadm.chain_id IN (${sql.join(input.chainIds, sql`, `)})
+            GROUP BY
+                f.name, date
+            ORDER BY
+                date, f.name;
+    `);
+
+      const metricsMap: Record<string, Record<string, any>> = {};
+
+      for (const row of results) {
+        const { day, factory_name, unique_active_senders } = row;
+        metricsMap[day] ??= { date: day };
+        metricsMap[day][factory_name] = Number(unique_active_senders);
+      }
+
+      return Object.values(metricsMap);
     }),
 });

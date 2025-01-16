@@ -60,7 +60,7 @@ export default function UsageByChain({
       chartConfig = PAYMASTER_CHART_CONFIG;
       break;
     case "account_factory":
-      query = api.factories.deploymentsByChain;
+      query = api.accounts.deploymentsByChain;
       queryParams = {
         startDate,
         endDate,

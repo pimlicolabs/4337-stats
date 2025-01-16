@@ -62,6 +62,8 @@ export default function BundlersPage() {
     },
   );
 
+  //const dailyActiveUsers = api.factories.
+
   return (
     <div className="p-8 w-full flex flex-col gap-4">
       <h1 className="text-3xl font-bold">Bundler Stats</h1>

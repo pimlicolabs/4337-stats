@@ -1,7 +1,12 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { BUNDLERS, CHAIN_CHART_CONFIG, CHAINS } from "@/lib/registry";
+import {
+  BUNDLERS,
+  CHAIN_CHART_CONFIG,
+  CHAINS,
+  PAYMASTERS,
+} from "@/lib/registry";
 import { api } from "@/trpc/react";
 import { useMemo, useState } from "react";
 import { UTCDate } from "@date-fns/utc";
@@ -12,6 +17,8 @@ import UsageBarChart from "@/components/custom-components/usageGraph";
 import { BundlerTable } from "./components/bundlerTable";
 import TimefilterDropdown from "./components/timeFilterDropdown";
 import ChainDropdown from "./components/chainDropdown";
+import { StatsHeader } from "./components/StatsHeader";
+import { PaymasterTable } from "./components/paymasterTable";
 
 export default function ChainStats() {
   const params = useParams();
@@ -61,7 +68,22 @@ export default function ChainStats() {
     },
   );
 
-  const bunldedOpsPerChain = api.globalStats.totalBundledByChain.useQuery(
+  const sponsoredOpsByPlatform =
+    api.paymasters.sponsoredByPlatformForChain.useQuery(
+      {
+        startDate,
+        endDate,
+        chainId: chain.chainId,
+        paymasters: PAYMASTERS.map((e) => e.dbName),
+      },
+      {
+        refetchOnWindowFocus: false,
+        refetchOnMount: false,
+        staleTime: Infinity,
+      },
+    );
+
+  const bunldedOpsPerChain = api.bundlers.totalOpsByChain.useQuery(
     {
       startDate,
       endDate,
@@ -84,6 +106,11 @@ export default function ChainStats() {
           setSelectedTimeFrame={setSelectedTimeFrame}
         />
       </div>
+      <StatsHeader
+        startDate={startDate}
+        endDate={endDate}
+        selectedChains={[chain.chainId]}
+      />
       <div className="w-full gap-4 grid grid-cols-1 md:grid-cols-2">
         <UsageBarChart
           chartTitle={"User operations bundled"}
@@ -92,9 +119,13 @@ export default function ChainStats() {
           data={bunldedOpsPerChain.data}
         />
         <BundlerTable
-          title={"Bundlers"}
-          description={"UserOperations bundled by a given bundler."}
           data={opsByPlatform.data?.map((d) => ({
+            name: d.platform,
+            count: Number(d.count),
+          }))}
+        />
+        <PaymasterTable
+          data={sponsoredOpsByPlatform.data?.map((d) => ({
             name: d.platform,
             count: Number(d.count),
           }))}

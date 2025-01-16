@@ -1,7 +1,7 @@
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 import { bundlersRouter } from "./routers/bundlers";
 import { paymastersRouter } from "./routers/paymasters";
-import { accountFactorysRouter } from "./routers/factories";
+import { accountsRouter } from "./routers/accounts";
 import { addressBookRouter } from "./routers/address-book";
 import { globalStatsRouter } from "./routers/global-stats";
 
@@ -15,7 +15,7 @@ export const appRouter = createTRPCRouter({
   addressBook: addressBookRouter,
   bundlers: bundlersRouter,
   paymasters: paymastersRouter,
-  factories: accountFactorysRouter,
+  accounts: accountsRouter,
 });
 
 // export type definition of API

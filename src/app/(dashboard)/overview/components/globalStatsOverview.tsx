@@ -46,7 +46,7 @@ export default function GlobalStatsOverview({
     },
   );
 
-  const totalAccountsDeployedQuery = api.factories.totalDeployments.useQuery(
+  const totalAccountsDeployedQuery = api.accounts.totalDeployments.useQuery(
     {
       startDate,
       endDate,

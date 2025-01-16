@@ -29,6 +29,49 @@ export const bundlersRouter = createTRPCRouter({
 
       return Number(result[0]?.total_ops_bundled);
     }),
+  totalOpsByChain: publicProcedure
+    .input(
+      z.object({
+        startDate: z.date(),
+        endDate: z.date(),
+        chainIds: z.array(z.number()),
+        resolution: z.enum(["hour", "day", "week", "month"]),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const results = await ctx.envioDb.execute<{
+        time: string;
+        chain_id: number;
+        total_ops_bundled: bigint;
+      }>(sql`
+            SELECT
+                DATE_TRUNC(${input.resolution}, hour) AS time,
+                chain_id,
+                SUM(total_operation_count) AS total_ops_bundled
+            FROM
+                bundler_hourly_metrics
+            WHERE
+                hour >= ${input.startDate.toISOString()}
+                AND hour <= ${input.endDate.toISOString()}
+                AND chain_id IN (${sql.join(input.chainIds, sql`, `)})
+            GROUP BY
+                time,
+                chain_id
+            ORDER BY
+                time ASC,
+                chain_id ASC
+    `);
+
+      const metricsMap: Record<string, Record<string, any>> = {};
+
+      for (const row of results) {
+        const { time, chain_id, total_ops_bundled } = row;
+        metricsMap[time] ??= { date: time };
+        metricsMap[time][chain_id] = Number(total_ops_bundled);
+      }
+
+      return Object.values(metricsMap);
+    }),
   opsByPlatformByDate: publicProcedure
     .input(
       z.object({
@@ -150,8 +193,6 @@ export const bundlersRouter = createTRPCRouter({
             ORDER BY
                 platform
         `);
-
-      console.log(results);
 
       return results;
     }),
