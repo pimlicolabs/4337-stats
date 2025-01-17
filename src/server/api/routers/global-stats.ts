@@ -22,7 +22,7 @@ export const globalStatsRouter = createTRPCRouter({
                 aadm.chain_id,
                 SUM(aadm.unique_active_senders) AS total_active_accounts
             FROM
-                active_accounts_daily_metrics_v2 AS aadm
+                active_accounts_daily_metrics_v3 AS aadm
             WHERE
                 aadm.date >= ${input.startDate.toISOString()}
                 AND aadm.date <= ${input.endDate.toISOString()}
@@ -81,7 +81,7 @@ export const globalStatsRouter = createTRPCRouter({
             SELECT
                 SUM(aadm.unique_active_senders) AS total_active_accounts
             FROM
-                active_accounts_daily_metrics_v2 AS aadm
+                active_accounts_daily_metrics_v3 AS aadm
             WHERE
                 aadm.date = ${input.day.toISOString()}
                 AND aadm.chain_id IN (${sql.join(input.chainIds, sql`, `)})
