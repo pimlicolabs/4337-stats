@@ -57,7 +57,7 @@ export const paymastersRouter = createTRPCRouter({
             LEFT JOIN
                 paymasters p ON p.address = phm.paymaster_address
             WHERE
-                p.name IN (${sql.join(input.paymasters, sql`, `)})
+                COALESCE(p.name, 'unknown') IN (${sql.join(input.paymasters, sql`, `)})
                 AND phm.hour >= ${input.startDate.toISOString()}
                 AND phm.hour <= ${input.endDate.toISOString()}
                 AND phm.chain_id IN (${sql.join(input.chainIds, sql`, `)})
@@ -103,7 +103,7 @@ export const paymastersRouter = createTRPCRouter({
             LEFT JOIN
                 paymasters p ON p.address = phm.paymaster_address
             WHERE
-                p.name IN (${sql.join(input.paymasters, sql`, `)})
+                COALESCE(p.name, 'unknown') IN (${sql.join(input.paymasters, sql`, `)})
                 AND phm.hour >= ${input.startDate.toISOString()}
                 AND phm.hour <= ${input.endDate.toISOString()}
                 AND phm.chain_id IN (${sql.join(input.chainIds, sql`, `)})
@@ -152,7 +152,7 @@ export const paymastersRouter = createTRPCRouter({
             LEFT JOIN
                 paymasters p ON p.address = phm.paymaster_address
             WHERE
-                p.name IN (${sql.join(input.paymasters, sql`, `)})
+                COALESCE(p.name, 'unknown') IN (${sql.join(input.paymasters, sql`, `)})
                 AND phm.hour >= ${input.startDate.toISOString()}
                 AND phm.hour <= ${input.endDate.toISOString()}
                 AND phm.chain_id = ${input.chainId}

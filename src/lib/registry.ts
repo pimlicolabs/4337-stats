@@ -73,6 +73,11 @@ export const ACCOUNT_FACTORIES: RegistryEntityType[] = [
     dbName: "biconomy_nexus",
     color: "#F18C73",
   },
+  {
+    name: "Unknown",
+    dbName: "unknown",
+    color: "#94a3b8",
+  },
 ];
 
 export const CHAINS = [

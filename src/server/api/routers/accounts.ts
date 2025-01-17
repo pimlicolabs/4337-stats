@@ -20,12 +20,12 @@ export const accountsRouter = createTRPCRouter({
                 SUM(total_accounts_deployed) AS total_accounts_deployed
             FROM
                 factory_hourly_metrics fhm
-            JOIN
+            LEFT JOIN
                 factories f ON f.address = fhm.factory_address
             WHERE
                 hour >= ${input.startDate.toISOString()}
                 AND hour <= ${input.endDate.toISOString()}
-                AND name IN (${sql.join(input.factories, sql`, `)})
+                AND COALESCE(name, 'unknown') IN (${sql.join(input.factories, sql`, `)})
                 AND chain_id IN (${sql.join(input.chainIds, sql`, `)})
     `);
 
@@ -48,17 +48,17 @@ export const accountsRouter = createTRPCRouter({
         total_accounts_deployed: bigint;
       }>(sql`
             SELECT
-                f.name AS factory_name,
+                COALESCE(f.name, 'unknown') AS factory_name,
                 DATE_TRUNC(${input.resolution}, fhm.hour) AS time,
                 SUM(fhm.total_accounts_deployed) AS total_accounts_deployed
             FROM
                 factory_hourly_metrics fhm
-            JOIN
+            LEFT JOIN
                 factories f ON f.address = fhm.factory_address
             WHERE
                 fhm.hour >= ${input.startDate.toISOString()}
                 AND fhm.hour <= ${input.endDate.toISOString()}
-                AND f.name IN (${sql.join(input.factories, sql`, `)})
+                AND COALESCE(f.name, 'unknown') IN (${sql.join(input.factories, sql`, `)})
                 AND fhm.chain_id IN (${sql.join(input.chainIds, sql`, `)})
             GROUP BY
                 f.name, time
@@ -93,18 +93,18 @@ export const accountsRouter = createTRPCRouter({
         count: bigint;
       }>(sql`
             SELECT
-                name AS factory_name,
+                COALESCE(name, 'unknown') AS factory_name,
                 chain_id,
                 SUM(total_accounts_deployed) AS count
             FROM
                 factory_hourly_metrics as fhm
-            JOIN
+            LEFT JOIN
                 factories f ON f.address = fhm.factory_address
             WHERE
                 hour >= ${input.startDate.toISOString()}
                 AND hour <= ${input.endDate.toISOString()}
                 AND chain_id IN (${sql.join(input.chainIds, sql`, `)})
-                AND name IN (${sql.join(input.factories, sql`, `)})
+                AND COALESCE(name, 'unknown') IN (${sql.join(input.factories, sql`, `)})
             GROUP BY
                 factory_name, chain_id
             ORDER BY
@@ -143,17 +143,17 @@ export const accountsRouter = createTRPCRouter({
         unique_active_senders: bigint;
       }>(sql`
             SELECT
-                f.name AS factory_name,
+                COALESCE(f.name, 'unknown') AS factory_name,
                 date AS day,
                 SUM(unique_active_senders) AS unique_active_senders
             FROM
                 active_accounts_daily_metrics_v3 aadm
-            JOIN
+            LEFT JOIN
                 factories f ON f.address = aadm.factory_address
             WHERE
                 aadm.date >= ${input.startDate.toISOString()}
                 AND aadm.date <= ${input.endDate.toISOString()}
-                AND f.name IN (${sql.join(input.factories, sql`, `)})
+                AND COALESCE(f.name, 'unknown') IN (${sql.join(input.factories, sql`, `)})
                 AND aadm.chain_id IN (${sql.join(input.chainIds, sql`, `)})
             GROUP BY
                 f.name, date
