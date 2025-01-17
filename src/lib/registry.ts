@@ -62,6 +62,7 @@ export const ACCOUNT_FACTORIES: RegistryEntityType[] = [
   { name: "Safe", dbName: "safe", color: "#17FF80" },
   { name: "Ambire", dbName: "ambire", color: "#8925FF" },
   { name: "Solady", dbName: "solady", color: "#E99C9D" },
+  { name: "Splits", dbName: "splits", color: "#6B6B6B" },
   {
     name: "Trust Wallet",
     dbName: "trust_wallet",

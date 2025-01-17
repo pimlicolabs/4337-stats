@@ -153,7 +153,7 @@ export default function ChainStats() {
         data={activeUsersByFactory.data}
         chartConfig={FACTORY_CHART_CONFIG}
         chartTitle="Daily active users"
-        chartDescription="Unique senders by smart account type (where senders are older than 1 day)"
+        chartDescription="Unique senders by smart account type (where sender is older than 1 day)"
       />
     </div>
   );
