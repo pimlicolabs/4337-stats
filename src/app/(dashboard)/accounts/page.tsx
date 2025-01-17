@@ -117,7 +117,7 @@ export default function BundlersPage() {
         data={activeUsersByFactory.data}
         chartConfig={FACTORY_CHART_CONFIG}
         chartTitle="Daily active users"
-        chartDescription="Unique senders by smart account type."
+        chartDescription="Unique senders by smart account type (where senders are older than 1 day)"
       />
       <UsageByChain
         selectedChains={selectedChains}

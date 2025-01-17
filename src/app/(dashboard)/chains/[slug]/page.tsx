@@ -2,9 +2,11 @@
 
 import { useParams } from "next/navigation";
 import {
+  ACCOUNT_FACTORIES,
   BUNDLERS,
   CHAIN_CHART_CONFIG,
   CHAINS,
+  FACTORY_CHART_CONFIG,
   PAYMASTERS,
 } from "@/lib/registry";
 import { api } from "@/trpc/react";
@@ -97,6 +99,21 @@ export default function ChainStats() {
     },
   );
 
+  const activeUsersByFactory =
+    api.accounts.uniqueSendersByFactoryByDay.useQuery(
+      {
+        startDate,
+        endDate,
+        chainIds: [chain.chainId],
+        factories: ACCOUNT_FACTORIES.map((f) => f.dbName),
+      },
+      {
+        refetchOnWindowFocus: false,
+        refetchOnMount: false,
+        staleTime: Infinity,
+      },
+    );
+
   return (
     <div className="p-8 w-full flex flex-col gap-4">
       <div className="justify-between flex">
@@ -131,6 +148,13 @@ export default function ChainStats() {
           }))}
         />
       </div>
+      <UsageBarChart
+        className="w-full h-64"
+        data={activeUsersByFactory.data}
+        chartConfig={FACTORY_CHART_CONFIG}
+        chartTitle="Daily active users"
+        chartDescription="Unique senders by smart account type (where senders are older than 1 day)"
+      />
     </div>
   );
 }
