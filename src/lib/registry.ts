@@ -80,6 +80,218 @@ export const ACCOUNT_FACTORIES: RegistryEntityType[] = [
   },
 ];
 
+export const APPS = [
+  {
+    name: "OpenSocial",
+    dbNames: [
+      "0x00000066C6C6fCa286F48A7f4E989b7198c26cAf",
+      "0x2ca3502B30Eb0a1B576a19478262bf75872Ca88e", // https://bscscan.com/tx/0x0df297f98c88fd3a7eb766775947615dff97f9e2110b90dc24505b9cdde8bf32
+    ],
+    color: "#94a3b8",
+  },
+  {
+    name: "Yellow",
+    dbNames: [
+      "0x18e73A5333984549484348A94f4D219f4faB7b81",
+      "0x2A8B51821884CF9A7ea1A24C72E46Ff52dCb4F16",
+      "0xb5F3a9dD92270f55e55B7Ac7247639953538A261", // staking contract
+    ],
+    color: "#94a3b8",
+  },
+  {
+    name: "PiggyBox",
+    dbNames: ["0x1836084c8D1BF58118F072BaeDDD1523403b1b32"],
+    color: "#94a3b8",
+  },
+  {
+    name: "X Digital Real (ERC-20)",
+    dbNames: ["0x7e68F6e1AC2777a0ba12672fE1Dd45E995004A83"],
+    color: "#94a3b8",
+  },
+  {
+    name: "Grindery (ERC-20)",
+    dbNames: [
+      "0xe36BD65609c08Cd17b53520293523CF4560533d0", // ERC-20
+      "0xcc5fD0Ef8E3824d0FcAF60677eA31d585D966A8f", // FeeAccountantPrimary
+      "0x9162273E43DADBBF3deaA6303Bf173ac95aFa7C7",
+    ],
+    color: "#94a3b8",
+  },
+  {
+    name: "1Inch",
+    dbNames: ["0x1111111254EEB25477B68fb85Ed929f73A960582"],
+    color: "#94a3b8",
+  },
+  {
+    name: "Paraswap",
+    dbNames: ["0xDEF171Fe48CF0115B1d80b88dc8eAB59176FEe57"],
+    color: "#94a3b8",
+  },
+  {
+    name: "Safe MultiSend",
+    dbNames: ["0x38869bf66a61cF6bDB996A6aE40D5853Fd43B526"],
+    color: "#94a3b8",
+  },
+  {
+    name: "Safe MultiSendCallOnly",
+    dbNames: ["0x9641d764fc13c8B624c04430C7356C1C7C8102e2"],
+    color: "#94a3b8",
+  },
+  {
+    name: "Buckzy USD",
+    dbNames: ["0x19e2448C0145fAB104C411f1D9eddf1b05D6A4dD"],
+    color: "#94a3b8",
+  },
+  {
+    name: "Somon badge (EIP-1155)",
+    dbNames: ["0x3376e0ea6f4d0722c6c5c8534d953a29b05117cb"],
+    color: "#94a3b8",
+  },
+  {
+    name: "Yellow Ducklings NFT",
+    dbNames: ["0xB66bf78cad7cBab51988ddc792652CbabdFf7675"],
+    color: "#94a3b8",
+  },
+  {
+    name: "Pichain Token (ERC-20)",
+    dbNames: ["0xD0CF4dE352aC8dccE00bD6B93EE73D3Cb272edC3"],
+    color: "#94a3b8",
+  },
+  {
+    name: "Pichain Token (ERC-20)",
+    dbNames: ["0xD0CF4dE352aC8dccE00bD6B93EE73D3Cb272edC3"],
+    color: "#94a3b8",
+  },
+  {
+    name: "Wormfare",
+    dbNames: ["0x381AE980c9DA2a15C5f210809e4cA50853A4918d"],
+    color: "#94a3b8",
+  },
+  {
+    name: "Phenom Poker",
+    dbNames: [
+      "0x37AEFbD92631Ed932f1C1ed355fAc8d2a8EC68DC",
+      "0xC10e197E783394D08310F5013F05362a64a891C4",
+      "0xd841DaCe0EfdD174526daDBaA38f3358144bbe91",
+      "0xe789D2724f29D8De7FA00a4e133b9072d6A492D9",
+    ],
+    color: "#94a3b8",
+  },
+  {
+    name: "Pallet (PTT ERC-20)",
+    dbNames: ["0x385f490c56932563bAD469C59dC1B79EC84fBDEc"],
+    color: "#94a3b8",
+  },
+  {
+    name: "Pallet (PTT ERC-20)",
+    dbNames: ["0x385f490c56932563bAD469C59dC1B79EC84fBDEc"],
+    color: "#94a3b8",
+  },
+  {
+    name: "Miracle Play (Sevenline Labs)",
+    dbNames: [
+      "0x2035944dA8880528E50863E996cdCfaf16d9F1d0",
+      "0xB75B001bB9c9244b4fb679aDD8322CD7D65225b2",
+      "0x0bb1983F89bc50eCb70063d542b77aA5ab7a93Ce",
+      "0xF19B4166FE5D9776525E152A7a01432176Fa0fbD",
+      "0xa95636Ed6B9a599d760a6AFf92824E8232Cf038D", // FundableTournamentEscrow
+      "0x79940436c6a70bad4eCb6A41F4EBFd4735B767aF", // TokenERC20M (token mintable)
+      "0x1fca7e7c9BcE37eCb538Cef7937dc30e9C1650be", //  Managed Account Factory (Thirdweb)
+      "0x87d6F8eDECcbCcA766D2880D19b2C3777D322C22", // Miracleplay Token (MPT)
+      "0x89147D1Af1755f83806f6D821FcbBfa21F13d405", // ERC-20: Battle Point Token (BPT)
+      "0x19337585d1DEFe8De9A955b0090aeaC5A498E3B6", // Avax/OpBNB but deployed from seveline labs deployer
+      "0xDcD798913b393bFF606D2a1fBF763BD73F018337", // FundableTournamentEscrow
+      "0xCa5799c80Aa723647bE6051A1Ccd19c8658319e6", // OpBNB contract deployed from seveline labs deployer
+      "0xFCc3839BB0D1A1cbe90eA967526E91B71376E3Ab",
+      "0xf0E2f2a84C898989C66FCa1d5BCe869E9BC85ddf",
+      "0x0597b72dD532A78A11C16606CD7525D1277bBC7f",
+    ],
+    color: "#94a3b8",
+  },
+  {
+    name: "UniversalX RedPacket",
+    dbNames: ["0xC5b3d940801e585F2d146656356D3F72d94E52aA"],
+    color: "#94a3b8",
+  },
+  {
+    name: "GFAL Token",
+    dbNames: ["0x47c454cA6be2f6DEf6f32b638C80F91c9c3c5949"],
+    color: "#94a3b8",
+  },
+  {
+    name: "Coinflow",
+    dbNames: ["0x31D058B5E02c8B01C749e6844d86Cdd3F2962Cd7"],
+    color: "#94a3b8",
+  },
+  {
+    name: "Biconomy V2 Session Key manager",
+    dbNames: ["0x000002fbffedd9b33f4e7156f2de8d48945e7489"],
+    color: "#94a3b8",
+  },
+  {
+    name: "Super useless token",
+    dbNames: ["0x57211299bC356319BA5CA36873eB06896173F8bC"],
+    color: "#94a3b8",
+  },
+  {
+    name: "Ownable Executor Module",
+    dbNames: ["0x95Df3A0a3e49c3e1bAb41c506A22973A106cF6B0"],
+    color: "#94a3b8",
+  },
+  {
+    name: "StoryChain Quests",
+    dbnames: ["0xB93ABA5aBc0d60910dF2eb755E150048F9A9E96a"], // https://dappbay.bnbchain.org/detail/storychain-quests
+    color: "#94a3b8",
+  },
+  {
+    name: "pichain recovery module",
+    dbnames: ["0xb382daf7230b73f71a766c96707cf9ec6316b360"],
+    color: "#94a3b8",
+  },
+  {
+    name: "USDT",
+    dbnames: ["0xc2132D05D31c914a87C6611C10748AEb04B58e8F"],
+    color: "#94a3b8",
+  },
+  {
+    name: "USDC",
+    dbnames: ["0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"],
+    color: "#94a3b8",
+  },
+  {
+    name: "Mocaverse",
+    dbnames: [
+      "0x8EB187a55B701F8990539bF219b7921d5D3BdadD", // Realm.id
+    ],
+    color: "#94a3b8",
+  },
+  {
+    name: "Multicall 3",
+    dbnames: ["0xcA11bde05977b3631167028862bE2a173976CA11"],
+    color: "#94a3b8",
+  },
+  {
+    name: "Xaya Account",
+    dbnames: ["0x8C12253F71091b9582908C8a44F78870Ec6F304F"],
+    color: "#94a3b8",
+  },
+  {
+    name: "KGen protocol",
+    dbnames: ["0x6c7227CB483250Db69C85245eBBe0C7396147a8E"],
+    color: "#94a3b8",
+  },
+  {
+    name: "KGen protocol",
+    dbnames: ["0x6c7227CB483250Db69C85245eBBe0C7396147a8E"],
+    color: "#94a3b8",
+  },
+  {
+    name: "BSC-USD",
+    dbnames: ["0x55d398326f99059fF775485246999027B3197955"],
+    color: "#94a3b8",
+  },
+];
+
 export const CHAINS = [
   {
     chainId: 1,
