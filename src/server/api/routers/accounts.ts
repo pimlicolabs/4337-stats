@@ -147,7 +147,7 @@ export const accountsRouter = createTRPCRouter({
                 date AS day,
                 SUM(unique_active_senders) AS unique_active_senders
             FROM
-                active_accounts_daily_metrics_v3 aadm
+                active_accounts_daily_metrics aadm
             LEFT JOIN
                 factories f ON f.address = aadm.factory_address
             WHERE

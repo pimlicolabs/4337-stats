@@ -19,7 +19,7 @@ export const paymastersRouter = createTRPCRouter({
             SELECT
                 SUM(total_sponsored_operation_count) AS total_sponsored_ops
             FROM
-                paymaster_hourly_metrics_new AS phm
+                paymaster_hourly_metrics AS phm
             LEFT JOIN
                 paymasters p ON p.address = phm.paymaster_address
             WHERE
@@ -53,7 +53,7 @@ export const paymastersRouter = createTRPCRouter({
                 DATE_TRUNC(${input.resolution}, hour) AS time,
                 SUM(total_sponsored_operation_count) AS total_sponsored_ops
             FROM
-                paymaster_hourly_metrics_new AS phm
+                paymaster_hourly_metrics AS phm
             LEFT JOIN
                 paymasters p ON p.address = phm.paymaster_address
             WHERE
@@ -99,7 +99,7 @@ export const paymastersRouter = createTRPCRouter({
                 chain_id,
                 SUM(total_sponsored_operation_count) AS count
             FROM
-                paymaster_hourly_metrics_new AS phm
+                paymaster_hourly_metrics AS phm
             LEFT JOIN
                 paymasters p ON p.address = phm.paymaster_address
             WHERE
@@ -148,7 +148,7 @@ export const paymastersRouter = createTRPCRouter({
                 COALESCE(name, 'unknown') AS platform,
                 SUM(total_sponsored_operation_count) AS count
             FROM
-                paymaster_hourly_metrics_new as phm
+                paymaster_hourly_metrics AS phm
             LEFT JOIN
                 paymasters p ON p.address = phm.paymaster_address
             WHERE

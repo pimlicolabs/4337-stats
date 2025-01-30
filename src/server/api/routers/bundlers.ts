@@ -19,7 +19,7 @@ export const bundlersRouter = createTRPCRouter({
             SELECT
                 SUM(bhm.total_operation_count) AS total_ops_bundled
             FROM
-                bundler_hourly_metrics_v2 as bhm
+                bundler_hourly_metrics as bhm
             LEFT JOIN
                 bundlers b on b.address = bhm.bundler_address
             WHERE
@@ -51,7 +51,7 @@ export const bundlersRouter = createTRPCRouter({
                 bhm.chain_id,
                 SUM(bhm.total_operation_count) AS total_ops_bundled
             FROM
-                bundler_hourly_metrics_v2 as bhm
+                bundler_hourly_metrics as bhm
             LEFT JOIN
                 bundlers b on b.address = bhm.bundler_address
             WHERE
@@ -97,7 +97,7 @@ export const bundlersRouter = createTRPCRouter({
                 (DATE_TRUNC(${input.resolution}, hour::TIMESTAMP AT TIME ZONE 'UTC'))::TIMESTAMP AS time,
                 SUM(bhm.total_operation_count) AS total_ops_bundled
             FROM
-                bundler_hourly_metrics_v2 as bhm
+                bundler_hourly_metrics as bhm
             LEFT JOIN
                 bundlers b on b.address = bhm.bundler_address
             WHERE
@@ -142,7 +142,7 @@ export const bundlersRouter = createTRPCRouter({
                 chain_id,
                 SUM(total_operation_count) AS count
             FROM
-                bundler_hourly_metrics_v2 as bhm
+                bundler_hourly_metrics as bhm
             LEFT JOIN
                 bundlers b on b.address = bhm.bundler_address
             WHERE
@@ -190,7 +190,7 @@ export const bundlersRouter = createTRPCRouter({
                 COALESCE(b.name, 'unknown') AS platform,
                 SUM(bhm.total_operation_count) AS count
             FROM
-                bundler_hourly_metrics_v2 as bhm
+                bundler_hourly_metrics as bhm
             LEFT JOIN
                 bundlers b on b.address = bhm.bundler_address
             WHERE
