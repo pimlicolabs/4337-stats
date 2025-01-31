@@ -23,6 +23,11 @@ export const ENTRYPOINTS = [
 
 export const ACCOUNT_FACTORIES: RegistryEntityType[] = [
   {
+    name: "Grindery",
+    dbName: "grindery",
+    color: "#D6FFB7",
+  },
+  {
     name: "Kernel V2",
     dbName: "zerodev_kernel_v2",
     color: "#18BFE6",
@@ -44,6 +49,23 @@ export const ACCOUNT_FACTORIES: RegistryEntityType[] = [
   },
   { name: "Biconomy", dbName: "biconomy", color: "#FD501C" },
   { name: "Thirdweb", dbName: "thirdweb_default", color: "#8007B8" },
+  {
+    name: "Kinto Access Registry",
+    dbName: "kinto_access_registry",
+    color: "#010101",
+  },
+  {
+    // source: https://github.com/opensource-observer/oss-directory/blob/551bf7133f71e82f6a56589caabee078e0a9f231/data/projects/e/eco-association.yaml#L19
+    // source: https://github.com/GeneralMagicio/pw-retropgf3-categorize/blob/bacd87500dc810e416051c758f2964d1a9459f74/data/0x982E148216E3Aa6B38f9D901eF578B5c06DD7502.json#L29
+    name: "Beam Simple Account",
+    dbName: "beam_simple_account",
+    color: "#3370FF",
+  },
+  {
+    name: "Thirdweb Managed Account",
+    dbName: "thirdweb_managed_account",
+    color: "#8007B8",
+  },
   { name: "Nani", dbName: "nani", color: "#000" },
   {
     name: "Coinbase Smart Wallet",
@@ -419,6 +441,7 @@ export const PAYMASTERS: RegistryEntityType[] = [
   { name: "Daimo", dbName: "daimo", color: "#17AC2C" },
   { name: "OpenFort", dbName: "openfort", color: "#FC3C2F" },
   { name: "Pichain", dbName: "pichain", color: "#FF8101" },
+  { name: "Notus", dbName: "notus", color: "#FF8101" },
   { name: "Unknown", dbName: "unknown", color: "#94a3b8" },
 ];
 
