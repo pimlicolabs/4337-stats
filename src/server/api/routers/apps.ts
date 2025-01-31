@@ -35,8 +35,6 @@ export const appsRouter = createTRPCRouter({
                 time, targets;
     `);
 
-      console.log(results);
-
       // parse targets field
       const appStats = results.flatMap((row) =>
         row.targets
