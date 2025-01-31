@@ -423,6 +423,11 @@ export const PAYMASTERS: RegistryEntityType[] = [
 
 export const BUNDLERS: RegistryEntityType[] = [
   {
+    name: "Gelato",
+    dbName: "gelato",
+    color: "#FF3C57",
+  },
+  {
     name: "Pimlico",
     dbName: "pimlico",
     color: "#7116AA",
