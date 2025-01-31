@@ -418,6 +418,7 @@ export const PAYMASTERS: RegistryEntityType[] = [
   { name: "Send", dbName: "send", color: "#3EFC50" },
   { name: "Daimo", dbName: "daimo", color: "#17AC2C" },
   { name: "OpenFort", dbName: "openfort", color: "#FC3C2F" },
+  { name: "Pichain", dbName: "pichain", color: "#FF8101" },
   { name: "Unknown", dbName: "unknown", color: "#94a3b8" },
 ];
 
