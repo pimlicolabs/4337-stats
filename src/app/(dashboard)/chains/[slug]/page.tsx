@@ -16,11 +16,9 @@ import { endOfDay, subDays } from "date-fns";
 import { TIME_PERIOD_TO_DAYS } from "@/lib/constants";
 import { TimeFrameResolutionType, TimeFrameType } from "@/lib/types";
 import UsageBarChart from "@/components/custom-components/usageGraph";
-import { BundlerTable } from "./components/bundlerTable";
 import TimefilterDropdown from "./components/timeFilterDropdown";
 import ChainDropdown from "./components/chainDropdown";
 import { StatsHeader } from "./components/StatsHeader";
-import { PaymasterTable } from "./components/paymasterTable";
 import { UsageTable } from "@/components/custom-components/usageTable";
 
 export default function ChainStats() {
