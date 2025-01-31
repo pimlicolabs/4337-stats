@@ -9,11 +9,17 @@ import {
 } from "@/components/ui/table";
 import { capitalize } from "@/lib/utils";
 
-interface UsageTableProps {
-  data: { name: string; count: number }[] | undefined;
+interface GenericTableProps<T extends { name: string; count: number }> {
+  data: T[] | undefined;
+  title: string;
+  countLabel: string;
 }
 
-export function BundlerTable({ data }: UsageTableProps) {
+export function UsageTable<T extends { name: string; count: number }>({
+  data,
+  title,
+  countLabel,
+}: GenericTableProps<T>) {
   if (!data) {
     return <LoadingText />;
   }
@@ -26,24 +32,24 @@ export function BundlerTable({ data }: UsageTableProps) {
         <TableHeader>
           <TableRow className="bg-gray-50 hover:bg-gray-50">
             <TableHead className="w-[200px] py-4 font-semibold">
-              Bundler
+              {title}
             </TableHead>
             <TableHead className="text-right py-4 font-semibold">
-              User Operations Bundled
+              {countLabel}
             </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {sortedData.map((data) => (
+          {sortedData.map((item) => (
             <TableRow
-              key={data.name}
+              key={item.name}
               className="hover:bg-gray-50 transition-colors"
             >
               <TableCell className="font-medium py-4">
-                {capitalize(data.name)}
+                {capitalize(item.name)}
               </TableCell>
               <TableCell className="text-right py-4 font-medium text-gray-600">
-                {data.count.toLocaleString()}
+                {item.count.toLocaleString()}
               </TableCell>
             </TableRow>
           ))}

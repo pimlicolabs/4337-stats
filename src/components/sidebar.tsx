@@ -15,6 +15,7 @@ import {
   Globe,
   Link as LinkIcon,
   UserRound,
+  AppWindow,
   Wallet,
 } from "lucide-react";
 import Link from "next/link";
@@ -44,6 +45,11 @@ const items = [
     title: "Accounts",
     url: "/accounts",
     icon: <UserRound />,
+  },
+  {
+    title: "Apps",
+    url: "/apps",
+    icon: <AppWindow />,
   },
   { title: "Address Book", url: "/address-book", icon: <BookMarked /> },
 ];

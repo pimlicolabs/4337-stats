@@ -15,6 +15,14 @@ export const env = createEnv({
         "You forgot to change the default URL",
       ),
 
+    ENVIO_4_URL: z
+      .string()
+      .url()
+      .refine(
+        (str) => !str.includes("YOUR_ENVIO_4_URL_HERE"),
+        "You forgot to change the default URL",
+      ),
+
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
@@ -35,6 +43,7 @@ export const env = createEnv({
    */
   runtimeEnv: {
     ENVIO_URL: process.env.ENVIO_URL,
+    ENVIO_4_URL: process.env.ENVIO_4_URL,
     NODE_ENV: process.env.NODE_ENV,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },

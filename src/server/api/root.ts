@@ -4,6 +4,7 @@ import { paymastersRouter } from "./routers/paymasters";
 import { accountsRouter } from "./routers/accounts";
 import { addressBookRouter } from "./routers/address-book";
 import { globalStatsRouter } from "./routers/global-stats";
+import { appsRouter } from "./routers/apps";
 
 /**
  * This is the primary router for your server.
@@ -11,6 +12,7 @@ import { globalStatsRouter } from "./routers/global-stats";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
+  apps: appsRouter,
   globalStats: globalStatsRouter,
   addressBook: addressBookRouter,
   bundlers: bundlersRouter,

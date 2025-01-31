@@ -21,6 +21,7 @@ import TimefilterDropdown from "./components/timeFilterDropdown";
 import ChainDropdown from "./components/chainDropdown";
 import { StatsHeader } from "./components/StatsHeader";
 import { PaymasterTable } from "./components/paymasterTable";
+import { UsageTable } from "@/components/custom-components/usageTable";
 
 export default function ChainStats() {
   const params = useParams();
@@ -135,17 +136,21 @@ export default function ChainStats() {
           chartConfig={CHAIN_CHART_CONFIG}
           data={bunldedOpsPerChain.data}
         />
-        <BundlerTable
+        <UsageTable
           data={opsByPlatform.data?.map((d) => ({
             name: d.platform,
             count: Number(d.count),
           }))}
+          title={"Bundler"}
+          countLabel={"User Operations Bundled"}
         />
-        <PaymasterTable
+        <UsageTable
           data={sponsoredOpsByPlatform.data?.map((d) => ({
             name: d.platform,
             count: Number(d.count),
           }))}
+          title={"Paymaster"}
+          countLabel={"User Operations Sponsored"}
         />
       </div>
       <UsageBarChart

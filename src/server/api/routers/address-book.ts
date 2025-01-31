@@ -3,7 +3,7 @@ import { sql } from "drizzle-orm";
 
 export const addressBookRouter = createTRPCRouter({
   getPaymasters: publicProcedure.query(async ({ ctx }) => {
-    const result = await ctx.envioDb.execute<{
+    const result = await ctx.envio3Db.execute<{
       name: string;
       address: string;
       type: string;
@@ -17,7 +17,7 @@ export const addressBookRouter = createTRPCRouter({
     return result;
   }),
   getBundlers: publicProcedure.query(async ({ ctx }) => {
-    const result = await ctx.envioDb.execute<{
+    const result = await ctx.envio3Db.execute<{
       name: string;
       address: string;
     }>(sql`
@@ -30,7 +30,7 @@ export const addressBookRouter = createTRPCRouter({
     return result;
   }),
   getFactories: publicProcedure.query(async ({ ctx }) => {
-    const result = await ctx.envioDb.execute<{
+    const result = await ctx.envio3Db.execute<{
       name: string;
       address: string;
     }>(sql`

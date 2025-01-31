@@ -12,7 +12,7 @@ export const globalStatsRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const results = await ctx.envioDb.execute<{
+      const results = await ctx.envio3Db.execute<{
         date: string;
         chain_id: number;
         total_active_accounts: bigint;
@@ -53,13 +53,13 @@ export const globalStatsRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const result = await ctx.envioDb.execute<{
+      const result = await ctx.envio3Db.execute<{
         total_active_accounts: bigint;
       }>(sql`
             SELECT
                 SUM(aamm.unique_active_senders) AS total_active_accounts
             FROM
-                active_accounts_monthly_metrics_v2 AS aamm
+                active_accounts_monthly_metrics AS aamm
             WHERE
                 aamm.month = ${input.month.toISOString()}
                 AND aamm.chain_id IN (${sql.join(input.chainIds, sql`, `)})
@@ -75,7 +75,7 @@ export const globalStatsRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const result = await ctx.envioDb.execute<{
+      const result = await ctx.envio3Db.execute<{
         total_active_accounts: bigint;
       }>(sql`
             SELECT
