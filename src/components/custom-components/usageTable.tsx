@@ -27,34 +27,36 @@ export function UsageTable<T extends { name: string; count: number }>({
   const sortedData = [...data].sort((a, b) => b.count - a.count);
 
   return (
-    <div>
-      <Table className="border rounded-lg shadow-sm">
-        <TableHeader>
-          <TableRow className="bg-gray-50 hover:bg-gray-50">
-            <TableHead className="w-[200px] py-4 font-semibold">
-              {title}
-            </TableHead>
-            <TableHead className="text-right py-4 font-semibold">
-              {countLabel}
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {sortedData.map((item) => (
-            <TableRow
-              key={item.name}
-              className="hover:bg-gray-50 transition-colors"
-            >
-              <TableCell className="font-medium py-4">
-                {capitalize(item.name)}
-              </TableCell>
-              <TableCell className="text-right py-4 font-medium text-gray-600">
-                {item.count.toLocaleString()}
-              </TableCell>
+    <div className="border rounded-lg shadow-sm overflow-hidden">
+      <div className="max-h-[400px] overflow-y-auto">
+        <Table>
+          <TableHeader className="bg-white sticky top-0 z-10">
+            <TableRow className="bg-gray-50 hover:bg-gray-50">
+              <TableHead className="w-[200px] py-4 font-semibold">
+                {title}
+              </TableHead>
+              <TableHead className="text-right py-4 font-semibold">
+                {countLabel}
+              </TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {sortedData.map((item) => (
+              <TableRow
+                key={item.name}
+                className="hover:bg-gray-50 transition-colors"
+              >
+                <TableCell className="font-medium py-4">
+                  {capitalize(item.name)}
+                </TableCell>
+                <TableCell className="text-right py-4 font-medium text-gray-600">
+                  {item.count.toLocaleString()}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }
