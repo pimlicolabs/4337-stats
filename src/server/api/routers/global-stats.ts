@@ -12,7 +12,7 @@ export const globalStatsRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const results = await ctx.envio3Db.execute<{
+      const results = await ctx.envioDb.execute<{
         date: string;
         chain_id: number;
         total_active_accounts: bigint;
@@ -53,7 +53,7 @@ export const globalStatsRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const result = await ctx.envio3Db.execute<{
+      const result = await ctx.envioDb.execute<{
         total_active_accounts: bigint;
       }>(sql`
             SELECT
@@ -75,7 +75,7 @@ export const globalStatsRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const result = await ctx.envio3Db.execute<{
+      const result = await ctx.envioDb.execute<{
         total_active_accounts: bigint;
       }>(sql`
             SELECT

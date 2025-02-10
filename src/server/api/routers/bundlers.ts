@@ -13,7 +13,7 @@ export const bundlersRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const result = await ctx.envio3Db.execute<{
+      const result = await ctx.envioDb.execute<{
         total_ops_bundled: bigint;
       }>(sql`
             SELECT
@@ -41,7 +41,7 @@ export const bundlersRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const results = await ctx.envio3Db.execute<{
+      const results = await ctx.envioDb.execute<{
         time: string;
         chain_id: number;
         total_ops_bundled: bigint;
@@ -87,7 +87,7 @@ export const bundlersRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const results = await ctx.envio3Db.execute<{
+      const results = await ctx.envioDb.execute<{
         platform: string;
         time: string;
         total_ops_bundled: bigint;
@@ -132,7 +132,7 @@ export const bundlersRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const results = await ctx.envio3Db.execute<{
+      const results = await ctx.envioDb.execute<{
         platform: string;
         chain_id: number;
         count: bigint;
@@ -182,7 +182,7 @@ export const bundlersRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const results = await ctx.envio3Db.execute<{
+      const results = await ctx.envioDb.execute<{
         platform: string;
         count: bigint;
       }>(sql`

@@ -13,7 +13,7 @@ export const paymastersRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const [totalSponsoredOps] = await ctx.envio3Db.execute<{
+      const [totalSponsoredOps] = await ctx.envioDb.execute<{
         total_sponsored_ops: bigint;
       }>(sql`
             SELECT
@@ -43,7 +43,7 @@ export const paymastersRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const results = await ctx.envio3Db.execute<{
+      const results = await ctx.envioDb.execute<{
         platform: string;
         time: string;
         total_sponsored_ops: bigint;
@@ -89,7 +89,7 @@ export const paymastersRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const results = await ctx.envio3Db.execute<{
+      const results = await ctx.envioDb.execute<{
         platform: string;
         chain_id: number;
         count: bigint;
@@ -140,7 +140,7 @@ export const paymastersRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const results = await ctx.envio3Db.execute<{
+      const results = await ctx.envioDb.execute<{
         platform: string;
         count: bigint;
       }>(sql`

@@ -14,7 +14,7 @@ export const appsRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const results = await ctx.envio4Db.execute<{
+      const results = await ctx.envioDb.execute<{
         time: string;
         targets: string;
         count: bigint;

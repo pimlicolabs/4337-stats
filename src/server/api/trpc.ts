@@ -10,7 +10,7 @@ import { initTRPC } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-import { envio3Db, envio4Db } from "@/server/db";
+import { envioDb } from "@/server/db";
 
 /**
  * 1. CONTEXT
@@ -26,8 +26,7 @@ import { envio3Db, envio4Db } from "@/server/db";
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   return {
-    envio3Db,
-    envio4Db,
+    envioDb,
     ...opts,
   };
 };
