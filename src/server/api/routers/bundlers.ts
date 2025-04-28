@@ -1,6 +1,27 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { sql } from "drizzle-orm";
+import fs from "fs";
+import path from "path";
+import { parse } from "csv-parse/sync";
+
+// Define type for bundler data
+type BundlerRecord = {
+  name: string;
+  address: string;
+};
+
+// Function to read bundler data from CSV file
+const getBundlerData = (): BundlerRecord[] => {
+  const filePath = path.join(process.cwd(), 'data', 'bundlers.csv');
+  const fileContent = fs.readFileSync(filePath, 'utf-8');
+  const records = parse(fileContent, {
+    columns: true,
+    delimiter: '\t',
+    skip_empty_lines: true
+  }) as BundlerRecord[];
+  return records;
+};
 
 export const bundlersRouter = createTRPCRouter({
   totalOps: publicProcedure
@@ -16,17 +37,27 @@ export const bundlersRouter = createTRPCRouter({
       const result = await ctx.envioDb.execute<{
         total_ops_bundled: bigint;
       }>(sql`
+            WITH bundler_names AS (
+              SELECT name, address
+              FROM (
+                VALUES
+                  ${sql.join(
+                    getBundlerData().map(b => sql`(${b.name}, ${b.address})`),
+                    sql`,`
+                  )}
+              ) AS t(name, address)
+            )
             SELECT
-                SUM(bhm.total_operation_count) AS total_ops_bundled
+                SUM(dsb.count) AS total_ops_bundled
             FROM
-                bundler_hourly_metrics as bhm
+                daily_stats_bundlers as dsb
             LEFT JOIN
-                bundlers b on b.address = bhm.bundler_address
+                bundler_names bn on bn.address = dsb.bundler
             WHERE
-                bhm.hour >= ${input.startDate.toISOString()}
-                AND bhm.hour <= ${input.endDate.toISOString()}
-                AND bhm.chain_id IN (${sql.join(input.chainIds, sql`, `)})
-                AND COALESCE(b.name, 'unknown') IN (${sql.join(input.bundlers, sql`, `)})
+                dsb.day >= ${input.startDate.toISOString()}
+                AND dsb.day <= ${input.endDate.toISOString()}
+                AND dsb.chainId IN (${sql.join(input.chainIds, sql`, `)})
+                AND COALESCE(bn.name, 'unknown') IN (${sql.join(input.bundlers, sql`, `)})
     `);
 
       return Number(result[0]?.total_ops_bundled);
@@ -47,17 +78,15 @@ export const bundlersRouter = createTRPCRouter({
         total_ops_bundled: bigint;
       }>(sql`
             SELECT
-                DATE_TRUNC(${input.resolution}, bhm.hour) AS time,
-                bhm.chain_id,
-                SUM(bhm.total_operation_count) AS total_ops_bundled
+                DATE_TRUNC(${input.resolution}, dsb.day) AS time,
+                dsb.chainId as chain_id,
+                SUM(dsb.count) AS total_ops_bundled
             FROM
-                bundler_hourly_metrics as bhm
-            LEFT JOIN
-                bundlers b on b.address = bhm.bundler_address
+                daily_stats_bundlers as dsb
             WHERE
-                bhm.hour >= ${input.startDate.toISOString()}
-                AND bhm.hour <= ${input.endDate.toISOString()}
-                AND bhm.chain_id IN (${sql.join(input.chainIds, sql`, `)})
+                dsb.day >= ${input.startDate.toISOString()}
+                AND dsb.day <= ${input.endDate.toISOString()}
+                AND dsb.chainId IN (${sql.join(input.chainIds, sql`, `)})
             GROUP BY
                 time,
                 chain_id
@@ -92,19 +121,29 @@ export const bundlersRouter = createTRPCRouter({
         time: string;
         total_ops_bundled: bigint;
       }>(sql`
+            WITH bundler_names AS (
+              SELECT name, address
+              FROM (
+                VALUES
+                  ${sql.join(
+                    getBundlerData().map(b => sql`(${b.name}, ${b.address})`),
+                    sql`,`
+                  )}
+              ) AS t(name, address)
+            )
             SELECT
-                COALESCE(b.name, 'unknown') AS platform,
-                (DATE_TRUNC(${input.resolution}, hour::TIMESTAMP AT TIME ZONE 'UTC'))::TIMESTAMP AS time,
-                SUM(bhm.total_operation_count) AS total_ops_bundled
+                COALESCE(bn.name, 'unknown') AS platform,
+                (DATE_TRUNC(${input.resolution}, day::TIMESTAMP AT TIME ZONE 'UTC'))::TIMESTAMP AS time,
+                SUM(dsb.count) AS total_ops_bundled
             FROM
-                bundler_hourly_metrics as bhm
+                daily_stats_bundlers as dsb
             LEFT JOIN
-                bundlers b on b.address = bhm.bundler_address
+                bundler_names bn on bn.address = dsb.bundler
             WHERE
-                bhm.hour >= ${input.startDate.toISOString()}
-                AND bhm.hour <= ${input.endDate.toISOString()}
-                AND bhm.chain_id IN (${sql.join(input.chainIds, sql`, `)})
-                AND COALESCE(b.name, 'unknown') IN (${sql.join(input.bundlers, sql`, `)})
+                dsb.day >= ${input.startDate.toISOString()}
+                AND dsb.day <= ${input.endDate.toISOString()}
+                AND dsb.chainId IN (${sql.join(input.chainIds, sql`, `)})
+                AND COALESCE(bn.name, 'unknown') IN (${sql.join(input.bundlers, sql`, `)})
             GROUP BY
                 platform, time
             ORDER BY
@@ -137,19 +176,29 @@ export const bundlersRouter = createTRPCRouter({
         chain_id: number;
         count: bigint;
       }>(sql`
+            WITH bundler_names AS (
+              SELECT name, address
+              FROM (
+                VALUES
+                  ${sql.join(
+                    getBundlerData().map(b => sql`(${b.name}, ${b.address})`),
+                    sql`,`
+                  )}
+              ) AS t(name, address)
+            )
             SELECT
-                COALESCE(b.name, 'unknown') AS platform,
-                chain_id,
-                SUM(total_operation_count) AS count
+                COALESCE(bn.name, 'unknown') AS platform,
+                chainId as chain_id,
+                SUM(count) AS count
             FROM
-                bundler_hourly_metrics as bhm
+                daily_stats_bundlers as dsb
             LEFT JOIN
-                bundlers b on b.address = bhm.bundler_address
+                bundler_names bn on bn.address = dsb.bundler
             WHERE
-                bhm.hour >= ${input.startDate.toISOString()}
-                AND bhm.hour <= ${input.endDate.toISOString()}
-                AND bhm.chain_id IN (${sql.join(input.chainIds, sql`, `)})
-                AND COALESCE(b.name, 'unknown') IN (${sql.join(input.bundlers, sql`, `)})
+                dsb.day >= ${input.startDate.toISOString()}
+                AND dsb.day <= ${input.endDate.toISOString()}
+                AND dsb.chainId IN (${sql.join(input.chainIds, sql`, `)})
+                AND COALESCE(bn.name, 'unknown') IN (${sql.join(input.bundlers, sql`, `)})
             GROUP BY
                 platform, chain_id
             ORDER BY
@@ -186,18 +235,28 @@ export const bundlersRouter = createTRPCRouter({
         platform: string;
         count: bigint;
       }>(sql`
+            WITH bundler_names AS (
+              SELECT name, address
+              FROM (
+                VALUES
+                  ${sql.join(
+                    getBundlerData().map(b => sql`(${b.name}, ${b.address})`),
+                    sql`,`
+                  )}
+              ) AS t(name, address)
+            )
             SELECT
-                COALESCE(b.name, 'unknown') AS platform,
-                SUM(bhm.total_operation_count) AS count
+                COALESCE(bn.name, 'unknown') AS platform,
+                SUM(dsb.count) AS count
             FROM
-                bundler_hourly_metrics as bhm
+                daily_stats_bundlers as dsb
             LEFT JOIN
-                bundlers b on b.address = bhm.bundler_address
+                bundler_names bn on bn.address = dsb.bundler
             WHERE
-                bhm.hour >= ${input.startDate.toISOString()}
-                AND bhm.hour <= ${input.endDate.toISOString()}
-                AND bhm.chain_id = ${input.chainId}
-                AND COALESCE(b.name, 'unknown') IN (${sql.join(input.bundlers, sql`, `)})
+                dsb.day >= ${input.startDate.toISOString()}
+                AND dsb.day <= ${input.endDate.toISOString()}
+                AND dsb.chainId = ${input.chainId}
+                AND COALESCE(bn.name, 'unknown') IN (${sql.join(input.bundlers, sql`, `)})
             GROUP BY
                 platform
             ORDER BY

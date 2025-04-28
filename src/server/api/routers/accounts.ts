@@ -1,6 +1,27 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { sql } from "drizzle-orm";
+import fs from "fs";
+import path from "path";
+import { parse } from "csv-parse/sync";
+
+// Define type for factory data
+type FactoryRecord = {
+  name: string;
+  address: string;
+};
+
+// Function to read factory data from CSV file
+const getFactoryData = (): FactoryRecord[] => {
+  const filePath = path.join(process.cwd(), 'data', 'factories.csv');
+  const fileContent = fs.readFileSync(filePath, 'utf-8');
+  const records = parse(fileContent, {
+    columns: true,
+    delimiter: '\t',
+    skip_empty_lines: true
+  }) as FactoryRecord[];
+  return records;
+};
 
 export const accountsRouter = createTRPCRouter({
   totalDeployments: publicProcedure
@@ -16,17 +37,27 @@ export const accountsRouter = createTRPCRouter({
       const results = await ctx.envioDb.execute<{
         total_accounts_deployed: bigint;
       }>(sql`
+            WITH factory_names AS (
+              SELECT name, address
+              FROM (
+                VALUES
+                  ${sql.join(
+                    getFactoryData().map(f => sql`(${f.name}, ${f.address})`),
+                    sql`,`
+                  )}
+              ) AS t(name, address)
+            )
             SELECT
-                SUM(total_accounts_deployed) AS total_accounts_deployed
+                SUM(dsf.count) AS total_accounts_deployed
             FROM
-                factory_hourly_metrics fhm
+                daily_stats_factories dsf
             LEFT JOIN
-                factories f ON f.address = fhm.factory_address
+                factory_names fn ON fn.address = dsf.factory
             WHERE
-                hour >= ${input.startDate.toISOString()}
-                AND hour <= ${input.endDate.toISOString()}
-                AND COALESCE(name, 'unknown') IN (${sql.join(input.factories, sql`, `)})
-                AND chain_id IN (${sql.join(input.chainIds, sql`, `)})
+                dsf.day >= ${input.startDate.toISOString()}
+                AND dsf.day <= ${input.endDate.toISOString()}
+                AND COALESCE(fn.name, 'unknown') IN (${sql.join(input.factories, sql`, `)})
+                AND dsf.chainId IN (${sql.join(input.chainIds, sql`, `)})
     `);
 
       return Number(results[0]?.total_accounts_deployed);
@@ -47,23 +78,33 @@ export const accountsRouter = createTRPCRouter({
         time: string;
         total_accounts_deployed: bigint;
       }>(sql`
+            WITH factory_names AS (
+              SELECT name, address
+              FROM (
+                VALUES
+                  ${sql.join(
+                    getFactoryData().map(f => sql`(${f.name}, ${f.address})`),
+                    sql`,`
+                  )}
+              ) AS t(name, address)
+            )
             SELECT
-                COALESCE(f.name, 'unknown') AS factory_name,
-                DATE_TRUNC(${input.resolution}, fhm.hour) AS time,
-                SUM(fhm.total_accounts_deployed) AS total_accounts_deployed
+                COALESCE(fn.name, 'unknown') AS factory_name,
+                DATE_TRUNC(${input.resolution}, dsf.day) AS time,
+                SUM(dsf.count) AS total_accounts_deployed
             FROM
-                factory_hourly_metrics fhm
+                daily_stats_factories dsf
             LEFT JOIN
-                factories f ON f.address = fhm.factory_address
+                factory_names fn ON fn.address = dsf.factory
             WHERE
-                fhm.hour >= ${input.startDate.toISOString()}
-                AND fhm.hour <= ${input.endDate.toISOString()}
-                AND COALESCE(f.name, 'unknown') IN (${sql.join(input.factories, sql`, `)})
-                AND fhm.chain_id IN (${sql.join(input.chainIds, sql`, `)})
+                dsf.day >= ${input.startDate.toISOString()}
+                AND dsf.day <= ${input.endDate.toISOString()}
+                AND COALESCE(fn.name, 'unknown') IN (${sql.join(input.factories, sql`, `)})
+                AND dsf.chainId IN (${sql.join(input.chainIds, sql`, `)})
             GROUP BY
-                f.name, time
+                fn.name, time
             ORDER BY
-                time, f.name;
+                time, fn.name;
     `);
 
       const metricsMap: Record<string, Record<string, any>> = {};
@@ -92,19 +133,29 @@ export const accountsRouter = createTRPCRouter({
         chain_id: number;
         count: bigint;
       }>(sql`
+            WITH factory_names AS (
+              SELECT name, address
+              FROM (
+                VALUES
+                  ${sql.join(
+                    getFactoryData().map(f => sql`(${f.name}, ${f.address})`),
+                    sql`,`
+                  )}
+              ) AS t(name, address)
+            )
             SELECT
-                COALESCE(name, 'unknown') AS factory_name,
-                chain_id,
-                SUM(total_accounts_deployed) AS count
+                COALESCE(fn.name, 'unknown') AS factory_name,
+                dsf.chainId as chain_id,
+                SUM(dsf.count) AS count
             FROM
-                factory_hourly_metrics as fhm
+                daily_stats_factories dsf
             LEFT JOIN
-                factories f ON f.address = fhm.factory_address
+                factory_names fn ON fn.address = dsf.factory
             WHERE
-                hour >= ${input.startDate.toISOString()}
-                AND hour <= ${input.endDate.toISOString()}
-                AND chain_id IN (${sql.join(input.chainIds, sql`, `)})
-                AND COALESCE(name, 'unknown') IN (${sql.join(input.factories, sql`, `)})
+                dsf.day >= ${input.startDate.toISOString()}
+                AND dsf.day <= ${input.endDate.toISOString()}
+                AND dsf.chainId IN (${sql.join(input.chainIds, sql`, `)})
+                AND COALESCE(fn.name, 'unknown') IN (${sql.join(input.factories, sql`, `)})
             GROUP BY
                 factory_name, chain_id
             ORDER BY
@@ -136,29 +187,42 @@ export const accountsRouter = createTRPCRouter({
         chainIds: z.array(z.number()),
       }),
     )
-    .query(async ({ ctx, input }) => {
+    .query(async () => {
+      // Table active_accounts_daily_metrics doesn't exist anymore
+      // Returning empty data
+      /*
       const results = await ctx.envioDb.execute<{
         factory_name: string;
         day: string;
         unique_active_senders: bigint;
       }>(sql`
+            WITH factory_names AS (
+              SELECT name, address
+              FROM (
+                VALUES
+                  ${sql.join(
+                    getFactoryData().map(f => sql`(${f.name}, ${f.address})`),
+                    sql`,`
+                  )}
+              ) AS t(name, address)
+            )
             SELECT
-                COALESCE(f.name, 'unknown') AS factory_name,
+                COALESCE(fn.name, 'unknown') AS factory_name,
                 date AS day,
                 SUM(unique_active_senders) AS unique_active_senders
             FROM
                 active_accounts_daily_metrics aadm
             LEFT JOIN
-                factories f ON f.address = aadm.factory_address
+                factory_names fn ON fn.address = aadm.factory_address
             WHERE
                 aadm.date >= ${input.startDate.toISOString()}
                 AND aadm.date <= ${input.endDate.toISOString()}
-                AND COALESCE(f.name, 'unknown') IN (${sql.join(input.factories, sql`, `)})
+                AND COALESCE(fn.name, 'unknown') IN (${sql.join(input.factories, sql`, `)})
                 AND aadm.chain_id IN (${sql.join(input.chainIds, sql`, `)})
             GROUP BY
-                f.name, date
+                fn.name, date
             ORDER BY
-                date, f.name;
+                date, fn.name;
     `);
 
       const metricsMap: Record<string, Record<string, any>> = {};
@@ -170,5 +234,9 @@ export const accountsRouter = createTRPCRouter({
       }
 
       return Object.values(metricsMap);
+      */
+      
+      // Return empty array as the table doesn't exist
+      return [];
     }),
 });

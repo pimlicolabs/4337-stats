@@ -11,7 +11,10 @@ export const globalStatsRouter = createTRPCRouter({
         chainIds: z.array(z.number()),
       }),
     )
-    .query(async ({ ctx, input }) => {
+    .query(async ({ input }) => {
+      // Table active_accounts_daily_metrics doesn't exist anymore
+      // Returning empty data
+      /*
       const results = await ctx.envioDb.execute<{
         date: string;
         chain_id: number;
@@ -44,6 +47,10 @@ export const globalStatsRouter = createTRPCRouter({
       }
 
       return Object.values(metricsMap);
+      */
+      
+      // Return empty array as the table doesn't exist
+      return [];
     }),
   monthlyActiveUsers: publicProcedure
     .input(
@@ -52,7 +59,10 @@ export const globalStatsRouter = createTRPCRouter({
         chainIds: z.array(z.number()),
       }),
     )
-    .query(async ({ ctx, input }) => {
+    .query(async () => {
+      // Table active_accounts_monthly_metrics doesn't exist anymore
+      // Returning empty data
+      /*
       const result = await ctx.envioDb.execute<{
         total_active_accounts: bigint;
       }>(sql`
@@ -66,6 +76,10 @@ export const globalStatsRouter = createTRPCRouter({
     `);
 
       return result[0]?.total_active_accounts;
+      */
+      
+      // Return 0 as the table doesn't exist
+      return 0n;
     }),
   activeUsersByDay: publicProcedure
     .input(
@@ -74,7 +88,10 @@ export const globalStatsRouter = createTRPCRouter({
         chainIds: z.array(z.number()),
       }),
     )
-    .query(async ({ ctx, input }) => {
+    .query(async () => {
+      // Table active_accounts_daily_metrics doesn't exist anymore
+      // Returning empty data
+      /*
       const result = await ctx.envioDb.execute<{
         total_active_accounts: bigint;
       }>(sql`
@@ -88,5 +105,9 @@ export const globalStatsRouter = createTRPCRouter({
     `);
 
       return result[0]?.total_active_accounts;
+      */
+      
+      // Return 0 as the table doesn't exist
+      return 0n;
     }),
 });
