@@ -57,7 +57,7 @@ export const paymastersRouter = createTRPCRouter({
                 pn.name IN (${sql.join(input.paymasters, sql`, `)})
                 AND dsp.day >= ${input.startDate.toISOString()}
                 AND dsp.day <= ${input.endDate.toISOString()}
-                AND dsp.chainId IN (${sql.join(input.chainIds, sql`, `)})
+                AND dsp."chainId" IN (${sql.join(input.chainIds, sql`, `)})
                 AND dsp.paymaster != '0x0000000000000000000000000000000000000000'
     `);
 
@@ -92,7 +92,7 @@ export const paymastersRouter = createTRPCRouter({
             SELECT
                 COALESCE(pn.name, 'unknown') AS platform,
                 DATE_TRUNC(${input.resolution}, day) AS time,
-                SUM(count) AS total_sponsored_ops
+                SUM(dsp.count) AS total_sponsored_ops
             FROM
                 daily_stats_paymasters AS dsp
             LEFT JOIN
@@ -101,7 +101,7 @@ export const paymastersRouter = createTRPCRouter({
                 COALESCE(pn.name, 'unknown') IN (${sql.join(input.paymasters, sql`, `)})
                 AND dsp.day >= ${input.startDate.toISOString()}
                 AND dsp.day <= ${input.endDate.toISOString()}
-                AND dsp.chainId IN (${sql.join(input.chainIds, sql`, `)})
+                AND dsp."chainId" IN (${sql.join(input.chainIds, sql`, `)})
                 AND dsp.paymaster != '0x0000000000000000000000000000000000000000'
             GROUP BY
                 platform, time
@@ -147,8 +147,8 @@ export const paymastersRouter = createTRPCRouter({
             )
             SELECT
                 COALESCE(pn.name, 'unknown') AS platform,
-                chainId as chain_id,
-                SUM(count) AS count
+                dsp."chainId" as chain_id,
+                SUM(dsp.count) AS count
             FROM
                 daily_stats_paymasters AS dsp
             LEFT JOIN
@@ -157,7 +157,7 @@ export const paymastersRouter = createTRPCRouter({
                 COALESCE(pn.name, 'unknown') IN (${sql.join(input.paymasters, sql`, `)})
                 AND dsp.day >= ${input.startDate.toISOString()}
                 AND dsp.day <= ${input.endDate.toISOString()}
-                AND dsp.chainId IN (${sql.join(input.chainIds, sql`, `)})
+                AND dsp."chainId" IN (${sql.join(input.chainIds, sql`, `)})
                 AND dsp.paymaster != '0x0000000000000000000000000000000000000000'
             GROUP BY
                 platform, chain_id
@@ -207,7 +207,7 @@ export const paymastersRouter = createTRPCRouter({
             )
             SELECT
                 COALESCE(pn.name, 'unknown') AS platform,
-                SUM(count) AS count
+                SUM(dsp.count) AS count
             FROM
                 daily_stats_paymasters AS dsp
             LEFT JOIN
@@ -216,7 +216,7 @@ export const paymastersRouter = createTRPCRouter({
                 COALESCE(pn.name, 'unknown') IN (${sql.join(input.paymasters, sql`, `)})
                 AND dsp.day >= ${input.startDate.toISOString()}
                 AND dsp.day <= ${input.endDate.toISOString()}
-                AND dsp.chainId = ${input.chainId}
+                AND dsp."chainId" = ${input.chainId}
                 AND dsp.paymaster != '0x0000000000000000000000000000000000000000'
             GROUP BY
                 platform

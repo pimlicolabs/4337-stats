@@ -57,7 +57,7 @@ export const accountsRouter = createTRPCRouter({
                 dsf.day >= ${input.startDate.toISOString()}
                 AND dsf.day <= ${input.endDate.toISOString()}
                 AND COALESCE(fn.name, 'unknown') IN (${sql.join(input.factories, sql`, `)})
-                AND dsf.chainId IN (${sql.join(input.chainIds, sql`, `)})
+                AND dsf."chainId" IN (${sql.join(input.chainIds, sql`, `)})
     `);
 
       return Number(results[0]?.total_accounts_deployed);
@@ -100,7 +100,7 @@ export const accountsRouter = createTRPCRouter({
                 dsf.day >= ${input.startDate.toISOString()}
                 AND dsf.day <= ${input.endDate.toISOString()}
                 AND COALESCE(fn.name, 'unknown') IN (${sql.join(input.factories, sql`, `)})
-                AND dsf.chainId IN (${sql.join(input.chainIds, sql`, `)})
+                AND dsf."chainId" IN (${sql.join(input.chainIds, sql`, `)})
             GROUP BY
                 fn.name, time
             ORDER BY
@@ -145,7 +145,7 @@ export const accountsRouter = createTRPCRouter({
             )
             SELECT
                 COALESCE(fn.name, 'unknown') AS factory_name,
-                dsf.chainId as chain_id,
+                dsf."chainId" as chain_id,
                 SUM(dsf.count) AS count
             FROM
                 daily_stats_factories dsf
@@ -154,7 +154,7 @@ export const accountsRouter = createTRPCRouter({
             WHERE
                 dsf.day >= ${input.startDate.toISOString()}
                 AND dsf.day <= ${input.endDate.toISOString()}
-                AND dsf.chainId IN (${sql.join(input.chainIds, sql`, `)})
+                AND dsf."chainId" IN (${sql.join(input.chainIds, sql`, `)})
                 AND COALESCE(fn.name, 'unknown') IN (${sql.join(input.factories, sql`, `)})
             GROUP BY
                 factory_name, chain_id

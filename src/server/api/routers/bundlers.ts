@@ -56,7 +56,7 @@ export const bundlersRouter = createTRPCRouter({
             WHERE
                 dsb.day >= ${input.startDate.toISOString()}
                 AND dsb.day <= ${input.endDate.toISOString()}
-                AND dsb.chainId IN (${sql.join(input.chainIds, sql`, `)})
+                AND dsb."chainId" IN (${sql.join(input.chainIds, sql`, `)})
                 AND COALESCE(bn.name, 'unknown') IN (${sql.join(input.bundlers, sql`, `)})
     `);
 
@@ -79,14 +79,14 @@ export const bundlersRouter = createTRPCRouter({
       }>(sql`
             SELECT
                 DATE_TRUNC(${input.resolution}, dsb.day) AS time,
-                dsb.chainId as chain_id,
+                dsb."chainId" as chain_id,
                 SUM(dsb.count) AS total_ops_bundled
             FROM
                 daily_stats_bundlers as dsb
             WHERE
                 dsb.day >= ${input.startDate.toISOString()}
                 AND dsb.day <= ${input.endDate.toISOString()}
-                AND dsb.chainId IN (${sql.join(input.chainIds, sql`, `)})
+                AND dsb."chainId" IN (${sql.join(input.chainIds, sql`, `)})
             GROUP BY
                 time,
                 chain_id
@@ -142,7 +142,7 @@ export const bundlersRouter = createTRPCRouter({
             WHERE
                 dsb.day >= ${input.startDate.toISOString()}
                 AND dsb.day <= ${input.endDate.toISOString()}
-                AND dsb.chainId IN (${sql.join(input.chainIds, sql`, `)})
+                AND dsb."chainId" IN (${sql.join(input.chainIds, sql`, `)})
                 AND COALESCE(bn.name, 'unknown') IN (${sql.join(input.bundlers, sql`, `)})
             GROUP BY
                 platform, time
@@ -188,8 +188,8 @@ export const bundlersRouter = createTRPCRouter({
             )
             SELECT
                 COALESCE(bn.name, 'unknown') AS platform,
-                chainId as chain_id,
-                SUM(count) AS count
+                dsb."chainId" as chain_id,
+                SUM(dsb.count) AS count
             FROM
                 daily_stats_bundlers as dsb
             LEFT JOIN
@@ -197,7 +197,7 @@ export const bundlersRouter = createTRPCRouter({
             WHERE
                 dsb.day >= ${input.startDate.toISOString()}
                 AND dsb.day <= ${input.endDate.toISOString()}
-                AND dsb.chainId IN (${sql.join(input.chainIds, sql`, `)})
+                AND dsb."chainId" IN (${sql.join(input.chainIds, sql`, `)})
                 AND COALESCE(bn.name, 'unknown') IN (${sql.join(input.bundlers, sql`, `)})
             GROUP BY
                 platform, chain_id
@@ -255,7 +255,7 @@ export const bundlersRouter = createTRPCRouter({
             WHERE
                 dsb.day >= ${input.startDate.toISOString()}
                 AND dsb.day <= ${input.endDate.toISOString()}
-                AND dsb.chainId = ${input.chainId}
+                AND dsb."chainId" = ${input.chainId}
                 AND COALESCE(bn.name, 'unknown') IN (${sql.join(input.bundlers, sql`, `)})
             GROUP BY
                 platform

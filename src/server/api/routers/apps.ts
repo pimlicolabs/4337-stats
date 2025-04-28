@@ -28,7 +28,7 @@ export const appsRouter = createTRPCRouter({
             WHERE
                 dsa.day >= ${input.startDate.toISOString()}
                 AND dsa.day <= ${input.endDate.toISOString()}
-                AND dsa.chainId IN (${sql.join(input.chainIds, sql`, `)})
+                AND dsa."chainId" IN (${sql.join(input.chainIds, sql`, `)})
             GROUP BY
                 time, app
             ORDER BY
