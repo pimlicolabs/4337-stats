@@ -16,43 +16,38 @@ export const appsRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const results = await ctx.envioDb.execute<{
         time: string;
-        targets: string;
+        app: string;
         count: bigint;
       }>(sql`
             SELECT
-                (DATE_TRUNC(${input.resolution}, hour::TIMESTAMP AT TIME ZONE 'UTC'))::TIMESTAMP AS time,
-                ahm.targets AS targets,
-                SUM(ahm.count) AS count
+                (DATE_TRUNC(${input.resolution}, day::TIMESTAMP AT TIME ZONE 'UTC'))::TIMESTAMP AS time,
+                dsa.app AS app,
+                SUM(dsa.count) AS count
             FROM
-                apps_hourly_metrics as ahm
+                daily_stats_apps as dsa
             WHERE
-                ahm.hour >= ${input.startDate.toISOString()}
-                AND ahm.hour <= ${input.endDate.toISOString()}
-                AND ahm.chain_id IN (${sql.join(input.chainIds, sql`, `)})
+                dsa.day >= ${input.startDate.toISOString()}
+                AND dsa.day <= ${input.endDate.toISOString()}
+                AND dsa."chainId" IN (${sql.join(input.chainIds, sql`, `)})
             GROUP BY
-                time, targets
+                time, app
             ORDER BY
-                time, targets;
+                time, app;
     `);
 
-      // parse targets field
-      const appStats = results.flatMap((row) =>
-        row.targets
-          .replace(/[{}]/g, "")
-          .split(",")
-          .map((app) => {
-            const appName = APPS.find((entry) =>
-              entry.dbNames.some(
-                (dbName) => dbName.toLowerCase() === app.toLowerCase(),
-              ),
-            );
-            return {
-              app: appName?.name || "Unknown",
-              time: row.time,
-              count: Number(row.count),
-            };
-          }),
-      );
+      // Map app addresses to names
+      const appStats = results.map((row) => {
+        const appName = APPS.find((entry) =>
+          entry.dbNames.some(
+            (dbName) => dbName.toLowerCase() === row.app.toLowerCase(),
+          ),
+        );
+        return {
+          app: appName?.name || "Unknown",
+          time: row.time,
+          count: Number(row.count),
+        };
+      });
 
       const metricsMap: Record<string, Record<string, any>> = {};
       for (const row of appStats) {

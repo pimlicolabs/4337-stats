@@ -1,3 +1,6 @@
+'use client'
+
+import { usePathname } from "next/navigation";
 import {
   Sidebar,
   SidebarContent,
@@ -55,23 +58,33 @@ const items = [
 ];
 
 export function GlobalSidebar() {
+  const pathname = usePathname();
+
   return (
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>ERC-4337 Stats</SidebarGroupLabel>
+          <SidebarGroupLabel>ERC4337 Stats</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      {item.icon}
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {items.map((item) => {
+                const isActive = pathname === item.url || 
+                  (item.url !== '/' && pathname?.startsWith(item.url));
+                
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton 
+                      asChild 
+                      className={isActive ? "bg-muted text-primary" : ""}
+                    >
+                      <a href={item.url}>
+                        {item.icon}
+                        <span>{item.title}</span>
+                      </a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

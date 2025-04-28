@@ -1,6 +1,27 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { sql } from "drizzle-orm";
+import fs from "fs";
+import path from "path";
+import { parse } from "csv-parse/sync";
+
+// Define type for paymaster data
+type PaymasterRecord = {
+  name: string;
+  address: string;
+};
+
+// Function to read paymaster data from CSV file
+const getPaymasterData = (): PaymasterRecord[] => {
+  const filePath = path.join(process.cwd(), 'data', 'paymasters.csv');
+  const fileContent = fs.readFileSync(filePath, 'utf-8');
+  const records = parse(fileContent, {
+    columns: true,
+    delimiter: '\t',
+    skip_empty_lines: true
+  }) as PaymasterRecord[];
+  return records;
+};
 
 export const paymastersRouter = createTRPCRouter({
   totalSponsored: publicProcedure
@@ -16,18 +37,28 @@ export const paymastersRouter = createTRPCRouter({
       const [totalSponsoredOps] = await ctx.envioDb.execute<{
         total_sponsored_ops: bigint;
       }>(sql`
+            WITH paymaster_names AS (
+              SELECT name, address
+              FROM (
+                VALUES
+                  ${sql.join(
+                    getPaymasterData().map(p => sql`(${p.name}, ${p.address})`),
+                    sql`,`
+                  )}
+              ) AS t(name, address)
+            )
             SELECT
-                SUM(total_sponsored_operation_count) AS total_sponsored_ops
+                SUM(dsp.count) AS total_sponsored_ops
             FROM
-                paymaster_hourly_metrics AS phm
+                daily_stats_paymasters AS dsp
             LEFT JOIN
-                paymasters p ON p.address = phm.paymaster_address
+                paymaster_names pn ON pn.address = dsp.paymaster
             WHERE
-                p.name IN (${sql.join(input.paymasters, sql`, `)})
-                AND phm.hour >= ${input.startDate.toISOString()}
-                AND phm.hour <= ${input.endDate.toISOString()}
-                AND phm.chain_id IN (${sql.join(input.chainIds, sql`, `)})
-                AND phm.paymaster_address != '0x0000000000000000000000000000000000000000'
+                pn.name IN (${sql.join(input.paymasters, sql`, `)})
+                AND dsp.day >= ${input.startDate.toISOString()}
+                AND dsp.day <= ${input.endDate.toISOString()}
+                AND dsp."chainId" IN (${sql.join(input.chainIds, sql`, `)})
+                AND dsp.paymaster != '0x0000000000000000000000000000000000000000'
     `);
 
       return Number(totalSponsoredOps?.total_sponsored_ops);
@@ -48,20 +79,30 @@ export const paymastersRouter = createTRPCRouter({
         time: string;
         total_sponsored_ops: bigint;
       }>(sql`
+            WITH paymaster_names AS (
+              SELECT name, address
+              FROM (
+                VALUES
+                  ${sql.join(
+                    getPaymasterData().map(p => sql`(${p.name}, ${p.address})`),
+                    sql`,`
+                  )}
+              ) AS t(name, address)
+            )
             SELECT
-                COALESCE(name, 'unknown') AS platform,
-                DATE_TRUNC(${input.resolution}, hour) AS time,
-                SUM(total_sponsored_operation_count) AS total_sponsored_ops
+                COALESCE(pn.name, 'unknown') AS platform,
+                DATE_TRUNC(${input.resolution}, day) AS time,
+                SUM(dsp.count) AS total_sponsored_ops
             FROM
-                paymaster_hourly_metrics AS phm
+                daily_stats_paymasters AS dsp
             LEFT JOIN
-                paymasters p ON p.address = phm.paymaster_address
+                paymaster_names pn ON pn.address = dsp.paymaster
             WHERE
-                COALESCE(p.name, 'unknown') IN (${sql.join(input.paymasters, sql`, `)})
-                AND phm.hour >= ${input.startDate.toISOString()}
-                AND phm.hour <= ${input.endDate.toISOString()}
-                AND phm.chain_id IN (${sql.join(input.chainIds, sql`, `)})
-                AND phm.paymaster_address != '0x0000000000000000000000000000000000000000'
+                COALESCE(pn.name, 'unknown') IN (${sql.join(input.paymasters, sql`, `)})
+                AND dsp.day >= ${input.startDate.toISOString()}
+                AND dsp.day <= ${input.endDate.toISOString()}
+                AND dsp."chainId" IN (${sql.join(input.chainIds, sql`, `)})
+                AND dsp.paymaster != '0x0000000000000000000000000000000000000000'
             GROUP BY
                 platform, time
             ORDER BY
@@ -94,20 +135,30 @@ export const paymastersRouter = createTRPCRouter({
         chain_id: number;
         count: bigint;
       }>(sql`
+            WITH paymaster_names AS (
+              SELECT name, address
+              FROM (
+                VALUES
+                  ${sql.join(
+                    getPaymasterData().map(p => sql`(${p.name}, ${p.address})`),
+                    sql`,`
+                  )}
+              ) AS t(name, address)
+            )
             SELECT
-                COALESCE(name, 'unknown') AS platform,
-                chain_id,
-                SUM(total_sponsored_operation_count) AS count
+                COALESCE(pn.name, 'unknown') AS platform,
+                dsp."chainId" as chain_id,
+                SUM(dsp.count) AS count
             FROM
-                paymaster_hourly_metrics AS phm
+                daily_stats_paymasters AS dsp
             LEFT JOIN
-                paymasters p ON p.address = phm.paymaster_address
+                paymaster_names pn ON pn.address = dsp.paymaster
             WHERE
-                COALESCE(p.name, 'unknown') IN (${sql.join(input.paymasters, sql`, `)})
-                AND phm.hour >= ${input.startDate.toISOString()}
-                AND phm.hour <= ${input.endDate.toISOString()}
-                AND phm.chain_id IN (${sql.join(input.chainIds, sql`, `)})
-                AND phm.paymaster_address != '0x0000000000000000000000000000000000000000'
+                COALESCE(pn.name, 'unknown') IN (${sql.join(input.paymasters, sql`, `)})
+                AND dsp.day >= ${input.startDate.toISOString()}
+                AND dsp.day <= ${input.endDate.toISOString()}
+                AND dsp."chainId" IN (${sql.join(input.chainIds, sql`, `)})
+                AND dsp.paymaster != '0x0000000000000000000000000000000000000000'
             GROUP BY
                 platform, chain_id
             ORDER BY
@@ -144,19 +195,29 @@ export const paymastersRouter = createTRPCRouter({
         platform: string;
         count: bigint;
       }>(sql`
+            WITH paymaster_names AS (
+              SELECT name, address
+              FROM (
+                VALUES
+                  ${sql.join(
+                    getPaymasterData().map(p => sql`(${p.name}, ${p.address})`),
+                    sql`,`
+                  )}
+              ) AS t(name, address)
+            )
             SELECT
-                COALESCE(name, 'unknown') AS platform,
-                SUM(total_sponsored_operation_count) AS count
+                COALESCE(pn.name, 'unknown') AS platform,
+                SUM(dsp.count) AS count
             FROM
-                paymaster_hourly_metrics AS phm
+                daily_stats_paymasters AS dsp
             LEFT JOIN
-                paymasters p ON p.address = phm.paymaster_address
+                paymaster_names pn ON pn.address = dsp.paymaster
             WHERE
-                COALESCE(p.name, 'unknown') IN (${sql.join(input.paymasters, sql`, `)})
-                AND phm.hour >= ${input.startDate.toISOString()}
-                AND phm.hour <= ${input.endDate.toISOString()}
-                AND phm.chain_id = ${input.chainId}
-                AND phm.paymaster_address != '0x0000000000000000000000000000000000000000'
+                COALESCE(pn.name, 'unknown') IN (${sql.join(input.paymasters, sql`, `)})
+                AND dsp.day >= ${input.startDate.toISOString()}
+                AND dsp.day <= ${input.endDate.toISOString()}
+                AND dsp."chainId" = ${input.chainId}
+                AND dsp.paymaster != '0x0000000000000000000000000000000000000000'
             GROUP BY
                 platform
             ORDER BY
