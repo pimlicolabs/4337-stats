@@ -46,7 +46,7 @@ export default function AddressBookPage() {
             <TableRow>
               <TableHead className="w-[100px]">Address</TableHead>
               <TableHead>Provider</TableHead>
-              <TableHead>Type</TableHead>
+              {/* <TableHead>Type</TableHead> */}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -56,7 +56,7 @@ export default function AddressBookPage() {
                   {paymaster.address}
                 </TableCell>
                 <TableCell className="py-1">{paymaster.name}</TableCell>
-                <TableCell className="py-1">{paymaster.type}</TableCell>
+                {/* <TableCell className="py-1">{paymaster.type}</TableCell> */}
               </TableRow>
             ))}
           </TableBody>
