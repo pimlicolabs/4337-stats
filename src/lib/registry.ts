@@ -457,6 +457,11 @@ export const BUNDLERS: RegistryEntityType[] = [
     dbName: "send",
     color: "#3EFC50",
   },
+  {
+    name: "Thirdweb",
+    dbName: 'thirdweb',
+    color: '#A60BB1'
+  }
 ];
 
 export const BUNDLER_CHART_CONFIG = BUNDLERS.reduce(
