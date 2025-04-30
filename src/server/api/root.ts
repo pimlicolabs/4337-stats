@@ -5,6 +5,7 @@ import { accountsRouter } from "./routers/accounts";
 import { addressBookRouter } from "./routers/address-book";
 import { globalStatsRouter } from "./routers/global-stats";
 import { appsRouter } from "./routers/apps";
+import { unlabeledAddressesRouter } from "./routers/unlabeled-addresses";
 
 /**
  * This is the primary router for your server.
@@ -18,6 +19,7 @@ export const appRouter = createTRPCRouter({
   bundlers: bundlersRouter,
   paymasters: paymastersRouter,
   accounts: accountsRouter,
+  unlabeledAddresses: unlabeledAddressesRouter,
 });
 
 // export type definition of API
