@@ -1,8 +1,11 @@
 "use client";
 
-import { StatCard } from "@/components/stats-card";
+import { calculatePercentageChange, formatTrendDescription, getTrendDirection, StatCard } from "@/components/stats-card";
+import { TIME_PERIOD_TO_DAYS } from "@/lib/constants";
 import { RegistryEntityType } from "@/lib/registry";
+import { TimeFrameType } from "@/lib/types";
 import { api } from "@/trpc/react";
+import { subDays } from "date-fns";
 import { DollarSign } from "lucide-react";
 import { useMemo } from "react";
 
@@ -11,6 +14,7 @@ type GlobalStatsOverviewProps = {
   selectedPaymasters: RegistryEntityType[];
   startDate: Date;
   endDate: Date;
+  selectedTimeFrame: TimeFrameType;
 };
 
 export default function GlobalStatsOverview({
@@ -18,6 +22,7 @@ export default function GlobalStatsOverview({
   selectedPaymasters,
   startDate,
   endDate,
+  selectedTimeFrame,
 }: GlobalStatsOverviewProps) {
   const totalOpsSponsored = api.paymasters.totalSponsored.useQuery(
     {
@@ -33,11 +38,26 @@ export default function GlobalStatsOverview({
     },
   );
 
-  const { globalOpsSponsoredCount } = useMemo(() => {
+  const prevTotalOpsSponsored = api.paymasters.totalSponsored.useQuery(
+    {
+      startDate: subDays(startDate, TIME_PERIOD_TO_DAYS[selectedTimeFrame]),
+      endDate: subDays(endDate, TIME_PERIOD_TO_DAYS[selectedTimeFrame]),
+      chainIds: selectedChains,
+      paymasters: selectedPaymasters.map((p) => p.dbName),
+    },
+    {
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      staleTime: Infinity,
+    },
+  );
+
+  const { globalOpsSponsoredCount, prevGlobalOpsSponsoredCount } = useMemo(() => {
     return {
       globalOpsSponsoredCount: totalOpsSponsored.data,
+      prevGlobalOpsSponsoredCount: prevTotalOpsSponsored.data,
     };
-  }, [totalOpsSponsored.data]);
+  }, [totalOpsSponsored.data, prevTotalOpsSponsored.data]);
 
   return (
     <>
@@ -47,9 +67,19 @@ export default function GlobalStatsOverview({
           value={
             globalOpsSponsoredCount
               ? globalOpsSponsoredCount.toLocaleString()
-              : "loading..."
+              : "Loading..."
           }
           icon={DollarSign}
+          description={formatTrendDescription(
+            globalOpsSponsoredCount,
+            prevGlobalOpsSponsoredCount,
+            selectedTimeFrame,
+          )}
+          trend={getTrendDirection(
+            globalOpsSponsoredCount,
+            prevGlobalOpsSponsoredCount,
+          )}
+          trendValue={`${Math.abs(Number(calculatePercentageChange(globalOpsSponsoredCount, prevGlobalOpsSponsoredCount)))}%`}
         />
       </div>
     </>

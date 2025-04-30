@@ -75,6 +75,7 @@ export default function PaymastersPage() {
         setSelectedTimeFrame={setSelectedTimeFrame}
       />
       <GlobalStatsOverview
+        selectedTimeFrame={selectedTimeFrame}
         startDate={startDate}
         endDate={endDate}
         selectedChains={selectedChains}

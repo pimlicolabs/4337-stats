@@ -94,6 +94,7 @@ export default function OverviewPage() {
         selectedTimeFrame={selectedTimeFrame}
       />
       <GlobalStatsOverview
+        selectedTimeFrame={selectedTimeFrame}
         selectedChains={selectedChains}
         startDate={startDate}
         endDate={endDate}

@@ -1,27 +1,45 @@
 "use client";
 
-import { StatCard } from "@/components/stats-card";
+import { calculatePercentageChange, formatTrendDescription, getTrendDirection, StatCard } from "@/components/stats-card";
+import { TIME_PERIOD_TO_DAYS } from "@/lib/constants";
 import { api } from "@/trpc/react";
 import { Activity, Box, DollarSign, User } from "lucide-react";
 import { subMonths, startOfMonth, subDays } from "date-fns";
 import { useMemo } from "react";
 import { ACCOUNT_FACTORIES, BUNDLERS, PAYMASTERS } from "@/lib/registry";
+import { TimeFrameType } from "@/lib/types";
 
 type GlobalStatsOverviewProps = {
   selectedChains: number[];
   startDate: Date;
   endDate: Date;
+  selectedTimeFrame: TimeFrameType;
 };
 
 export default function GlobalStatsOverview({
   selectedChains,
   startDate,
   endDate,
+  selectedTimeFrame,
 }: GlobalStatsOverviewProps) {
   const totalOpsBundledQuery = api.bundlers.totalOps.useQuery(
     {
       startDate,
       endDate,
+      chainIds: selectedChains,
+      bundlers: BUNDLERS.map((b) => b.dbName),
+    },
+    {
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      staleTime: Infinity,
+    },
+  );
+
+  const prevTotalOpsBundledQuery = api.bundlers.totalOps.useQuery(
+    {
+      startDate: subDays(startDate, TIME_PERIOD_TO_DAYS[selectedTimeFrame]),
+      endDate: subDays(endDate, TIME_PERIOD_TO_DAYS[selectedTimeFrame]),
       chainIds: selectedChains,
       bundlers: BUNDLERS.map((b) => b.dbName),
     },
@@ -46,10 +64,38 @@ export default function GlobalStatsOverview({
     },
   );
 
+  const prevTotalOpsSponsoredQuery = api.paymasters.totalSponsored.useQuery(
+    {
+      startDate: subDays(startDate, TIME_PERIOD_TO_DAYS[selectedTimeFrame]),
+      endDate: subDays(endDate, TIME_PERIOD_TO_DAYS[selectedTimeFrame]),
+      chainIds: selectedChains,
+      paymasters: PAYMASTERS.map((b) => b.dbName),
+    },
+    {
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      staleTime: Infinity,
+    },
+  );
+
   const totalAccountsDeployedQuery = api.accounts.totalDeployments.useQuery(
     {
       startDate,
       endDate,
+      chainIds: selectedChains,
+      factories: ACCOUNT_FACTORIES.map((b) => b.dbName),
+    },
+    {
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      staleTime: Infinity,
+    },
+  );
+
+  const prevTotalAccountsDeployedQuery = api.accounts.totalDeployments.useQuery(
+    {
+      startDate: subDays(startDate, TIME_PERIOD_TO_DAYS[selectedTimeFrame]),
+      endDate: subDays(endDate, TIME_PERIOD_TO_DAYS[selectedTimeFrame]),
       chainIds: selectedChains,
       factories: ACCOUNT_FACTORIES.map((b) => b.dbName),
     },
@@ -90,6 +136,9 @@ export default function GlobalStatsOverview({
     totalAccountsDeployed,
     monthlyActiveUsers,
     dailyActiveUsers,
+    prevTotalOpsBundled,
+    prevTotalOpsSponsored,
+    prevTotalAccountsDeployed,
   } = useMemo(() => {
     return {
       totalOpsBundled: totalOpsBundledQuery.data,
@@ -97,6 +146,9 @@ export default function GlobalStatsOverview({
       totalAccountsDeployed: totalAccountsDeployedQuery.data,
       monthlyActiveUsers: monthlyActiveUsersQuery.data,
       dailyActiveUsers: dailyActiveUsersQuery.data,
+      prevTotalOpsBundled: prevTotalOpsBundledQuery.data,
+      prevTotalOpsSponsored: prevTotalOpsSponsoredQuery.data,
+      prevTotalAccountsDeployed: prevTotalAccountsDeployedQuery.data,
     };
   }, [
     totalOpsBundledQuery.data,
@@ -104,6 +156,9 @@ export default function GlobalStatsOverview({
     totalAccountsDeployedQuery.data,
     monthlyActiveUsersQuery.data,
     dailyActiveUsersQuery.data,
+    prevTotalOpsBundledQuery.data,
+    prevTotalOpsSponsoredQuery.data,
+    prevTotalAccountsDeployedQuery.data,
   ]);
 
   return (
@@ -112,9 +167,19 @@ export default function GlobalStatsOverview({
         <StatCard
           title="User Operations Bundled"
           value={
-            totalOpsBundled ? totalOpsBundled.toLocaleString() : "loading..."
+            totalOpsBundled ? totalOpsBundled.toLocaleString() : "Loading..."
           }
           icon={Box}
+          description={formatTrendDescription(
+            totalOpsBundled,
+            prevTotalOpsBundled,
+            selectedTimeFrame,
+          )}
+          trend={getTrendDirection(
+            totalOpsBundled,
+            prevTotalOpsBundled,
+          )}
+          trendValue={`${Math.abs(Number(calculatePercentageChange(totalOpsBundled, prevTotalOpsBundled)))}%`}
         />
 
         <StatCard
@@ -122,9 +187,19 @@ export default function GlobalStatsOverview({
           value={
             totalOpsSponsored
               ? totalOpsSponsored.toLocaleString()
-              : "loading..."
+              : "Loading..."
           }
           icon={DollarSign}
+          description={formatTrendDescription(
+            totalOpsSponsored,
+            prevTotalOpsSponsored,
+            selectedTimeFrame,
+          )}
+          trend={getTrendDirection(
+            totalOpsSponsored,
+            prevTotalOpsSponsored,
+          )}
+          trendValue={`${Math.abs(Number(calculatePercentageChange(totalOpsSponsored, prevTotalOpsSponsored)))}%`}
         />
 
         <StatCard
@@ -132,9 +207,19 @@ export default function GlobalStatsOverview({
           value={
             totalAccountsDeployed
               ? totalAccountsDeployed.toLocaleString()
-              : "loading..."
+              : "Loading..."
           }
           icon={User}
+          description={formatTrendDescription(
+            totalAccountsDeployed,
+            prevTotalAccountsDeployed,
+            selectedTimeFrame,
+          )}
+          trend={getTrendDirection(
+            totalAccountsDeployed,
+            prevTotalAccountsDeployed,
+          )}
+          trendValue={`${Math.abs(Number(calculatePercentageChange(totalAccountsDeployed, prevTotalAccountsDeployed)))}%`}
         />
 
         <StatCard
@@ -142,7 +227,7 @@ export default function GlobalStatsOverview({
           value={
             monthlyActiveUsers && dailyActiveUsers
               ? (dailyActiveUsers / monthlyActiveUsers).toLocaleString()
-              : "loading..."
+              : "Loading..."
           }
           icon={Activity}
         />

@@ -63,7 +63,7 @@ export function StatsHeader({
         value={
           totalOpsBundled.data
             ? totalOpsBundled.data.toLocaleString()
-            : "loading..."
+            : "Loading..."
         }
         icon={Box}
       />
@@ -73,7 +73,7 @@ export function StatsHeader({
         value={
           totalOpsSponsored.data
             ? totalOpsSponsored.data.toLocaleString()
-            : "loading..."
+            : "Loading..."
         }
         icon={DollarSign}
       />
@@ -83,7 +83,7 @@ export function StatsHeader({
         value={
           totalAccountsDeployed.data
             ? totalAccountsDeployed.data.toLocaleString()
-            : "loading..."
+            : "Loading..."
         }
         icon={User}
       />

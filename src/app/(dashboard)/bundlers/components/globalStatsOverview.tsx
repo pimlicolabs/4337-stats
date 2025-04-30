@@ -1,6 +1,6 @@
 "use client";
 
-import { StatCard } from "@/components/stats-card";
+import { calculatePercentageChange, formatTrendDescription, getTrendDirection, StatCard } from "@/components/stats-card";
 import { TIME_PERIOD_TO_DAYS } from "@/lib/constants";
 import { RegistryEntityType } from "@/lib/registry";
 import { TimeFrameType } from "@/lib/types";
@@ -9,32 +9,6 @@ import { subDays } from "date-fns";
 import { Box } from "lucide-react";
 import { useMemo } from "react";
 
-const calculatePercentageChange = (
-  current: number | null | undefined,
-  previous: number | null | undefined,
-): string => {
-  if (!current || !previous) return "0";
-  if (previous === 0) return "∞";
-  return (((current - previous) / previous) * 100).toFixed(1);
-};
-
-const getTrendDirection = (
-  current: number | null | undefined,
-  previous: number | null | undefined,
-): "positive" | "negative" | undefined => {
-  if (!current || !previous) return undefined;
-  return current >= previous ? "positive" : "negative";
-};
-
-const formatTrendDescription = (
-  current: number | null | undefined,
-  previous: number | null | undefined,
-  selectedTimeFrame: TimeFrameType,
-): string => {
-  if (selectedTimeFrame === "6mo") return "";
-  if (!current || !previous) return "Loading...";
-  return `${(current - previous).toLocaleString()} difference from previous period`;
-};
 
 type GlobalStatsOverviewProps = {
   selectedChains: number[];

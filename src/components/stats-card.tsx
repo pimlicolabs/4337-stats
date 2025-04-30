@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { TimeFrameType } from "@/lib/types";
 import { type LucideIcon } from "lucide-react";
 
 interface StatCardProps {
@@ -9,6 +10,32 @@ interface StatCardProps {
   trend?: "positive" | "negative";
   trendValue?: string | number;
 }
+
+export const calculatePercentageChange = (
+  current: number | null | undefined,
+  previous: number | null | undefined,
+): string => {
+  if (!current || !previous) return "0";
+  if (previous === 0) return "∞";
+  return (((current - previous) / previous) * 100).toFixed(1);
+};
+
+export const getTrendDirection = (
+  current: number | null | undefined,
+  previous: number | null | undefined,
+): "positive" | "negative" | undefined => {
+  if (!current || !previous) return undefined;
+  return current >= previous ? "positive" : "negative";
+};
+
+export const formatTrendDescription = (
+  current: number | null | undefined,
+  previous: number | null | undefined,
+  selectedTimeFrame: TimeFrameType,
+): string => {
+  if (!current || !previous) return "Loading...";
+  return `${(current - previous).toLocaleString()} difference from previous period`;
+};
 
 export function StatCard({
   title,

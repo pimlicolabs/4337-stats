@@ -91,6 +91,7 @@ export default function BundlersPage() {
         setSelectedTimeFrame={setSelectedTimeFrame}
       />
       <GlobalStatsOverview
+        selectedTimeFrame={selectedTimeFrame}
         startDate={startDate}
         endDate={endDate}
         selectedChains={selectedChains}

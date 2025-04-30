@@ -1,8 +1,11 @@
 "use client";
 
-import { StatCard } from "@/components/stats-card";
+import { calculatePercentageChange, formatTrendDescription, getTrendDirection, StatCard } from "@/components/stats-card";
+import { TIME_PERIOD_TO_DAYS } from "@/lib/constants";
 import { RegistryEntityType } from "@/lib/registry";
+import { TimeFrameType } from "@/lib/types";
 import { api } from "@/trpc/react";
+import { subDays } from "date-fns";
 import { Users } from "lucide-react";
 import { useMemo } from "react";
 
@@ -11,6 +14,7 @@ type GlobalStatsOverviewProps = {
   selectedFactories: RegistryEntityType[];
   startDate: Date;
   endDate: Date;
+  selectedTimeFrame: TimeFrameType;
 };
 
 export default function GlobalStatsOverview({
@@ -18,6 +22,7 @@ export default function GlobalStatsOverview({
   selectedFactories,
   startDate,
   endDate,
+  selectedTimeFrame,
 }: GlobalStatsOverviewProps) {
   const totalAccountsDeployed = api.accounts.totalDeployments.useQuery(
     {
@@ -33,11 +38,26 @@ export default function GlobalStatsOverview({
     },
   );
 
-  const { globalAccountsDeployedCount } = useMemo(() => {
+  const prevTotalAccountsDeployed = api.accounts.totalDeployments.useQuery(
+    {
+      startDate: subDays(startDate, TIME_PERIOD_TO_DAYS[selectedTimeFrame]),
+      endDate: subDays(endDate, TIME_PERIOD_TO_DAYS[selectedTimeFrame]),
+      chainIds: selectedChains,
+      factories: selectedFactories.map((f) => f.dbName),
+    },
+    {
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      staleTime: Infinity,
+    },
+  );
+
+  const { globalAccountsDeployedCount, prevGlobalAccountsDeployedCount } = useMemo(() => {
     return {
       globalAccountsDeployedCount: totalAccountsDeployed.data,
+      prevGlobalAccountsDeployedCount: prevTotalAccountsDeployed.data,
     };
-  }, [totalAccountsDeployed.data]);
+  }, [totalAccountsDeployed.data, prevTotalAccountsDeployed.data]);
 
   return (
     <>
@@ -47,9 +67,19 @@ export default function GlobalStatsOverview({
           value={
             globalAccountsDeployedCount
               ? globalAccountsDeployedCount.toLocaleString()
-              : "loading..."
+              : "Loading..."
           }
           icon={Users}
+          description={formatTrendDescription(
+            globalAccountsDeployedCount,
+            prevGlobalAccountsDeployedCount,
+            selectedTimeFrame,
+          )}
+          trend={getTrendDirection(
+            globalAccountsDeployedCount,
+            prevGlobalAccountsDeployedCount,
+          )}
+          trendValue={`${Math.abs(Number(calculatePercentageChange(globalAccountsDeployedCount, prevGlobalAccountsDeployedCount)))}%`}
         />
       </div>
     </>
