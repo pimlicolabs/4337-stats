@@ -352,11 +352,11 @@ export const CHAINS = [
     slugName: "opbnb",
   },
   {
-    chainId: 480,
-    name: "Worldchain",
-    isTestnet: false,
-    color: "#3F3F45",
-    slugName: "worldchain",
+    chainId: 11155111,
+    name: "Sepolia",
+    isTestnet: true,
+    color: "#9B9B9B",
+    slugName: "sepolia",
   },
   {
     chainId: 480,
@@ -368,7 +368,7 @@ export const CHAINS = [
   {
     chainId: 7777777,
     name: "Zora",
-    isTestnet: true,
+    isTestnet: false,
     color: "#3569EC",
     slugName: "zora",
   },
