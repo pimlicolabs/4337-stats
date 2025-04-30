@@ -98,21 +98,6 @@ export default function ChainStats() {
     },
   );
 
-  const activeUsersByFactory =
-    api.accounts.uniqueSendersByFactoryByDay.useQuery(
-      {
-        startDate,
-        endDate,
-        chainIds: [chain.chainId],
-        factories: ACCOUNT_FACTORIES.map((f) => f.dbName),
-      },
-      {
-        refetchOnWindowFocus: false,
-        refetchOnMount: false,
-        staleTime: Infinity,
-      },
-    );
-
   return (
     <div className="p-8 w-full flex flex-col gap-4">
       <div className="justify-between flex">
@@ -151,13 +136,6 @@ export default function ChainStats() {
           countLabel={"User Operations Sponsored"}
         />
       </div>
-      <UsageBarChart
-        className="w-full h-64"
-        data={activeUsersByFactory.data}
-        chartConfig={FACTORY_CHART_CONFIG}
-        chartTitle="Daily active users"
-        chartDescription="Unique senders by smart account type (where sender is older than 1 day)"
-      />
     </div>
   );
 }

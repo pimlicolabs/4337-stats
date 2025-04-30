@@ -163,7 +163,7 @@ export default function GlobalStatsOverview({
 
   return (
     <>
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
         <StatCard
           title="User Operations Bundled"
           value={
@@ -220,16 +220,6 @@ export default function GlobalStatsOverview({
             prevTotalAccountsDeployed,
           )}
           trendValue={`${Math.abs(Number(calculatePercentageChange(totalAccountsDeployed, prevTotalAccountsDeployed)))}%`}
-        />
-
-        <StatCard
-          title="User Retention (DAU/MAU)"
-          value={
-            monthlyActiveUsers && dailyActiveUsers
-              ? (dailyActiveUsers / monthlyActiveUsers).toLocaleString()
-              : "Loading..."
-          }
-          icon={Activity}
         />
       </div>
     </>

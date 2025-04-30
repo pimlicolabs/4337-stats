@@ -56,19 +56,6 @@ export default function OverviewPage() {
     },
   );
 
-  const dailyActiveAccounts = api.globalStats.dailyActiveUsers.useQuery(
-    {
-      startDate,
-      endDate,
-      chainIds: selectedChains,
-    },
-    {
-      refetchOnWindowFocus: false,
-      refetchOnMount: false,
-      staleTime: Infinity,
-    },
-  );
-
   const deploymentsByFactory = api.accounts.deploymentsByFactory.useQuery(
     {
       startDate,
@@ -111,12 +98,6 @@ export default function OverviewPage() {
           chartDescription={"Percentage of user operations by chain."}
           chartConfig={CHAIN_CHART_CONFIG}
           data={bunldedOpsPerChain.data}
-        />
-        <UsageBarChart
-          chartTitle={"Daily unique accounts"}
-          chartDescription={"Number of unique senders by chain per day."}
-          chartConfig={CHAIN_CHART_CONFIG}
-          data={dailyActiveAccounts.data}
         />
         <UsageBarChart
           data={deploymentsByFactory.data}

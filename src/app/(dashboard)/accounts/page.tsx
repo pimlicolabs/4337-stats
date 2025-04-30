@@ -63,21 +63,6 @@ export default function BundlersPage() {
     },
   );
 
-  const activeUsersByFactory =
-    api.accounts.uniqueSendersByFactoryByDay.useQuery(
-      {
-        startDate,
-        endDate,
-        chainIds: selectedChains,
-        factories: selectFactories.map((e) => e.dbName),
-      },
-      {
-        refetchOnWindowFocus: false,
-        refetchOnMount: false,
-        staleTime: Infinity,
-      },
-    );
-
   return (
     <div className="p-8 w-full flex flex-col gap-4">
       <h1 className="text-3xl font-bold mb-4">Account Factory Stats</h1>
@@ -113,13 +98,7 @@ export default function BundlersPage() {
           data={deploymentsByFactory.data}
         />
       </div>
-      <UsageBarChart
-        className="w-full h-64"
-        data={activeUsersByFactory.data}
-        chartConfig={FACTORY_CHART_CONFIG}
-        chartTitle="Daily active users"
-        chartDescription="Unique senders by smart account type (where sender is older than 1 day)"
-      />
+
       <UsageByChain
         selectedChains={selectedChains}
         startDate={startDate}
