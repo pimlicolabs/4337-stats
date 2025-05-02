@@ -4,6 +4,7 @@ import { sql } from "drizzle-orm";
 import fs from "fs";
 import path from "path";
 import { parse } from "csv-parse/sync";
+import { APPS } from "@/lib/registry";
 
 // Define type for entity data
 type EntityRecord = {
@@ -118,6 +119,57 @@ export const unlabeledAddressesRouter = createTRPCRouter({
 
       return results.map(row => ({
         address: row.paymaster,
+        chainId: row.chain_id,
+        count: Number(row.count),
+      }));
+    }),
+  getUnlabeledApps: publicProcedure
+    .input(
+      z.object({
+        startDate: z.date(),
+        endDate: z.date(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const results = await ctx.envioDb.execute<{
+        app: string;
+        chain_id: number;
+        count: bigint;
+      }>(sql`
+        WITH app_names AS (
+          SELECT address
+          FROM (
+            VALUES
+              ${sql.join(
+                APPS.flatMap((app: { name: string; dbNames: string[] }) => 
+                  app.dbNames.filter(Boolean).map((name: string) => sql`(${name.toLowerCase()})`)
+                ),
+                sql`,`
+              )}
+          ) AS t(address)
+        )
+        SELECT
+            dsa.app,
+            dsa."chainId" as chain_id,
+            SUM(dsa.count) AS count
+        FROM
+            daily_stats_apps as dsa
+        LEFT JOIN
+            app_names an ON LOWER(an.address) = LOWER(dsa.app)
+        WHERE
+            dsa.day >= ${input.startDate.toISOString()}
+            AND dsa.day <= ${input.endDate.toISOString()}
+            AND an.address IS NULL
+            AND dsa.app != '0x0000000000000000000000000000000000000000'
+        GROUP BY
+            dsa.app, chain_id
+        ORDER BY
+            count DESC
+        LIMIT 100
+      `);
+
+      return results.map(row => ({
+        address: row.app,
         chainId: row.chain_id,
         count: Number(row.count),
       }));

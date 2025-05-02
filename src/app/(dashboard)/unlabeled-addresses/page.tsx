@@ -12,7 +12,7 @@ import {
 import { subMonths } from "date-fns";
 
 const endDate = new Date();
-const startDate = subMonths(endDate, 6);
+const startDate = subMonths(endDate, 1);
 
 export default function UnlabeledAddressesPage() {  
   const unlabeledBundlers = api.unlabeledAddresses.getUnlabeledBundlers.useQuery(
@@ -26,6 +26,16 @@ export default function UnlabeledAddressesPage() {
   );
   
   const unlabeledPaymasters = api.unlabeledAddresses.getUnlabeledPaymasters.useQuery(
+    {
+      startDate,
+      endDate
+    },
+    {
+      retry: 1
+    }
+  );
+
+  const unlabeledApps = api.unlabeledAddresses.getUnlabeledApps.useQuery(
     {
       startDate,
       endDate
@@ -111,6 +121,46 @@ export default function UnlabeledAddressesPage() {
                     </TableCell>
                     <TableCell className="py-1">{bundler.chainId}</TableCell>
                     <TableCell className="py-1">{bundler.count.toLocaleString()}</TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+      
+      <div>
+        <h2 className="text-2xl">Apps</h2>
+        <div className="mt-2 rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[400px]">Address</TableHead>
+                <TableHead className="w-[100px]">Chain ID</TableHead>
+                <TableHead>Count</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {unlabeledApps.isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center py-4">
+                    Loading...
+                  </TableCell>
+                </TableRow>
+              ) : unlabeledApps.data?.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center py-4">
+                    No unlabeled apps found
+                  </TableCell>
+                </TableRow>
+              ) : (
+                unlabeledApps.data?.map((app) => (
+                  <TableRow key={`${app.address}-${app.chainId}`}>
+                    <TableCell className="font-mono py-1">
+                      {app.address}
+                    </TableCell>
+                    <TableCell className="py-1">{app.chainId}</TableCell>
+                    <TableCell className="py-1">{app.count.toLocaleString()}</TableCell>
                   </TableRow>
                 ))
               )}
