@@ -475,9 +475,19 @@ export const BUNDLER_CHART_CONFIG = BUNDLERS.reduce(
   {} as Record<string, { label: React.ReactNode; color?: string }>,
 );
 
+// Array of apps to exclude from display
+export const EXCLUDED_APPS = [
+  "Safe MultiSend",
+  "Safe MultiSendCallOnly",
+  "Multicall 3"
+];
+
 // Apps chart config with deterministic colors
 export const APPS_CHART_CONFIG = APPS.reduce(
   (acc, app) => {
+    // Skip excluded apps
+    if (EXCLUDED_APPS.includes(app.name)) return acc;
+    
     acc[app.name] = {
       label: app.name,
       color: getAppColor(app.name),
