@@ -260,7 +260,10 @@ export const APPS = [
   },
   {
     name: "USDC",
-    dbNames: ["0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"],
+    dbNames: [
+      "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+      "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+  ],
   },
   {
     name: "Mocaverse",
@@ -288,6 +291,20 @@ export const APPS = [
     name: "BSC-USD",
     dbNames: ["0x55d398326f99059fF775485246999027B3197955"],
   },
+  {
+    name: "UXLINK",
+    dbNames: ["0x3D8D2511ab0DdC25c8E71322f6ad21895084209A"]
+  },
+  {
+    name: "Zora",
+    dbNames: [
+      "0x7777777F279eba3d3Ad8F4E708545291A6fDBA8B", "0x777777751622c0d3258f214F9DF38E35BF45baF3"
+    ]
+  },
+  {
+    name: "Layer3",
+    dbNames: ["0x46777C76dBbE40fABB2AAB99E33CE20058e76C59"]
+  }
 ];
 
 // Add color getter for apps
