@@ -412,6 +412,7 @@ export const PAYMASTERS: RegistryEntityType[] = [
   { name: "Pichain", dbName: "pichain", color: "#FF8101" },
   { name: "Notus", dbName: "notus", color: "#FF8101" },
   { name: "Thirdweb", dbName: "thirdweb", color: "#A60BB1" },
+  { name: "UxLink", dbName: "uxlink", color: "#19D16F" },
   { name: "Unknown", dbName: "unknown", color: "#94a3b8" },
 ];
 
@@ -480,11 +481,6 @@ export const BUNDLERS: RegistryEntityType[] = [
     name: "Thirdweb",
     dbName: "thirdweb",
     color: "#A60BB1",
-  },
-  {
-    name: "UxLink",
-    dbName: "uxlink",
-    color: "#19D16F",
   },
 ];
 
