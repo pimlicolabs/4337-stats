@@ -262,8 +262,8 @@ export const APPS = [
     name: "USDC",
     dbNames: [
       "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
-      "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
-  ],
+      "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    ],
   },
   {
     name: "Mocaverse",
@@ -293,18 +293,19 @@ export const APPS = [
   },
   {
     name: "UXLINK",
-    dbNames: ["0x3D8D2511ab0DdC25c8E71322f6ad21895084209A"]
+    dbNames: ["0x3D8D2511ab0DdC25c8E71322f6ad21895084209A"],
   },
   {
     name: "Zora",
     dbNames: [
-      "0x7777777F279eba3d3Ad8F4E708545291A6fDBA8B", "0x777777751622c0d3258f214F9DF38E35BF45baF3"
-    ]
+      "0x7777777F279eba3d3Ad8F4E708545291A6fDBA8B",
+      "0x777777751622c0d3258f214F9DF38E35BF45baF3",
+    ],
   },
   {
     name: "Layer3",
-    dbNames: ["0x46777C76dBbE40fABB2AAB99E33CE20058e76C59"]
-  }
+    dbNames: ["0x46777C76dBbE40fABB2AAB99E33CE20058e76C59"],
+  },
 ];
 
 // Add color getter for apps
@@ -410,6 +411,7 @@ export const PAYMASTERS: RegistryEntityType[] = [
   { name: "OpenFort", dbName: "openfort", color: "#FC3C2F" },
   { name: "Pichain", dbName: "pichain", color: "#FF8101" },
   { name: "Notus", dbName: "notus", color: "#FF8101" },
+  { name: "Thirdweb", dbName: "thirdweb", color: "#A60BB1" },
   { name: "Unknown", dbName: "unknown", color: "#94a3b8" },
 ];
 
@@ -476,9 +478,9 @@ export const BUNDLERS: RegistryEntityType[] = [
   },
   {
     name: "Thirdweb",
-    dbName: 'thirdweb',
-    color: '#A60BB1'
-  }
+    dbName: "thirdweb",
+    color: "#A60BB1",
+  },
 ];
 
 export const BUNDLER_CHART_CONFIG = BUNDLERS.reduce(
@@ -496,7 +498,7 @@ export const BUNDLER_CHART_CONFIG = BUNDLERS.reduce(
 export const EXCLUDED_APPS = [
   "Safe MultiSend",
   "Safe MultiSendCallOnly",
-  "Multicall 3"
+  "Multicall 3",
 ];
 
 // Apps chart config with deterministic colors
@@ -504,7 +506,7 @@ export const APPS_CHART_CONFIG = APPS.reduce(
   (acc, app) => {
     // Skip excluded apps
     if (EXCLUDED_APPS.includes(app.name)) return acc;
-    
+
     acc[app.name] = {
       label: app.name,
       color: getAppColor(app.name),
