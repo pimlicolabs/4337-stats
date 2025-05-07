@@ -6,7 +6,7 @@ import {
   PAYMASTERS,
   RegistryEntityType,
 } from "@/lib/registry";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { TimeFrameResolutionType, TimeFrameType } from "@/lib/types";
 import { endOfDay, subDays } from "date-fns";
 import { TIME_PERIOD_TO_DAYS } from "@/lib/constants";
@@ -16,23 +16,69 @@ import UsageBarChart from "@/components/custom-components/usageGraph";
 import MarketshareChart from "@/components/custom-components/marketshareGraph";
 import UsageByChain from "@/components/custom-components/usageByChain";
 import { api } from "@/trpc/react";
+import { useQueryState } from "nuqs";
 
 export default function PaymastersPage() {
   const startTimeframe = "7d";
   const startChains = CHAINS.filter((c) => !c.isTestnet).map((c) => c.chainId); // only mainnets
   const startPaymasters = PAYMASTERS;
 
-  const [selectedChains, setSelectedChains] = useState<number[]>(startChains);
-  const [selectedPaymasters, setSelectedPaymasters] =
-    useState<RegistryEntityType[]>(startPaymasters);
-  const [selectedTimeFrame, setSelectedTimeFrame] =
-    useState<TimeFrameType>(startTimeframe);
+  const [selectedChains, setSelectedChains] = useQueryState(
+    "chains",
+    {
+      defaultValue: startChains,
+      parse: (value) => {
+        if (!value) return startChains;
+        try {
+          return value.split(',').map(Number).filter(n => !isNaN(n));
+        } catch {
+          return startChains;
+        }
+      },
+      serialize: (value) => value.join(','),
+    }
+  );
+
+  const [selectedPaymasters, setSelectedPaymasters] = useQueryState(
+    "paymasters",
+    {
+      defaultValue: startPaymasters,
+      parse: (value) => {
+        if (!value) return startPaymasters;
+        try {
+          const paymasterNames = value.split(',');
+          return PAYMASTERS.filter(paymaster => 
+            paymasterNames.includes(paymaster.name)
+          );
+        } catch {
+          return startPaymasters;
+        }
+      },
+      serialize: (value) => value.map(paymaster => paymaster.name).join(','),
+    }
+  );
+
+  const [selectedTimeFrame, setSelectedTimeFrame] = useQueryState(
+    "timeframe",
+    {
+      defaultValue: startTimeframe,
+      parse: (value) => {
+        // Check if the value is a valid TimeFrameType
+        const validTimeFrames = ["1d", "7d", "14d", "30d", "6mo"] as const;
+        return validTimeFrames.includes(value as any) 
+          ? (value as TimeFrameType) 
+          : startTimeframe;
+      },
+      serialize: (value) => value,
+    }
+  );
 
   const { startDate, endDate, resolution } = useMemo(() => {
     const date = new UTCDate();
     const endDate = endOfDay(date);
+    const timeFrame = selectedTimeFrame || startTimeframe;
     const startDate = endOfDay(
-      subDays(date, TIME_PERIOD_TO_DAYS[selectedTimeFrame]),
+      subDays(date, TIME_PERIOD_TO_DAYS[timeFrame as keyof typeof TIME_PERIOD_TO_DAYS]),
     );
 
     let resolution: TimeFrameResolutionType = "day";
@@ -75,7 +121,7 @@ export default function PaymastersPage() {
         setSelectedTimeFrame={setSelectedTimeFrame}
       />
       <GlobalStatsOverview
-        selectedTimeFrame={selectedTimeFrame}
+        selectedTimeFrame={(selectedTimeFrame || startTimeframe) as TimeFrameType}
         startDate={startDate}
         endDate={endDate}
         selectedChains={selectedChains}
