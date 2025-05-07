@@ -7,7 +7,7 @@ import {
   RegistryEntityType,
   FACTORY_CHART_CONFIG,
 } from "@/lib/registry";
-import { useMemo } from "react";
+import { Suspense, useMemo } from "react";
 import { endOfDay, subDays } from "date-fns";
 import { TimeFrameResolutionType, TimeFrameType } from "@/lib/types";
 import { TIME_PERIOD_TO_DAYS } from "@/lib/constants";
@@ -19,7 +19,7 @@ import UsageByChain from "@/components/custom-components/usageByChain";
 import { api } from "@/trpc/react";
 import { useQueryState } from "nuqs";
 
-export default function AccountsPage() {
+function AccountsContent() {
   const startTimeframe = "7d";
   const startChains = CHAINS.filter((c) => !c.isTestnet).map((c) => c.chainId); // only mainnets
   const startFactories = ACCOUNT_FACTORIES;
@@ -155,5 +155,13 @@ export default function AccountsPage() {
         chartDescription={"Accounts deployed"}
       />
     </div>
+  );
+}
+
+export default function AccountsPage() {
+  return (
+    <Suspense fallback={<div className="p-8">Loading...</div>}>
+      <AccountsContent />
+    </Suspense>
   );
 }

@@ -6,7 +6,7 @@ import {
   PAYMASTERS,
   RegistryEntityType,
 } from "@/lib/registry";
-import { useMemo } from "react";
+import { Suspense, useMemo } from "react";
 import { TimeFrameResolutionType, TimeFrameType } from "@/lib/types";
 import { endOfDay, subDays } from "date-fns";
 import { TIME_PERIOD_TO_DAYS } from "@/lib/constants";
@@ -18,7 +18,7 @@ import UsageByChain from "@/components/custom-components/usageByChain";
 import { api } from "@/trpc/react";
 import { useQueryState } from "nuqs";
 
-export default function PaymastersPage() {
+function PaymastersContent() {
   const startTimeframe = "7d";
   const startChains = CHAINS.filter((c) => !c.isTestnet).map((c) => c.chainId); // only mainnets
   const startPaymasters = PAYMASTERS;
@@ -153,5 +153,13 @@ export default function PaymastersPage() {
         chartDescription={"User operations sponsored"}
       />
     </div>
+  );
+}
+
+export default function PaymastersPage() {
+  return (
+    <Suspense fallback={<div className="p-8">Loading...</div>}>
+      <PaymastersContent />
+    </Suspense>
   );
 }

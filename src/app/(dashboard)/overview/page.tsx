@@ -6,7 +6,7 @@ import {
   CHAINS,
   FACTORY_CHART_CONFIG,
 } from "@/lib/registry";
-import { useMemo } from "react";
+import { Suspense, useMemo } from "react";
 import { TimeFrameResolutionType, TimeFrameType } from "@/lib/types";
 import { endOfDay, subDays } from "date-fns";
 import { TIME_PERIOD_TO_DAYS } from "@/lib/constants";
@@ -17,7 +17,7 @@ import UsageBarChart from "@/components/custom-components/usageGraph";
 import MarketshareChart from "@/components/custom-components/marketshareGraph";
 import { useQueryState } from "nuqs";
 
-export default function OverviewPage() {
+function OverviewContent() {
   const startTimeframe = "6mo";
   const startChains = CHAINS.filter((c) => !c.isTestnet).map((c) => c.chainId); // only mainnets
   
@@ -137,5 +137,13 @@ export default function OverviewPage() {
         />
       </div>
     </div>
+  );
+}
+
+export default function OverviewPage() {
+  return (
+    <Suspense fallback={<div className="p-8">Loading...</div>}>
+      <OverviewContent />
+    </Suspense>
   );
 }
