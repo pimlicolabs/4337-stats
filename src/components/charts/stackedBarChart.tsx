@@ -27,7 +27,17 @@ export default function StackedBarChart({
   xAxisKey,
   className,
   showLegend = true,
-  xAxisFormatter = (value) => value.slice(0, 3),
+  xAxisFormatter = (value) => {
+    try {
+      const date = new Date(value);
+      return date.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short'
+      }).replace(' ', ' ');
+    } catch (e) {
+      return value.slice(0, 3);
+    }
+  },
 }: StackedBarChartProps) {
   if (!data?.length || !config) {
     return (
@@ -55,7 +65,15 @@ export default function StackedBarChart({
           tickMargin={10}
           tickLine={false}
           axisLine={false}
-          tickFormatter={(value) => value.toLocaleString()}
+          tickFormatter={(value) => {
+            if (value >= 1000000) {
+              return `${(value / 1000000).toFixed(1)}M`;
+            } else if (value >= 1000) {
+              return `${(value / 1000).toFixed(1)}K`;
+            } else {
+              return value.toLocaleString();
+            }
+          }}
         />
         <ChartTooltip content={<ChartTooltipContent hideLabel />} />
         {showLegend && <ChartLegend content={<ChartLegendContent />} />}

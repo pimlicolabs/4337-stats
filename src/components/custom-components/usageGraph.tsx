@@ -35,8 +35,8 @@ export default function UsageBarChart({
                 const date = new Date(value);
                 return date.toLocaleDateString("en-GB", {
                   day: "2-digit",
-                  month: "2-digit",
-                });
+                  month: "short"
+                }).replace(' ', ' ');
               }}
             />
           </div>

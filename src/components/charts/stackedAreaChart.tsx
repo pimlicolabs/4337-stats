@@ -25,7 +25,17 @@ export default function StackedAreaChart({
   config,
   xAxisKey,
   showLegend = true,
-  xAxisFormatter = (value) => value.slice(0, 3),
+  xAxisFormatter = (value) => {
+    try {
+      const date = new Date(value);
+      return date.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short'
+      }).replace(' ', ' ');
+    } catch (e) {
+      return value.slice(0, 3);
+    }
+  },
 }: StackedAreaChartProps) {
   if (!data?.length || !config) {
     return (
@@ -122,7 +132,10 @@ export default function StackedAreaChart({
           tickLine={false}
           axisLine={false}
           domain={[0, 100]}
-          tickFormatter={(value) => `${Math.round(value)}%`}
+          tickFormatter={(value) => {
+            // For percentages, we just round to the nearest integer
+            return `${Math.round(value)}%`;
+          }}
         />
         <ChartTooltip
           cursor={false}
