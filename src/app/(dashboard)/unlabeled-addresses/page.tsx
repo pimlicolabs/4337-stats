@@ -10,9 +10,31 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { subMonths } from "date-fns";
+import * as chains from "viem/chains";
+import Link from "next/link";
 
 const endDate = new Date();
 const startDate = subMonths(endDate, 1);
+
+// Function to get the block explorer URL for a given chain ID and address
+const getBlockExplorerUrl = (chainId: number, address: string): string | null => {
+  // Find the chain by ID
+  const allChains = Object.values(chains);
+  const chain = allChains.find((chain) => 
+    typeof chain === 'object' && 'id' in chain && chain.id === chainId
+  );
+  
+  if (!chain || !('blockExplorers' in chain) || !chain.blockExplorers) {
+    return null;
+  }
+  
+  const explorer = chain.blockExplorers.default;
+  if (!explorer) {
+    return null;
+  }
+  
+  return `${explorer.url}/address/${address}`;
+};
 
 export default function UnlabeledAddressesPage() {  
   const unlabeledBundlers = api.unlabeledAddresses.getUnlabeledBundlers.useQuery(
@@ -87,7 +109,18 @@ export default function UnlabeledAddressesPage() {
                 unlabeledPaymasters.data?.map((paymaster) => (
                   <TableRow key={`${paymaster.address}-${paymaster.chainId}`}>
                     <TableCell className="font-mono py-1">
-                      {paymaster.address}
+                      {getBlockExplorerUrl(paymaster.chainId, paymaster.address) ? (
+                        <Link 
+                          href={getBlockExplorerUrl(paymaster.chainId, paymaster.address) as string} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-blue-500 hover:underline"
+                        >
+                          {paymaster.address}
+                        </Link>
+                      ) : (
+                        paymaster.address
+                      )}
                     </TableCell>
                     <TableCell className="py-1">{paymaster.chainId}</TableCell>
                     <TableCell className="py-1">{paymaster.count.toLocaleString()}</TableCell>
@@ -127,7 +160,18 @@ export default function UnlabeledAddressesPage() {
                 unlabeledBundlers.data?.map((bundler) => (
                   <TableRow key={`${bundler.address}-${bundler.chainId}`}>
                     <TableCell className="font-mono py-1">
-                      {bundler.address}
+                      {getBlockExplorerUrl(bundler.chainId, bundler.address) ? (
+                        <Link 
+                          href={getBlockExplorerUrl(bundler.chainId, bundler.address) as string} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-blue-500 hover:underline"
+                        >
+                          {bundler.address}
+                        </Link>
+                      ) : (
+                        bundler.address
+                      )}
                     </TableCell>
                     <TableCell className="py-1">{bundler.chainId}</TableCell>
                     <TableCell className="py-1">{bundler.count.toLocaleString()}</TableCell>
@@ -167,7 +211,18 @@ export default function UnlabeledAddressesPage() {
                 unlabeledApps.data?.map((app) => (
                   <TableRow key={`${app.address}-${app.chainId}`}>
                     <TableCell className="font-mono py-1">
-                      {app.address}
+                      {getBlockExplorerUrl(app.chainId, app.address) ? (
+                        <Link 
+                          href={getBlockExplorerUrl(app.chainId, app.address) as string} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-blue-500 hover:underline"
+                        >
+                          {app.address}
+                        </Link>
+                      ) : (
+                        app.address
+                      )}
                     </TableCell>
                     <TableCell className="py-1">{app.chainId}</TableCell>
                     <TableCell className="py-1">{app.count.toLocaleString()}</TableCell>
@@ -207,7 +262,18 @@ export default function UnlabeledAddressesPage() {
                 unlabeledFactories.data?.map((factory) => (
                   <TableRow key={`${factory.address}-${factory.chainId}`}>
                     <TableCell className="font-mono py-1">
-                      {factory.address}
+                      {getBlockExplorerUrl(factory.chainId, factory.address) ? (
+                        <Link 
+                          href={getBlockExplorerUrl(factory.chainId, factory.address) as string} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-blue-500 hover:underline"
+                        >
+                          {factory.address}
+                        </Link>
+                      ) : (
+                        factory.address
+                      )}
                     </TableCell>
                     <TableCell className="py-1">{factory.chainId}</TableCell>
                     <TableCell className="py-1">{factory.count.toLocaleString()}</TableCell>
