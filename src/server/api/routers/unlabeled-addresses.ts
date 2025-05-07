@@ -4,7 +4,7 @@ import { sql } from "drizzle-orm";
 import fs from "fs";
 import path from "path";
 import { parse } from "csv-parse/sync";
-import { APPS } from "@/lib/registry";
+import { APPS, ACCOUNT_FACTORIES } from "@/lib/registry";
 
 // Define type for entity data
 type EntityRecord = {
@@ -25,6 +25,55 @@ const getEntityData = (entityType: string): EntityRecord[] => {
 };
 
 export const unlabeledAddressesRouter = createTRPCRouter({
+  getUnlabeledFactories: publicProcedure
+    .input(
+      z.object({
+        startDate: z.date(),
+        endDate: z.date(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const results = await ctx.envioDb.execute<{
+        factory: string;
+        chain_id: number;
+        count: bigint;
+      }>(sql`
+        WITH factory_names AS (
+          SELECT address
+          FROM (
+            VALUES
+              ${sql.join(
+                getEntityData('factories').map(f => sql`(${f.address})`),
+                sql`,`
+              )}
+          ) AS t(address)
+        )
+        SELECT
+            dsf.factory,
+            dsf."chainId" as chain_id,
+            SUM(dsf.count) AS count
+        FROM
+            daily_stats_factories as dsf
+        LEFT JOIN
+            factory_names fn on fn.address = dsf.factory
+        WHERE
+            dsf.day >= ${input.startDate.toISOString()}
+            AND dsf.day <= ${input.endDate.toISOString()}
+            AND fn.address IS NULL
+            AND dsf.factory != '0x0000000000000000000000000000000000000000'
+        GROUP BY
+            dsf.factory, chain_id
+        ORDER BY
+            count DESC
+        LIMIT 100
+      `);
+
+      return results.map(row => ({
+        address: row.factory,
+        chainId: row.chain_id,
+        count: Number(row.count),
+      }));
+    }),
   getUnlabeledBundlers: publicProcedure
     .input(
       z.object({

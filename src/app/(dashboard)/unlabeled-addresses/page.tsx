@@ -45,6 +45,16 @@ export default function UnlabeledAddressesPage() {
     }
   );
 
+  const unlabeledFactories = api.unlabeledAddresses.getUnlabeledFactories.useQuery(
+    {
+      startDate,
+      endDate
+    },
+    {
+      retry: 1
+    }
+  );
+
   return (
     <div className="mx-auto max-w-7xl space-y-8 p-8">
       <h1 className="text-3xl font-bold">Unlabeled Addresses</h1>
@@ -161,6 +171,46 @@ export default function UnlabeledAddressesPage() {
                     </TableCell>
                     <TableCell className="py-1">{app.chainId}</TableCell>
                     <TableCell className="py-1">{app.count.toLocaleString()}</TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+      
+      <div>
+        <h2 className="text-2xl">Account Factories</h2>
+        <div className="mt-2 rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[400px]">Address</TableHead>
+                <TableHead className="w-[100px]">Chain ID</TableHead>
+                <TableHead>Count</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {unlabeledFactories.isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center py-4">
+                    Loading...
+                  </TableCell>
+                </TableRow>
+              ) : unlabeledFactories.data?.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center py-4">
+                    No unlabeled factories found
+                  </TableCell>
+                </TableRow>
+              ) : (
+                unlabeledFactories.data?.map((factory) => (
+                  <TableRow key={`${factory.address}-${factory.chainId}`}>
+                    <TableCell className="font-mono py-1">
+                      {factory.address}
+                    </TableCell>
+                    <TableCell className="py-1">{factory.chainId}</TableCell>
+                    <TableCell className="py-1">{factory.count.toLocaleString()}</TableCell>
                   </TableRow>
                 ))
               )}
