@@ -482,6 +482,16 @@ export const BUNDLERS: RegistryEntityType[] = [
     dbName: "thirdweb",
     color: "#A60BB1",
   },
+  {
+    name: "Zerodev",
+    dbName: "zerodev",
+    color: "#2495F7",
+  },
+  {
+    name: "Gelato",
+    dbName: "gelato",
+    color: "#FF3B57",
+  },
 ];
 
 export const BUNDLER_CHART_CONFIG = BUNDLERS.reduce(

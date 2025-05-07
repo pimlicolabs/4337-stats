@@ -18,7 +18,7 @@ import UsageByChain from "@/components/custom-components/usageByChain";
 import { api } from "@/trpc/react";
 
 export default function BundlersPage() {
-  const startTimeframe = "14d";
+  const startTimeframe = "7d";
   const startChains = CHAINS.filter((c) => !c.isTestnet).map((c) => c.chainId); // only mainnets
   const startBundlers = BUNDLERS;
 

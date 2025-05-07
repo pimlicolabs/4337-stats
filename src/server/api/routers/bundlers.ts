@@ -4,6 +4,7 @@ import { sql } from "drizzle-orm";
 import fs from "fs";
 import path from "path";
 import { parse } from "csv-parse/sync";
+import { getAddress } from 'viem'
 
 // Define type for bundler data
 type BundlerRecord = {
@@ -20,7 +21,12 @@ const getBundlerData = (): BundlerRecord[] => {
     delimiter: '\t',
     skip_empty_lines: true
   }) as BundlerRecord[];
-  return records;
+  return records.map(r => {
+    return {
+      ...r,
+      address: getAddress(r.address),
+    }
+  });
 };
 
 export const bundlersRouter = createTRPCRouter({

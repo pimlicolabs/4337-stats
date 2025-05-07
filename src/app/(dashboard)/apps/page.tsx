@@ -12,7 +12,7 @@ import { api } from "@/trpc/react";
 import { UsageTable } from "@/components/custom-components/usageTable";
 
 export default function AppsPage() {
-  const startTimeframe = "14d";
+  const startTimeframe = "7d";
   const startChains = CHAINS.filter((c) => !c.isTestnet).map((c) => c.chainId); // only mainnets
 
   const [selectedChains, setSelectedChains] = useState<number[]>(startChains);

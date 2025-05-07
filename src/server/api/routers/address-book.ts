@@ -2,6 +2,7 @@ import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import fs from "fs";
 import path from "path";
 import { parse } from "csv-parse/sync";
+import { getAddress } from "viem";
 
 // Define types for entity records
 type EntityRecord = {
@@ -18,7 +19,13 @@ const getEntityData = (entityType: string): EntityRecord[] => {
     delimiter: '\t',
     skip_empty_lines: true
   }) as EntityRecord[];
-  return records;
+
+  return records.map(r => {
+    return {
+      ...r,
+      address: getAddress(r.address),
+    }
+  });
 };
 
 export const addressBookRouter = createTRPCRouter({

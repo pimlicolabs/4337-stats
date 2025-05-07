@@ -17,7 +17,7 @@ import UsageBarChart from "@/components/custom-components/usageGraph";
 import MarketshareChart from "@/components/custom-components/marketshareGraph";
 
 export default function OverviewPage() {
-  const startTimeframe = "6mo";
+  const startTimeframe = "7d";
   const startChains = CHAINS.filter((c) => !c.isTestnet).map((c) => c.chainId); // only mainnets
   const [selectedChains, setSelectedChains] = useState<number[]>(startChains);
   const [selectedTimeFrame, setSelectedTimeFrame] =

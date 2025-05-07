@@ -32,7 +32,7 @@ export default function ChainStats() {
     );
   }
 
-  const startTimeframe = "6mo";
+  const startTimeframe = "7d";
   const [selectedTimeFrame, setSelectedTimeFrame] =
     useState<TimeFrameType>(startTimeframe);
 

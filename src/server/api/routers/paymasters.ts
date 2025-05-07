@@ -4,6 +4,7 @@ import { sql } from "drizzle-orm";
 import fs from "fs";
 import path from "path";
 import { parse } from "csv-parse/sync";
+import { getAddress } from "viem";
 
 // Define type for paymaster data
 type PaymasterRecord = {
@@ -20,7 +21,13 @@ const getPaymasterData = (): PaymasterRecord[] => {
     delimiter: '\t',
     skip_empty_lines: true
   }) as PaymasterRecord[];
-  return records;
+
+  return records.map(r => {
+    return {
+      ...r,
+      address: getAddress(r.address)
+    }
+  });
 };
 
 export const paymastersRouter = createTRPCRouter({
