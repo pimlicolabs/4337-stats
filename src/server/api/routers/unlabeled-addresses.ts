@@ -5,6 +5,7 @@ import fs from "fs";
 import path from "path";
 import { parse } from "csv-parse/sync";
 import { APPS, ACCOUNT_FACTORIES } from "@/lib/registry";
+import { getAddress } from "viem";
 
 // Define type for entity data
 type EntityRecord = {
@@ -22,6 +23,40 @@ const getEntityData = (entityType: string): EntityRecord[] => {
     skip_empty_lines: true
   }) as EntityRecord[];
   return records;
+};
+
+// Function to get bundler data
+const getBundlerData = (): EntityRecord[] => {
+  const filePath = path.join(process.cwd(), 'data', 'bundlers.csv');
+  const fileContent = fs.readFileSync(filePath, 'utf-8');
+  const records = parse(fileContent, {
+    columns: true,
+    delimiter: '\t',
+    skip_empty_lines: true
+  }) as EntityRecord[];
+  return records.map(r => {
+    return {
+      ...r,
+      address: getAddress(r.address),
+    }
+  });
+};
+
+// Function to get paymaster data
+const getPaymasterData = (): EntityRecord[] => {
+  const filePath = path.join(process.cwd(), 'data', 'paymasters.csv');
+  const fileContent = fs.readFileSync(filePath, 'utf-8');
+  const records = parse(fileContent, {
+    columns: true,
+    delimiter: '\t',
+    skip_empty_lines: true
+  }) as EntityRecord[];
+  return records.map(r => {
+    return {
+      ...r,
+      address: getAddress(r.address),
+    }
+  });
 };
 
 export const unlabeledAddressesRouter = createTRPCRouter({
@@ -133,7 +168,6 @@ export const unlabeledAddressesRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const results = await ctx.envioDb.execute<{
         paymaster: string;
-        chain_id: number;
         count: bigint;
       }>(sql`
         WITH paymaster_names AS (
@@ -148,7 +182,6 @@ export const unlabeledAddressesRouter = createTRPCRouter({
         )
         SELECT
             dsp.paymaster,
-            dsp."chainId" as chain_id,
             SUM(dsp.count) AS count
         FROM
             daily_stats_paymasters AS dsp
@@ -160,7 +193,7 @@ export const unlabeledAddressesRouter = createTRPCRouter({
             AND pn.address IS NULL
             AND dsp.paymaster != '0x0000000000000000000000000000000000000000'
         GROUP BY
-            dsp.paymaster, chain_id
+            dsp.paymaster
         ORDER BY
             count DESC
         LIMIT 100
@@ -168,7 +201,6 @@ export const unlabeledAddressesRouter = createTRPCRouter({
 
       return results.map(row => ({
         address: row.paymaster,
-        chainId: row.chain_id,
         count: Number(row.count),
       }));
     }),
@@ -222,5 +254,102 @@ export const unlabeledAddressesRouter = createTRPCRouter({
         chainId: row.chain_id,
         count: Number(row.count),
       }));
+    }),
+    
+  // New endpoint to get UserOperation data for smart labeling
+  getUserOperationsForSmartLabeling: publicProcedure
+    .input(
+      z.object({
+        address: z.string(),
+        addressType: z.enum(["bundler", "paymaster"]),
+        limit: z.number().default(1000),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      // Get the first 1000 UserOperations for the given address
+      let results;
+      
+      if (input.addressType === "bundler") {
+        // If we're labeling a bundler, we want to find paymasters it works with
+        results = await ctx.envioDb.execute<{
+          paymaster: string;
+          count: bigint;
+        }>(sql`
+          WITH random_userops AS (
+            SELECT 
+              "paymaster"
+            FROM 
+              "EntryPoint_UserOperationEvent"
+            WHERE 
+              "transactionFrom" = ${input.address}
+              AND "paymaster" != '0x0000000000000000000000000000000000000000'
+            ORDER BY 
+              "id"
+            LIMIT ${input.limit}
+          )
+          SELECT
+            "paymaster",
+            COUNT(*) as count
+          FROM
+            random_userops
+          GROUP BY
+            "paymaster"
+        `);
+        
+        // Get all labeled paymasters
+        const labeledPaymasters = getPaymasterData();
+        
+        // Map results to include labels
+        return results.map(row => {
+          const normalizedAddress = getAddress(row.paymaster);
+          const label = labeledPaymasters.find(p => getAddress(p.address) === normalizedAddress)?.name || null;
+          
+          return {
+            address: normalizedAddress,
+            count: Number(row.count),
+            label,
+          };
+        });
+      } else {
+        // If we're labeling a paymaster, we want to find bundlers it works with
+        results = await ctx.envioDb.execute<{
+          bundler: string;
+          count: bigint;
+        }>(sql`
+          WITH random_userops AS (
+            SELECT 
+              "transactionFrom"
+            FROM 
+              "EntryPoint_UserOperationEvent"
+            WHERE 
+              "paymaster" = ${input.address}
+            ORDER BY 
+              "id"
+            LIMIT ${input.limit}
+          )
+          SELECT
+            "transactionFrom" as bundler,
+            COUNT(*) as count
+          FROM
+            random_userops
+          GROUP BY
+            "transactionFrom"
+        `);
+        
+        // Get all labeled bundlers
+        const labeledBundlers = getBundlerData();
+        
+        // Map results to include labels
+        return results.map(row => {
+          const normalizedAddress = getAddress(row.bundler);
+          const label = labeledBundlers.find(b => getAddress(b.address) === normalizedAddress)?.name || null;
+          
+          return {
+            address: normalizedAddress,
+            count: Number(row.count),
+            label,
+          };
+        });
+      }
     }),
 });
