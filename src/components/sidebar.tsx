@@ -20,6 +20,7 @@ import {
   UserRound,
   AppWindow,
   Wallet,
+  Tag,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -53,6 +54,11 @@ const items = [
     title: "Apps",
     url: "/apps",
     icon: <AppWindow />,
+  },
+  {
+    title: "Unlabeled Addresses",
+    url: "/unlabeled-addresses",
+    icon: <Tag />,
   },
   { title: "Address Book", url: "/address-book", icon: <BookMarked /> },
 ];
