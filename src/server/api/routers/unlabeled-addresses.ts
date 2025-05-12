@@ -119,7 +119,6 @@ export const unlabeledAddressesRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const results = await ctx.envioDb.execute<{
         bundler: string;
-        chain_id: number;
         count: bigint;
       }>(sql`
         WITH bundler_names AS (
@@ -134,7 +133,6 @@ export const unlabeledAddressesRouter = createTRPCRouter({
         )
         SELECT
             dsb.bundler,
-            dsb."chainId" as chain_id,
             SUM(dsb.count) AS count
         FROM
             daily_stats_bundlers as dsb
@@ -145,7 +143,7 @@ export const unlabeledAddressesRouter = createTRPCRouter({
             AND dsb.day <= ${input.endDate.toISOString()}
             AND bn.address IS NULL
         GROUP BY
-            dsb.bundler, chain_id
+            dsb.bundler
         ORDER BY
             count DESC
         LIMIT 100
@@ -153,7 +151,6 @@ export const unlabeledAddressesRouter = createTRPCRouter({
 
       return results.map(row => ({
         address: row.bundler,
-        chainId: row.chain_id,
         count: Number(row.count),
       }));
     }),
