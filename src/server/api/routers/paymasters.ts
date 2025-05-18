@@ -1,34 +1,8 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { sql } from "drizzle-orm";
-import fs from "fs";
-import path from "path";
-import { parse } from "csv-parse/sync";
-import { getAddress } from "viem";
+import { paymastersCsv } from "@/lib/registry/csv";
 
-// Define type for paymaster data
-type PaymasterRecord = {
-  name: string;
-  address: string;
-};
-
-// Function to read paymaster data from CSV file
-const getPaymasterData = (): PaymasterRecord[] => {
-  const filePath = path.join(process.cwd(), 'data', 'paymasters.csv');
-  const fileContent = fs.readFileSync(filePath, 'utf-8');
-  const records = parse(fileContent, {
-    columns: true,
-    delimiter: '\t',
-    skip_empty_lines: true
-  }) as PaymasterRecord[];
-
-  return records.map(r => {
-    return {
-      ...r,
-      address: getAddress(r.address)
-    }
-  });
-};
 
 export const paymastersRouter = createTRPCRouter({
   totalSponsored: publicProcedure
@@ -49,7 +23,7 @@ export const paymastersRouter = createTRPCRouter({
               FROM (
                 VALUES
                   ${sql.join(
-                    getPaymasterData().map(p => sql`(${p.name}, ${p.address})`),
+                    paymastersCsv.map(p => sql`(${p.name}, ${p.address})`),
                     sql`,`
                   )}
               ) AS t(name, address)
@@ -91,7 +65,7 @@ export const paymastersRouter = createTRPCRouter({
               FROM (
                 VALUES
                   ${sql.join(
-                    getPaymasterData().map(p => sql`(${p.name}, ${p.address})`),
+                    paymastersCsv.map(p => sql`(${p.name}, ${p.address})`),
                     sql`,`
                   )}
               ) AS t(name, address)
@@ -147,7 +121,7 @@ export const paymastersRouter = createTRPCRouter({
               FROM (
                 VALUES
                   ${sql.join(
-                    getPaymasterData().map(p => sql`(${p.name}, ${p.address})`),
+                    paymastersCsv.map(p => sql`(${p.name}, ${p.address})`),
                     sql`,`
                   )}
               ) AS t(name, address)
@@ -207,7 +181,7 @@ export const paymastersRouter = createTRPCRouter({
               FROM (
                 VALUES
                   ${sql.join(
-                    getPaymasterData().map(p => sql`(${p.name}, ${p.address})`),
+                    paymastersCsv.map(p => sql`(${p.name}, ${p.address})`),
                     sql`,`
                   )}
               ) AS t(name, address)

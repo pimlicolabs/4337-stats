@@ -1,33 +1,8 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { sql } from "drizzle-orm";
-import fs from "fs";
-import path from "path";
-import { parse } from "csv-parse/sync";
-import { getAddress } from 'viem'
+import { bundlersCsv } from "@/lib/registry/csv";
 
-// Define type for bundler data
-type BundlerRecord = {
-  name: string;
-  address: string;
-};
-
-// Function to read bundler data from CSV file
-const getBundlerData = (): BundlerRecord[] => {
-  const filePath = path.join(process.cwd(), 'data', 'bundlers.csv');
-  const fileContent = fs.readFileSync(filePath, 'utf-8');
-  const records = parse(fileContent, {
-    columns: true,
-    delimiter: '\t',
-    skip_empty_lines: true
-  }) as BundlerRecord[];
-  return records.map(r => {
-    return {
-      ...r,
-      address: getAddress(r.address),
-    }
-  });
-};
 
 export const bundlersRouter = createTRPCRouter({
   totalOps: publicProcedure
@@ -48,7 +23,7 @@ export const bundlersRouter = createTRPCRouter({
               FROM (
                 VALUES
                   ${sql.join(
-                    getBundlerData().map(b => sql`(${b.name}, ${b.address})`),
+                    bundlersCsv.map(b => sql`(${b.name}, ${b.address})`),
                     sql`,`
                   )}
               ) AS t(name, address)
@@ -132,7 +107,7 @@ export const bundlersRouter = createTRPCRouter({
               FROM (
                 VALUES
                   ${sql.join(
-                    getBundlerData().map(b => sql`(${b.name}, ${b.address})`),
+                    bundlersCsv.map(b => sql`(${b.name}, ${b.address})`),
                     sql`,`
                   )}
               ) AS t(name, address)
@@ -187,7 +162,7 @@ export const bundlersRouter = createTRPCRouter({
               FROM (
                 VALUES
                   ${sql.join(
-                    getBundlerData().map(b => sql`(${b.name}, ${b.address})`),
+                    bundlersCsv.map(b => sql`(${b.name}, ${b.address})`),
                     sql`,`
                   )}
               ) AS t(name, address)
@@ -246,7 +221,7 @@ export const bundlersRouter = createTRPCRouter({
               FROM (
                 VALUES
                   ${sql.join(
-                    getBundlerData().map(b => sql`(${b.name}, ${b.address})`),
+                    bundlersCsv.map(b => sql`(${b.name}, ${b.address})`),
                     sql`,`
                   )}
               ) AS t(name, address)

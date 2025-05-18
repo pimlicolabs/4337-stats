@@ -4,8 +4,9 @@ import { sql } from "drizzle-orm";
 import fs from "fs";
 import path from "path";
 import { parse } from "csv-parse/sync";
-import { APPS, ACCOUNT_FACTORIES } from "@/lib/registry";
+import { APPS, ACCOUNT_FACTORIES, PAYMASTERS, BUNDLERS } from "@/lib/registry";
 import { getAddress } from "viem";
+import { bundlersCsv, paymastersCsv } from "@/lib/registry/csv";
 
 // Define type for entity data
 type EntityRecord = {
@@ -25,39 +26,6 @@ const getEntityData = (entityType: string): EntityRecord[] => {
   return records;
 };
 
-// Function to get bundler data
-const getBundlerData = (): EntityRecord[] => {
-  const filePath = path.join(process.cwd(), 'data', 'bundlers.csv');
-  const fileContent = fs.readFileSync(filePath, 'utf-8');
-  const records = parse(fileContent, {
-    columns: true,
-    delimiter: '\t',
-    skip_empty_lines: true
-  }) as EntityRecord[];
-  return records.map(r => {
-    return {
-      ...r,
-      address: getAddress(r.address),
-    }
-  });
-};
-
-// Function to get paymaster data
-const getPaymasterData = (): EntityRecord[] => {
-  const filePath = path.join(process.cwd(), 'data', 'paymasters.csv');
-  const fileContent = fs.readFileSync(filePath, 'utf-8');
-  const records = parse(fileContent, {
-    columns: true,
-    delimiter: '\t',
-    skip_empty_lines: true
-  }) as EntityRecord[];
-  return records.map(r => {
-    return {
-      ...r,
-      address: getAddress(r.address),
-    }
-  });
-};
 
 export const unlabeledAddressesRouter = createTRPCRouter({
   getUnlabeledFactories: publicProcedure
@@ -324,92 +292,148 @@ export const unlabeledAddressesRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      let results;
-      
       if (input.addressType === "bundler") {
-        results = await ctx.envioDb.execute<{
+        // For bundlers, analyze paymasters they work with
+        const results = await ctx.envioDb.execute<{
           paymaster: string;
           count: bigint;
+          label: string | null;
+          color: string;
         }>(sql`
-          WITH random_userops AS (
-            SELECT 
-              "paymaster"
-            FROM 
-              "EntryPoint_UserOperationEvent"
-            WHERE 
-              "transactionFrom" = ${input.address}
-            ORDER BY 
-              "id"
-            LIMIT ${input.limit}
-          )
+          WITH 
+            random_userops AS (
+              SELECT 
+                "paymaster"
+              FROM 
+                "EntryPoint_UserOperationEvent"
+              WHERE 
+                "transactionFrom" = ${input.address}
+              ORDER BY 
+                "id"
+              LIMIT ${input.limit}
+            ),
+            paymaster_counts AS (
+              SELECT
+                "paymaster",
+                COUNT(*) as count
+              FROM
+                random_userops
+              GROUP BY
+                "paymaster"
+            ),
+            paymaster_registry AS (
+              SELECT 
+                address, 
+                name as label,
+                color
+              FROM (
+                VALUES
+                  ${sql.join(
+                    PAYMASTERS.map((p: { dbName: string; name: string; color: string }) => 
+                      sql`(${getAddress(p.dbName)}, ${p.name}, ${p.color})`
+                    ),
+                    sql`,`
+                  )}
+              ) AS t(address, label, color)
+            )
           SELECT
-            "paymaster",
-            COUNT(*) as count
+            pc."paymaster",
+            pc.count,
+            pr.label,
+            COALESCE(pr.color, '#94a3b8') as color
           FROM
-            random_userops
-          GROUP BY
-            "paymaster"
+            paymaster_counts pc
+          LEFT JOIN
+            paymaster_registry pr ON pr.address = pc."paymaster"
+          ORDER BY
+            pc.count DESC
         `);
         
-        const labeledPaymasters = getPaymasterData();
-        
+        // Calculate total count and percentages
         const totalCount = results.reduce((sum, row) => sum + Number(row.count), 0);
         
-        // Map results to include labels and percentages
         return results.map(row => {
           const normalizedAddress = getAddress(row.paymaster);
-          const label = labeledPaymasters.find(p => getAddress(p.address) === normalizedAddress)?.name || null;
           const count = Number(row.count);
           
           return {
             address: normalizedAddress,
             count,
             percentage: totalCount > 0 ? (count / totalCount) * 100 : 0,
-            label,
+            label: row.label || 'Unknown',
+            color: row.color
           };
         });
       } else {
-        results = await ctx.envioDb.execute<{
+        // For paymasters, analyze bundlers they work with
+        const results = await ctx.envioDb.execute<{
           bundler: string;
           count: bigint;
+          label: string | null;
+          color: string;
         }>(sql`
-          WITH random_userops AS (
-            SELECT 
-              "transactionFrom"
-            FROM 
-              "EntryPoint_UserOperationEvent"
-            WHERE 
-              "paymaster" = ${input.address}
-            ORDER BY 
-              "id"
-            LIMIT ${input.limit}
-          )
+          WITH 
+            random_userops AS (
+              SELECT 
+                "transactionFrom"
+              FROM 
+                "EntryPoint_UserOperationEvent"
+              WHERE 
+                "paymaster" = ${input.address}
+              ORDER BY 
+                "id"
+              LIMIT ${input.limit}
+            ),
+            bundler_counts AS (
+              SELECT
+                "transactionFrom" as bundler,
+                COUNT(*) as count
+              FROM
+                random_userops
+              GROUP BY
+                "transactionFrom"
+            ),
+            bundler_registry AS (
+              SELECT 
+                address, 
+                name as label,
+                color
+              FROM (
+                VALUES
+                  ${sql.join(
+                    BUNDLERS.map((b: { dbName: string; name: string; color: string }) => 
+                      sql`(${getAddress(b.dbName)}, ${b.name}, ${b.color})`
+                    ),
+                    sql`,`
+                  )}
+              ) AS t(address, label, color)
+            )
           SELECT
-            "transactionFrom" as bundler,
-            COUNT(*) as count
+            bc.bundler,
+            bc.count,
+            br.label,
+            COALESCE(br.color, '#94a3b8') as color
           FROM
-            random_userops
-          GROUP BY
-            "transactionFrom"
+            bundler_counts bc
+          LEFT JOIN
+            bundler_registry br ON br.address = bc.bundler
+          ORDER BY
+            bc.count DESC
         `);
         
-        // Get all labeled bundlers
-        const labeledBundlers = getBundlerData();
-        
-        // Get total count to calculate percentages
+        // Calculate total count and percentages
         const totalCount = results.reduce((sum, row) => sum + Number(row.count), 0);
         
-        // Map results to include labels and percentages
         return results.map(row => {
           const normalizedAddress = getAddress(row.bundler);
-          const label = labeledBundlers.find(b => getAddress(b.address) === normalizedAddress)?.name || null;
           const count = Number(row.count);
           
           return {
             address: normalizedAddress,
             count,
             percentage: totalCount > 0 ? (count / totalCount) * 100 : 0,
-            label,
+            label: row.label || 'Unknown',
+            color: row.color
           };
         });
       }
