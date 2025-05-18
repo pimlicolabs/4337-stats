@@ -9,11 +9,72 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { PieChart } from "@/components/charts/pieChart";
 import { subMonths } from "date-fns";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 
 const endDate = new Date();
 const startDate = subMonths(endDate, 1);
+
+// Analysis content component for the modal
+interface AnalysisContentProps {
+  address: string;
+  addressType: "bundler" | "paymaster";
+  title: string;
+}
+
+function AnalysisContent({ address, addressType, title }: AnalysisContentProps) {
+  const distributionData = api.unlabeledAddresses.getRandomUserOperationStatsFor.useQuery(
+    {
+      address,
+      addressType,
+      limit: 1000
+    },
+    {
+      enabled: !!address && !!addressType,
+      refetchOnWindowFocus: false
+    }
+  );
+
+  return (
+    <div>
+      <h3 className="text-xl font-medium mb-4">{title}</h3>
+      
+      {distributionData.isLoading ? (
+        <div className="flex justify-center items-center h-64">
+          <p>Loading data...</p>
+        </div>
+      ) : distributionData.isError ? (
+        <div className="flex justify-center items-center h-64">
+          <p>Error loading data</p>
+        </div>
+      ) : distributionData.data?.length === 0 ? (
+        <div className="flex justify-center items-center h-64">
+          <p>No data available</p>
+        </div>
+      ) : (
+        <div className="h-80">
+          {/* <PieChart
+            title={addressType === "bundler" ? "Paymasters" : "Bundlers"}
+            innerTitle="Distribution"
+            description={`Distribution of ${addressType === "bundler" ? "paymasters" : "bundlers"} for ${address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'unknown'}`}
+            config={chartConfig}
+            data={processedData}
+            dataKey="value"
+            nameKey="label"
+          /> */}
+        </div>
+      )}
+    </div>
+  );
+}
 
 // Wrapper component that uses the search params
 function UnlabeledAddressesContent() {  
@@ -79,6 +140,20 @@ function UnlabeledAddressesContent() {
   
 
 
+  // State for the inspection modal
+  const [isInspectOpen, setIsInspectOpen] = useState(false);
+  const [inspectedAddress, setInspectedAddress] = useState("");
+  const [addressType, setAddressType] = useState<"bundler" | "paymaster">("bundler");
+  const [distributionTitle, setDistributionTitle] = useState("");
+
+  // Function to open the inspection modal
+  const openInspectModal = (address: string, type: "bundler" | "paymaster") => {
+    setInspectedAddress(address);
+    setAddressType(type);
+    setDistributionTitle(type === "bundler" ? "Paymasters distribution" : "Bundlers distribution");
+    setIsInspectOpen(true);
+  };
+
   // Simple table component for reuse
   interface SimpleTableProps {
     title: string;
@@ -100,18 +175,19 @@ function UnlabeledAddressesContent() {
               <TableRow>
                 <TableHead className="w-[400px]">Address</TableHead>
                 <TableHead>Count</TableHead>
+                <TableHead className="w-[100px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={2} className="text-center py-4">
+                  <TableCell colSpan={3} className="text-center py-4">
                     Loading...
                   </TableCell>
                 </TableRow>
               ) : !data || data.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={2} className="text-center py-4">
+                  <TableCell colSpan={3} className="text-center py-4">
                     No unlabeled {title.toLowerCase()} found
                   </TableCell>
                 </TableRow>
@@ -122,6 +198,15 @@ function UnlabeledAddressesContent() {
                       {item.address}
                     </TableCell>
                     <TableCell className="py-1">{item.count.toLocaleString()}</TableCell>
+                    <TableCell className="py-1">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => openInspectModal(item.address, title.toLowerCase() === "paymasters" ? "paymaster" : "bundler")}
+                      >
+                        Inspect
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))
               )}
@@ -137,6 +222,19 @@ function UnlabeledAddressesContent() {
   return (
     <div className="mx-auto max-w-7xl space-y-8 p-8">
       <h1 className="text-3xl font-bold">Unlabeled Addresses</h1>
+      
+      {/* Inspection Modal */}
+      <Sheet open={isInspectOpen} onOpenChange={setIsInspectOpen}>
+        <SheetContent side="right" className="w-1/3 sm:max-w-none">
+          <SheetHeader>
+            <SheetTitle>Analysis</SheetTitle>
+            <p className="text-muted-foreground mt-2 font-mono">{inspectedAddress}</p>
+          </SheetHeader>
+          <div className="mt-6 space-y-6">
+            <AnalysisContent address={inspectedAddress} addressType={addressType} title={distributionTitle} />
+          </div>
+        </SheetContent>
+      </Sheet>
       
       <div className="grid grid-cols-1 gap-6">
         <div className="space-y-8">

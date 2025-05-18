@@ -4,7 +4,7 @@ import { sql } from "drizzle-orm";
 import fs from "fs";
 import path from "path";
 import { parse } from "csv-parse/sync";
-import { APPS, ACCOUNT_FACTORIES, PAYMASTERS, BUNDLERS } from "@/lib/registry";
+import { APPS, ACCOUNT_FACTORIES, PAYMASTERS, BUNDLERS } from "@/lib/registry/index";
 import { getAddress } from "viem";
 import { bundlersCsv, paymastersCsv } from "@/lib/registry/csv";
 
