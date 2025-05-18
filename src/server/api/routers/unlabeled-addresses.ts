@@ -253,8 +253,8 @@ export const unlabeledAddressesRouter = createTRPCRouter({
       }));
     }),
     
-  // New endpoint to get UserOperation data for smart labeling
-  getUserOperationsForSmartLabeling: publicProcedure
+  // Get random user operations for a specific paymaster or bundler
+  getRandomUserOperationsFor: publicProcedure
     .input(
       z.object({
         address: z.string(),
@@ -263,11 +263,70 @@ export const unlabeledAddressesRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      // Get the first 1000 UserOperations for the given address
+      if (input.addressType === "bundler") {
+        const results = await ctx.envioDb.execute<{
+          userOpHash: string;
+          chainId: number;
+          timestamp: Date;
+        }>(sql`
+          SELECT 
+            "userOpHash",
+            "chainId",
+            "timestamp"
+          FROM 
+            "EntryPoint_UserOperationEvent"
+          WHERE 
+            "transactionFrom" = ${input.address}
+          ORDER BY 
+            "id"
+          LIMIT ${input.limit}
+        `);
+        
+        return results.map(row => ({
+          userOpHash: row.userOpHash,
+          chainId: row.chainId,
+          timestamp: row.timestamp,
+        }));
+      } else {
+        const results = await ctx.envioDb.execute<{
+          userOpHash: string;
+          chainId: number;
+          timestamp: Date;
+        }>(sql`
+          SELECT 
+            "userOpHash",
+            "chainId",
+            "timestamp"
+          FROM 
+            "EntryPoint_UserOperationEvent"
+          WHERE 
+            "paymaster" = ${input.address}
+          ORDER BY 
+            "id"
+          LIMIT ${input.limit}
+        `);
+        
+        return results.map(row => ({
+          userOpHash: row.userOpHash,
+          chainId: row.chainId,
+          timestamp: row.timestamp,
+        }));
+      }
+    }),
+
+  // Get statistics for user operations related to a paymaster or bundler
+  getRandomUserOperationStatsFor: publicProcedure
+    .input(
+      z.object({
+        address: z.string(),
+        addressType: z.enum(["bundler", "paymaster"]),
+        limit: z.number().default(1000),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
       let results;
       
       if (input.addressType === "bundler") {
-        // If we're labeling a bundler, we want to find paymasters it works with
         results = await ctx.envioDb.execute<{
           paymaster: string;
           count: bigint;
@@ -279,7 +338,6 @@ export const unlabeledAddressesRouter = createTRPCRouter({
               "EntryPoint_UserOperationEvent"
             WHERE 
               "transactionFrom" = ${input.address}
-              AND "paymaster" != '0x0000000000000000000000000000000000000000'
             ORDER BY 
               "id"
             LIMIT ${input.limit}
@@ -293,22 +351,24 @@ export const unlabeledAddressesRouter = createTRPCRouter({
             "paymaster"
         `);
         
-        // Get all labeled paymasters
         const labeledPaymasters = getPaymasterData();
         
-        // Map results to include labels
+        const totalCount = results.reduce((sum, row) => sum + Number(row.count), 0);
+        
+        // Map results to include labels and percentages
         return results.map(row => {
           const normalizedAddress = getAddress(row.paymaster);
           const label = labeledPaymasters.find(p => getAddress(p.address) === normalizedAddress)?.name || null;
+          const count = Number(row.count);
           
           return {
             address: normalizedAddress,
-            count: Number(row.count),
+            count,
+            percentage: totalCount > 0 ? (count / totalCount) * 100 : 0,
             label,
           };
         });
       } else {
-        // If we're labeling a paymaster, we want to find bundlers it works with
         results = await ctx.envioDb.execute<{
           bundler: string;
           count: bigint;
@@ -336,14 +396,19 @@ export const unlabeledAddressesRouter = createTRPCRouter({
         // Get all labeled bundlers
         const labeledBundlers = getBundlerData();
         
-        // Map results to include labels
+        // Get total count to calculate percentages
+        const totalCount = results.reduce((sum, row) => sum + Number(row.count), 0);
+        
+        // Map results to include labels and percentages
         return results.map(row => {
           const normalizedAddress = getAddress(row.bundler);
           const label = labeledBundlers.find(b => getAddress(b.address) === normalizedAddress)?.name || null;
+          const count = Number(row.count);
           
           return {
             address: normalizedAddress,
-            count: Number(row.count),
+            count,
+            percentage: totalCount > 0 ? (count / totalCount) * 100 : 0,
             label,
           };
         });
