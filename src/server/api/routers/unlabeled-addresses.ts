@@ -279,8 +279,6 @@ export const unlabeledAddressesRouter = createTRPCRouter({
             "EntryPoint_UserOperationEvent"
           WHERE 
             "transactionFrom" = ${input.address}
-          ORDER BY 
-            "id"
           LIMIT ${input.limit}
         `);
         
@@ -303,8 +301,6 @@ export const unlabeledAddressesRouter = createTRPCRouter({
             "EntryPoint_UserOperationEvent"
           WHERE 
             "paymaster" = ${input.address}
-          ORDER BY 
-            "id"
           LIMIT ${input.limit}
         `);
         
@@ -342,8 +338,6 @@ export const unlabeledAddressesRouter = createTRPCRouter({
                 "EntryPoint_UserOperationEvent"
               WHERE 
                 "transactionFrom" = ${input.address}
-              ORDER BY 
-                "id"
               LIMIT ${input.limit}
             ),
             paymaster_counts AS (
@@ -402,8 +396,6 @@ export const unlabeledAddressesRouter = createTRPCRouter({
                 "EntryPoint_UserOperationEvent"
               WHERE 
                 "paymaster" = ${input.address}
-              ORDER BY 
-                "id"
               LIMIT ${input.limit}
             ),
             bundler_counts AS (
