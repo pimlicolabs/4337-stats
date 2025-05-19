@@ -8,6 +8,40 @@ import { APPS, ACCOUNT_FACTORIES, PAYMASTERS, BUNDLERS } from "@/lib/registry/in
 import { getAddress } from "viem";
 import { bundlersCsv, paymastersCsv } from "@/lib/registry/csv";
 
+// Create maps for faster lookups
+const paymasterAddressMap = new Map<string, typeof paymastersCsv[0]>();
+const bundlerAddressMap = new Map<string, typeof bundlersCsv[0]>();
+const paymasterNameMap = new Map<string, typeof PAYMASTERS[0]>();
+const bundlerNameMap = new Map<string, typeof BUNDLERS[0]>();
+
+// Initialize paymaster maps
+paymastersCsv.forEach(paymaster => {
+  try {
+    const normalizedAddress = getAddress(paymaster.address);
+    paymasterAddressMap.set(normalizedAddress, paymaster);
+  } catch (e) {
+    // Skip invalid addresses
+  }
+});
+
+PAYMASTERS.forEach(paymaster => {
+  paymasterNameMap.set(paymaster.name.toLowerCase(), paymaster);
+});
+
+// Initialize bundler maps
+bundlersCsv.forEach(bundler => {
+  try {
+    const normalizedAddress = getAddress(bundler.address);
+    bundlerAddressMap.set(normalizedAddress, bundler);
+  } catch (e) {
+    // Skip invalid addresses
+  }
+});
+
+BUNDLERS.forEach(bundler => {
+  bundlerNameMap.set(bundler.name.toLowerCase(), bundler);
+});
+
 // Define type for entity data
 type EntityRecord = {
   name: string;
@@ -320,48 +354,36 @@ export const unlabeledAddressesRouter = createTRPCRouter({
                 random_userops
               GROUP BY
                 "paymaster"
-            ),
-            paymaster_registry AS (
-              SELECT 
-                address, 
-                name as label,
-                color
-              FROM (
-                VALUES
-                  ${sql.join(
-                    PAYMASTERS.map((p: { dbName: string; name: string; color: string }) => 
-                      sql`(${getAddress(p.dbName)}, ${p.name}, ${p.color})`
-                    ),
-                    sql`,`
-                  )}
-              ) AS t(address, label, color)
             )
           SELECT
-            pc."paymaster",
-            pc.count,
-            pr.label,
-            COALESCE(pr.color, '#94a3b8') as color
+            pc."paymaster" as paymaster,
+            pc.count
           FROM
             paymaster_counts pc
-          LEFT JOIN
-            paymaster_registry pr ON pr.address = pc."paymaster"
           ORDER BY
             pc.count DESC
         `);
         
-        // Calculate total count and percentages
+        // Calculate total count
         const totalCount = results.reduce((sum, row) => sum + Number(row.count), 0);
         
+        // Process results and add labels and colors from paymastersCsv
         return results.map(row => {
           const normalizedAddress = getAddress(row.paymaster);
           const count = Number(row.count);
+          
+          // Get matching paymaster from map
+          const matchingPaymaster = paymasterAddressMap.get(normalizedAddress);
+          
+          // Get registry entry from map to get color
+          const registryEntry = matchingPaymaster ? paymasterNameMap.get(matchingPaymaster.name.toLowerCase()) : undefined;
           
           return {
             address: normalizedAddress,
             count,
             percentage: totalCount > 0 ? (count / totalCount) * 100 : 0,
-            label: row.label || 'Unknown',
-            color: row.color
+            label: matchingPaymaster ? matchingPaymaster.name : 'Unknown',
+            color: registryEntry ? registryEntry.color : '#94a3b8'
           };
         });
       } else {
@@ -392,48 +414,36 @@ export const unlabeledAddressesRouter = createTRPCRouter({
                 random_userops
               GROUP BY
                 "transactionFrom"
-            ),
-            bundler_registry AS (
-              SELECT 
-                address, 
-                name as label,
-                color
-              FROM (
-                VALUES
-                  ${sql.join(
-                    BUNDLERS.map((b: { dbName: string; name: string; color: string }) => 
-                      sql`(${getAddress(b.dbName)}, ${b.name}, ${b.color})`
-                    ),
-                    sql`,`
-                  )}
-              ) AS t(address, label, color)
             )
           SELECT
             bc.bundler,
-            bc.count,
-            br.label,
-            COALESCE(br.color, '#94a3b8') as color
+            bc.count
           FROM
             bundler_counts bc
-          LEFT JOIN
-            bundler_registry br ON br.address = bc.bundler
           ORDER BY
             bc.count DESC
         `);
         
-        // Calculate total count and percentages
+        // Calculate total count
         const totalCount = results.reduce((sum, row) => sum + Number(row.count), 0);
         
+        // Process results and add labels and colors from bundlersCsv
         return results.map(row => {
           const normalizedAddress = getAddress(row.bundler);
           const count = Number(row.count);
+          
+          // Get matching bundler from map
+          const matchingBundler = bundlerAddressMap.get(normalizedAddress);
+          
+          // Get registry entry from map to get color
+          const registryEntry = matchingBundler ? bundlerNameMap.get(matchingBundler.name.toLowerCase()) : undefined;
           
           return {
             address: normalizedAddress,
             count,
             percentage: totalCount > 0 ? (count / totalCount) * 100 : 0,
-            label: row.label || 'Unknown',
-            color: row.color
+            label: matchingBundler ? matchingBundler.name : 'Unknown',
+            color: registryEntry ? registryEntry.color : '#94a3b8'
           };
         });
       }
