@@ -56,11 +56,15 @@ const items = [
     icon: <AppWindow />,
   },
   {
+    title: "Address Book",
+    url: "/address-book",
+    icon: <BookMarked />,
+  },
+  {
     title: "Unlabeled Addresses",
     url: "/unlabeled-addresses",
     icon: <Tag />,
   },
-  { title: "Address Book", url: "/address-book", icon: <BookMarked /> },
 ];
 
 export function GlobalSidebar() {

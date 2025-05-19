@@ -47,8 +47,9 @@ function AnalysisContent({ address, addressType, title }: AnalysisContentProps) 
   const chartConfig = React.useMemo(() => {
     if (!distributionData.data) return {};
     
-    return distributionData.data.reduce((config: Record<string, { color: string }>, item) => {
-      config[item.label] = { color: item.color };
+    return distributionData.data.reduce((config: Record<string, { color: string, name: string }>, item) => {
+      // Use address as the key instead of label to ensure uniqueness
+      config[item.address] = { color: item.color, name: item.label };
       return config;
     }, {});
   }, [distributionData.data]);
@@ -76,9 +77,9 @@ function AnalysisContent({ address, addressType, title }: AnalysisContentProps) 
             innerTitle="Distribution"
             description={`Distribution of ${addressType === "bundler" ? "paymasters" : "bundlers"} for ${address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'unknown'}`}
             config={chartConfig}
-            data={distributionData.data}
+            data={distributionData.data || []}
             dataKey="percentage"
-            nameKey="label"
+            nameKey="address"
           />
         </div>
       )}

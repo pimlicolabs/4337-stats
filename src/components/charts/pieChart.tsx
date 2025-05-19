@@ -51,17 +51,36 @@ export function PieChart({
           <RechartPieChart>
             <ChartTooltip
               cursor={false}
-              content={<ChartTooltipContent hideLabel />}
+              content={<ChartTooltipContent 
+                hideLabel 
+                formatter={(value, name, entry) => {
+                  // Display both the label and percentage in the tooltip
+                  const item = entry.payload;
+                  const labelText = item.label || name;
+                  const numericValue = typeof value === 'number' ? value.toFixed(1) : value;
+                  return (
+                    <div className="flex flex-col">
+                      <span className="font-medium">{labelText}</span>
+                      <span className="font-medium">{item.address}</span>
+                      <span className="font-mono">{numericValue}%</span>
+                    </div>
+                  );
+                }}
+              />}
             />
             <Pie
               data={data.map((d: any) => ({
                 ...d,
                 fill: config[d[nameKey]]?.color,
+                // Use the label or address directly for display
+                name: d.label || d[nameKey],
               }))}
               dataKey={dataKey}
               nameKey={nameKey}
               innerRadius={60}
-              strokeWidth={5}
+              outerRadius={80}
+              stroke="#ffffff"
+              strokeWidth={2}
             >
               <Label
                 content={({ viewBox }) => {
