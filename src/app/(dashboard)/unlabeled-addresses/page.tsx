@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/sheet";
 import { PieChart } from "@/components/charts/pieChart";
 import { subMonths } from "date-fns";
-import { Suspense, useState } from "react";
+import React, { Suspense, useState } from "react";
 
 const endDate = new Date();
 const startDate = subMonths(endDate, 1);
@@ -43,6 +43,16 @@ function AnalysisContent({ address, addressType, title }: AnalysisContentProps) 
     }
   );
 
+  // Prepare chart config from the distribution data
+  const chartConfig = React.useMemo(() => {
+    if (!distributionData.data) return {};
+    
+    return distributionData.data.reduce((config: Record<string, { color: string }>, item) => {
+      config[item.label] = { color: item.color };
+      return config;
+    }, {});
+  }, [distributionData.data]);
+
   return (
     <div>
       <h3 className="text-xl font-medium mb-4">{title}</h3>
@@ -61,15 +71,15 @@ function AnalysisContent({ address, addressType, title }: AnalysisContentProps) 
         </div>
       ) : (
         <div className="h-80">
-          {/* <PieChart
+          <PieChart
             title={addressType === "bundler" ? "Paymasters" : "Bundlers"}
             innerTitle="Distribution"
             description={`Distribution of ${addressType === "bundler" ? "paymasters" : "bundlers"} for ${address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'unknown'}`}
             config={chartConfig}
-            data={processedData}
-            dataKey="value"
+            data={distributionData.data}
+            dataKey="percentage"
             nameKey="label"
-          /> */}
+          />
         </div>
       )}
     </div>
