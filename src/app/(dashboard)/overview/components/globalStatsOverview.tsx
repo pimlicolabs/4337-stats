@@ -30,9 +30,10 @@ export default function GlobalStatsOverview({
       bundlers: BUNDLERS.map((b) => b.dbName),
     },
     {
-      refetchOnWindowFocus: false,
-      refetchOnMount: false,
-      staleTime: Infinity,
+      refetchOnWindowFocus: true,
+      refetchOnMount: true,
+      staleTime: 1_000,
+      refetchInterval: 5_000,
     },
   );
 
@@ -58,9 +59,10 @@ export default function GlobalStatsOverview({
       paymasters: PAYMASTERS.map((b) => b.dbName),
     },
     {
-      refetchOnWindowFocus: false,
-      refetchOnMount: false,
-      staleTime: Infinity,
+      refetchOnWindowFocus: true,
+      refetchOnMount: true,
+      staleTime: 1_000,
+      refetchInterval: 5_000,
     },
   );
 
@@ -86,9 +88,10 @@ export default function GlobalStatsOverview({
       factories: ACCOUNT_FACTORIES.map((b) => b.dbName),
     },
     {
-      refetchOnWindowFocus: false,
-      refetchOnMount: false,
-      staleTime: Infinity,
+      refetchOnWindowFocus: true,
+      refetchOnMount: true,
+      staleTime: 1_000,
+      refetchInterval: 5_000,
     },
   );
 
@@ -106,36 +109,10 @@ export default function GlobalStatsOverview({
     },
   );
 
-  const monthlyActiveUsersQuery = api.globalStats.monthlyActiveUsers.useQuery(
-    {
-      month: startOfMonth(subMonths(new Date(), 1)),
-      chainIds: selectedChains,
-    },
-    {
-      refetchOnWindowFocus: false,
-      refetchOnMount: false,
-      staleTime: Infinity,
-    },
-  );
-
-  const dailyActiveUsersQuery = api.globalStats.activeUsersByDay.useQuery(
-    {
-      day: subDays(endDate, 1),
-      chainIds: selectedChains,
-    },
-    {
-      refetchOnWindowFocus: false,
-      refetchOnMount: false,
-      staleTime: Infinity,
-    },
-  );
-
   const {
     totalOpsBundled,
     totalOpsSponsored,
     totalAccountsDeployed,
-    monthlyActiveUsers,
-    dailyActiveUsers,
     prevTotalOpsBundled,
     prevTotalOpsSponsored,
     prevTotalAccountsDeployed,
@@ -144,8 +121,6 @@ export default function GlobalStatsOverview({
       totalOpsBundled: totalOpsBundledQuery.data,
       totalOpsSponsored: totalOpsSponsoredQuery.data,
       totalAccountsDeployed: totalAccountsDeployedQuery.data,
-      monthlyActiveUsers: monthlyActiveUsersQuery.data,
-      dailyActiveUsers: dailyActiveUsersQuery.data,
       prevTotalOpsBundled: prevTotalOpsBundledQuery.data,
       prevTotalOpsSponsored: prevTotalOpsSponsoredQuery.data,
       prevTotalAccountsDeployed: prevTotalAccountsDeployedQuery.data,
@@ -154,8 +129,6 @@ export default function GlobalStatsOverview({
     totalOpsBundledQuery.data,
     totalOpsSponsoredQuery.data,
     totalAccountsDeployedQuery.data,
-    monthlyActiveUsersQuery.data,
-    dailyActiveUsersQuery.data,
     prevTotalOpsBundledQuery.data,
     prevTotalOpsSponsoredQuery.data,
     prevTotalAccountsDeployedQuery.data,
@@ -166,9 +139,7 @@ export default function GlobalStatsOverview({
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
         <StatCard
           title="User Operations Bundled"
-          value={
-            totalOpsBundled ? totalOpsBundled.toLocaleString() : "Loading..."
-          }
+          value={totalOpsBundled ?? "Loading..."}
           icon={Box}
           description={formatTrendDescription(
             totalOpsBundled,
@@ -184,11 +155,7 @@ export default function GlobalStatsOverview({
 
         <StatCard
           title="User Operations Sponsored"
-          value={
-            totalOpsSponsored
-              ? totalOpsSponsored.toLocaleString()
-              : "Loading..."
-          }
+          value={totalOpsSponsored ?? "Loading..."}
           icon={DollarSign}
           description={formatTrendDescription(
             totalOpsSponsored,
@@ -204,11 +171,7 @@ export default function GlobalStatsOverview({
 
         <StatCard
           title="Accounts Deployed"
-          value={
-            totalAccountsDeployed
-              ? totalAccountsDeployed.toLocaleString()
-              : "Loading..."
-          }
+          value={totalAccountsDeployed ?? "Loading..."}
           icon={User}
           description={formatTrendDescription(
             totalAccountsDeployed,

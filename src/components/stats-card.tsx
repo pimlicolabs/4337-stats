@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TimeFrameType } from "@/lib/types";
 import { type LucideIcon } from "lucide-react";
+import { CountUp } from "./count-up";
 
 interface StatCardProps {
   title: string;
@@ -9,6 +10,7 @@ interface StatCardProps {
   description?: string;
   trend?: "positive" | "negative";
   trendValue?: string | number;
+  animate?: boolean;
 }
 
 export const calculatePercentageChange = (
@@ -44,6 +46,7 @@ export function StatCard({
   description,
   trend,
   trendValue,
+  animate = true,
 }: StatCardProps) {
   return (
     <Card>
@@ -52,7 +55,17 @@ export function StatCard({
         {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
+        <div className="text-2xl font-bold">
+          {typeof value === 'number' && animate ? (
+            <CountUp 
+              end={value} 
+              duration={1500} 
+              formatter={(val) => val.toLocaleString()} 
+            />
+          ) : (
+            value
+          )}
+        </div>
         {(description || trend) && (
           <p className="text-xs text-muted-foreground">
             {description}
