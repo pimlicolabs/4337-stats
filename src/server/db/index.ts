@@ -7,7 +7,10 @@ const envioClient = postgres(env.ENVIO_4_URL, {
   prepare: false,
   max: 10,  // Increase connection pool size
   idle_timeout: 20,  // Reduce idle timeout to free connections faster
-  connect_timeout: 10  // Reduce connection timeout
+  connect_timeout: 10,  // Reduce connection timeout
+  connection: {
+    statement_timeout: 30_000
+  }
 });
 
 export const envioDb = drizzle(envioClient, {
