@@ -234,6 +234,34 @@ function UnlabeledAddressesContent() {
     <div className="mx-auto max-w-7xl space-y-8 p-8">
       <h1 className="text-3xl font-bold">Unlabeled Addresses</h1>
       
+      <div className="prose max-w-none">
+        <p>
+          All our address labels are available at the{" "}
+          <a href="/address-book" className="text-blue-600 hover:underline">
+            address book
+          </a>. Though there is always a part of addresses that don't have labels yet, 
+          their stats are combined in the Unknown section.
+        </p>
+        <p>This page shows unlabeled addresses for the last 1 month.</p>
+        
+        <div className="mt-4 flex flex-wrap gap-4">
+          <a href="#paymasters" className="text-blue-600 hover:underline">Paymasters</a>
+          <a href="#bundlers" className="text-blue-600 hover:underline">Bundlers</a>
+          <a href="#factories" className="text-blue-600 hover:underline">Factories</a>
+          <a href="#apps" className="text-blue-600 hover:underline">Apps</a>
+        </div>
+        
+        <div className="mt-4 rounded-md bg-slate-100 p-4 dark:bg-slate-800">
+          <h3 className="text-lg font-medium">About the "Inspect" feature</h3>
+          <p>
+            For unlabeled paymasters, the Inspect feature analyzes 10,000 associated userops and 
+            checks if the bundlers have labels. Sometimes this allows us to label the paymaster 
+            with high confidence. Vice versa for the bundlers section - we analyze which paymasters 
+            they bundle for to help identify them.
+          </p>
+        </div>
+      </div>
+      
       {/* Inspection Modal */}
       <Sheet open={isInspectOpen} onOpenChange={setIsInspectOpen}>
         <SheetContent side="right" className="w-1/3 sm:max-w-none">
@@ -250,32 +278,40 @@ function UnlabeledAddressesContent() {
       <div className="grid grid-cols-1 gap-6">
         <div className="space-y-8">
           {/* Paymasters Table */}
-          <SimpleTable
-            title="Paymasters"
-            data={unlabeledPaymasters.data}
-            isLoading={unlabeledPaymasters.isLoading}
-          />
+          <div id="paymasters">
+            <SimpleTable
+              title="Paymasters"
+              data={unlabeledPaymasters.data}
+              isLoading={unlabeledPaymasters.isLoading}
+            />
+          </div>
           
           {/* Bundlers Table */}
-          <SimpleTable
-            title="Bundlers"
-            data={unlabeledBundlers.data}
-            isLoading={unlabeledBundlers.isLoading}
-          />
+          <div id="bundlers">
+            <SimpleTable
+              title="Bundlers"
+              data={unlabeledBundlers.data}
+              isLoading={unlabeledBundlers.isLoading}
+            />
+          </div>
           
           {/* Account Factories Table */}
-          <SimpleTable
-            title="Account Factories"
-            data={unlabeledFactories.data}
-            isLoading={unlabeledFactories.isLoading}
-          />
+          <div id="factories">
+            <SimpleTable
+              title="Account Factories"
+              data={unlabeledFactories.data}
+              isLoading={unlabeledFactories.isLoading}
+            />
+          </div>
           
           {/* Apps Table */}
-          <SimpleTable
-            title="Apps"
-            data={unlabeledApps.data}
-            isLoading={unlabeledApps.isLoading}
-          />
+          <div id="apps">
+            <SimpleTable
+              title="Apps"
+              data={unlabeledApps.data}
+              isLoading={unlabeledApps.isLoading}
+            />
+          </div>
         </div>
       </div>
     </div>
