@@ -80,6 +80,19 @@ function AnalysisContent({ address, addressType, title }: AnalysisContentProps) 
             data={distributionData.data || []}
             dataKey="percentage"
             nameKey="address"
+            formatter={(value, name, entry) => {
+              // Display both the label and percentage in the tooltip
+              const item = entry.payload;
+              const labelText = item.label || name;
+              const numericValue = typeof value === 'number' ? value.toFixed(1) : value;
+              return (
+                <div className="flex flex-col">
+                  <span className="font-medium">{labelText}</span>
+                  <span className="font-medium">{item.address}</span>
+                  <span className="font-mono">{numericValue}%</span>
+                </div>
+              );
+            }}
           />
         </div>
       )}

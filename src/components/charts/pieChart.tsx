@@ -26,6 +26,7 @@ type PieChartProps = {
   description: string;
   config: ChartConfig;
   data: any;
+  formatter?: (value: any, name: any, entry: any, index: number, payload: any) => React.ReactNode;
 };
 
 export function PieChart({
@@ -36,6 +37,7 @@ export function PieChart({
   data,
   dataKey,
   nameKey,
+  formatter,
 }: PieChartProps) {
   return (
     <Card className="flex flex-col">
@@ -53,19 +55,7 @@ export function PieChart({
               cursor={false}
               content={<ChartTooltipContent 
                 hideLabel 
-                formatter={(value, name, entry) => {
-                  // Display both the label and percentage in the tooltip
-                  const item = entry.payload;
-                  const labelText = item.label || name;
-                  const numericValue = typeof value === 'number' ? value.toFixed(1) : value;
-                  return (
-                    <div className="flex flex-col">
-                      <span className="font-medium">{labelText}</span>
-                      <span className="font-medium">{item.address}</span>
-                      <span className="font-mono">{numericValue}%</span>
-                    </div>
-                  );
-                }}
+                formatter={formatter}
               />}
             />
             <Pie
