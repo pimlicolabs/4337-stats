@@ -414,6 +414,7 @@ export const PAYMASTERS: RegistryEntityType[] = [
   { name: "Thirdweb", dbName: "thirdweb", color: "#A60BB1" },
   { name: "UxLink", dbName: "uxlink", color: "#19D16F" },
   { name: "Unknown", dbName: "unknown", color: "#94a3b8" },
+  { name: "Wifimap", dbName: "wifimap", color: "#F48D1E" },
 ];
 
 export const BUNDLERS: RegistryEntityType[] = [
@@ -486,6 +487,11 @@ export const BUNDLERS: RegistryEntityType[] = [
     name: "Zerodev",
     dbName: "zerodev",
     color: "#2495F7",
+  },
+  {
+    name: "Wifimap",
+    dbName: "wifimap",
+    color: "#F48D1E",
   },
 ];
 
