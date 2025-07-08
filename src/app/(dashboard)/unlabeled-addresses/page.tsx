@@ -19,6 +19,9 @@ import {
 import { PieChart } from "@/components/charts/pieChart";
 import { subMonths } from "date-fns";
 import React, { Suspense, useState } from "react";
+import FilterBar from "@/components/filter-bar";
+import { CHAINS } from "@/lib/registry";
+import { useQueryState } from "nuqs";
 
 const endDate = new Date();
 const startDate = subMonths(endDate, 1);
@@ -106,11 +109,31 @@ function UnlabeledAddressesContent() {
   const startDateParam = startDate.toISOString();
   const endDateParam = endDate.toISOString();
 
+  // Chain filter state management
+  const startChains = CHAINS.filter((c) => !c.isTestnet).map((c) => c.chainId); // only mainnets by default
+
+  const [selectedChains, setSelectedChains] = useQueryState("chains", {
+    defaultValue: startChains,
+    parse: (value) => {
+      if (!value) return startChains;
+      try {
+        return value
+          .split(",")
+          .map(Number)
+          .filter((n) => !isNaN(n));
+      } catch {
+        return startChains;
+      }
+    },
+    serialize: (value) => value.join(","),
+  });
+
   // Query for unlabeled addresses with refetchOnWindowFocus disabled to prevent data reset
   const unlabeledBundlers = api.unlabeledAddresses.getUnlabeledBundlers.useQuery(
     {
       startDate: new Date(startDateParam),
-      endDate: new Date(endDateParam)
+      endDate: new Date(endDateParam),
+      chainIds: selectedChains,
     },
     {
       retry: 1,
@@ -123,7 +146,8 @@ function UnlabeledAddressesContent() {
   const unlabeledPaymasters = api.unlabeledAddresses.getUnlabeledPaymasters.useQuery(
     {
       startDate: new Date(startDateParam),
-      endDate: new Date(endDateParam)
+      endDate: new Date(endDateParam),
+      chainIds: selectedChains,
     },
     {
       retry: 1,
@@ -136,7 +160,8 @@ function UnlabeledAddressesContent() {
   const unlabeledApps = api.unlabeledAddresses.getUnlabeledApps.useQuery(
     {
       startDate: new Date(startDateParam),
-      endDate: new Date(endDateParam)
+      endDate: new Date(endDateParam),
+      chainIds: selectedChains,
     },
     {
       retry: 1,
@@ -149,7 +174,8 @@ function UnlabeledAddressesContent() {
   const unlabeledFactories = api.unlabeledAddresses.getUnlabeledFactories.useQuery(
     {
       startDate: new Date(startDateParam),
-      endDate: new Date(endDateParam)
+      endDate: new Date(endDateParam),
+      chainIds: selectedChains,
     },
     {
       retry: 1,
@@ -246,6 +272,10 @@ function UnlabeledAddressesContent() {
   return (
     <div className="mx-auto max-w-7xl space-y-8 p-8">
       <h1 className="text-3xl font-bold">Unlabeled Addresses</h1>
+      <FilterBar
+        selectedChains={selectedChains}
+        setSelectedChains={setSelectedChains}
+      />
       
       <div className="prose max-w-none">
         <p>
