@@ -487,6 +487,11 @@ export const BUNDLERS: RegistryEntityType[] = [
     dbName: "zerodev",
     color: "#2495F7",
   },
+  {
+    name: "JustaLabs",
+    dbName: "justalabs",
+    color: "#111",
+  },
 ];
 
 export const BUNDLER_CHART_CONFIG = BUNDLERS.reduce(
