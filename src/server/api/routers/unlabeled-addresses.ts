@@ -62,11 +62,13 @@ const getEntityData = (entityType: string): EntityRecord[] => {
 
 
 export const unlabeledAddressesRouter = createTRPCRouter({
+  // Added chainIds to input for chain filtering
   getUnlabeledFactories: publicProcedure
     .input(
       z.object({
         startDate: z.date(),
         endDate: z.date(),
+        chainIds: z.array(z.number()),
       }),
     )
     .query(async ({ ctx, input }) => {
@@ -96,6 +98,7 @@ export const unlabeledAddressesRouter = createTRPCRouter({
         WHERE
             dsf.day >= ${input.startDate.toISOString()}
             AND dsf.day <= ${input.endDate.toISOString()}
+            AND dsf."chainId" IN (${sql.join(input.chainIds, sql`, `)})
             AND fn.address IS NULL
             AND dsf.factory != '0x0000000000000000000000000000000000000000'
         GROUP BY
@@ -111,11 +114,13 @@ export const unlabeledAddressesRouter = createTRPCRouter({
         count: Number(row.count),
       }));
     }),
+  // Added chainIds to input for chain filtering
   getUnlabeledBundlers: publicProcedure
     .input(
       z.object({
         startDate: z.date(),
         endDate: z.date(),
+        chainIds: z.array(z.number()),
       }),
     )
     .query(async ({ ctx, input }) => {
@@ -143,6 +148,7 @@ export const unlabeledAddressesRouter = createTRPCRouter({
         WHERE
             dsb.day >= ${input.startDate.toISOString()}
             AND dsb.day <= ${input.endDate.toISOString()}
+            AND dsb."chainId" IN (${sql.join(input.chainIds, sql`, `)})
             AND bn.address IS NULL
         GROUP BY
             dsb.bundler
@@ -157,11 +163,13 @@ export const unlabeledAddressesRouter = createTRPCRouter({
       }));
     }),
   
+  // Added chainIds to input for chain filtering
   getUnlabeledPaymasters: publicProcedure
     .input(
       z.object({
         startDate: z.date(),
         endDate: z.date(),
+        chainIds: z.array(z.number()),
       }),
     )
     .query(async ({ ctx, input }) => {
@@ -189,6 +197,7 @@ export const unlabeledAddressesRouter = createTRPCRouter({
         WHERE
             dsp.day >= ${input.startDate.toISOString()}
             AND dsp.day <= ${input.endDate.toISOString()}
+            AND dsp."chainId" IN (${sql.join(input.chainIds, sql`, `)})
             AND pn.address IS NULL
             AND dsp.paymaster != '0x0000000000000000000000000000000000000000'
         GROUP BY
@@ -203,11 +212,13 @@ export const unlabeledAddressesRouter = createTRPCRouter({
         count: Number(row.count),
       }));
     }),
+  // Added chainIds to input for chain filtering
   getUnlabeledApps: publicProcedure
     .input(
       z.object({
         startDate: z.date(),
         endDate: z.date(),
+        chainIds: z.array(z.number()),
       }),
     )
     .query(async ({ ctx, input }) => {
@@ -239,6 +250,7 @@ export const unlabeledAddressesRouter = createTRPCRouter({
         WHERE
             dsa.day >= ${input.startDate.toISOString()}
             AND dsa.day <= ${input.endDate.toISOString()}
+            AND dsa."chainId" IN (${sql.join(input.chainIds, sql`, `)})
             AND an.address IS NULL
             AND dsa.app != '0x0000000000000000000000000000000000000000'
         GROUP BY
